@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Vianney Content Blocker",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Hides YouTube content you decided against, using rules you write in plain text. Everything runs on your machine.",
   "minimum_chrome_version": "138",
   "icons": {

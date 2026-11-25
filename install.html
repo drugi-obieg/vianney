@@ -11,12 +11,13 @@ description: How to install the Vianney Content Blocker test build in Chrome, Ed
 <p class="note">SHA-256 of the zip: <code>{{ site.data.release.sha256 }}</code><br>To check it on a Mac or Linux machine, run <code>shasum -a 256 {{ site.data.release.latest }}</code> in the folder you downloaded it to.</p>
 
 <h2>Steps</h2>
+<p>First, open <code>chrome://extensions</code> (Brave: <code>brave://extensions</code>, Edge: <code>edge://extensions</code>) and switch on <strong>Developer mode</strong>. Then use either way:</p>
 <ol>
-  <li>Unzip the download. You get one folder, <code>{{ site.data.release.folder }}</code>. Keep it where it is: the browser loads the extension from that folder, so moving or deleting it removes the extension.</li>
-  <li>Open <code>chrome://extensions</code> (Brave: <code>brave://extensions</code>, Edge: <code>edge://extensions</code>) and switch on <strong>Developer mode</strong>.</li>
-  <li>Click <strong>Load unpacked</strong> and choose the unzipped folder, the one that contains <code>manifest.json</code>.</li>
-  <li>The settings page opens by itself. Pin the extension from the puzzle-piece menu if you want its icon in the toolbar.</li>
+  <li><strong>Drop the zip onto that page.</strong> Chrome unpacks it and loads the extension. The files are at the top level of the zip, which is what Chrome's zip installer needs.</li>
+  <li><strong>Or unzip it yourself and load the folder.</strong> Unzip the download into a folder of its own (a double click on a Mac or <em>Extract All</em> on Windows makes one; on Linux use <code>unzip -d vianney {{ site.data.release.latest }}</code>). Click <strong>Load unpacked</strong> and choose that folder, the one that contains <code>manifest.json</code>. Keep the folder where it is: the browser loads the extension from it, so moving or deleting it removes the extension.</li>
 </ol>
+<p>The settings page opens by itself. Pin the extension from the puzzle-piece menu if you want its icon in the toolbar.</p>
+<p class="note">If Chrome answers <em>Could not unzip extension for install</em>, you have the zip of version 0.2.0, which had an extra folder around the files and could not be dropped onto the page. Download the current zip, or unzip the old one and use <strong>Load unpacked</strong> on the folder inside it.</p>
 
 <h2>First things to try</h2>
 <ul>

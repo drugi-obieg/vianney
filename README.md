@@ -12,7 +12,7 @@ A browser extension, mainly for YouTube, that hides content you decided against.
 
 The short way: download the zip from the [install page](https://vianney.cc/install.html) and follow the steps there. From a clone of the repository:
 
-1. Open `chrome://extensions`, switch on **Developer mode**, click **Load unpacked** and choose the `extension/` folder of this repository (or unzip `npm run pack`'s output and choose that folder).
+1. Open `chrome://extensions`, switch on **Developer mode**, click **Load unpacked** and choose the `extension/` folder of this repository (or unzip the zip that `npm run pack` writes into a folder of its own and choose that folder; the files are at the top level of the zip, so Chrome also accepts the zip dropped onto the extensions page).
 2. The settings page opens. Each rule has a slider (how confident it must be before it flags), and there is a test box where you can paste a title or some subtitles.
 3. Browse YouTube. Cards that match a rule are hidden, the toolbar badge shows how many, and the **Log** section of the settings page says why. On a video page the subtitles are checked: a flagged word is muted, and flagged words in the visible captions are masked.
 4. The break reminder: set a short time in the settings (for example 1 minute), play a video for that long, and a card that looks like a recommendation appears in the list.
