@@ -1,0 +1,47 @@
+# coarse_words: "paroles grossieres" (Sur le deuxieme Commandement). DRAFT word list.
+# Format: weight | entry. Tiers are placeholders until calibrated on a labelled set:
+#   0.95 unambiguous in any context   0.75 usually a violation   0.50 needs context   0.15 bare ambiguous word
+# Slurs and insults aimed at groups are NOT listed here; add them to your own copy of this file if you want them.
+
+# YouTube shows a bleeped word in auto-captions as [ __ ]
+0.95 | <censored>
+
+# the f-word family, including compounds and masked spellings
+0.95 | /\b\w*fuck\w*\b/
+0.90 | /\bf[*#@$]+\w*/
+0.90 | /\bf\*+k\w*/
+
+0.95 | cunt*
+0.90 | /\b\w*shit\w*\b/
+0.90 | /\bsh[*#@$]+t\w*/
+0.90 | /\b\w*(?:asshole|dumbass|jackass|asswipe|asshat)\w*\b/
+0.75 | bitch*
+0.75 | whore*
+0.75 | slut*
+0.75 | twat*
+0.75 | wanker*
+0.75 | bollocks
+0.90 | piece of shit
+0.90 | son of a bitch
+0.75 | /\bbull\s?shit\b/
+
+0.50 | bastard*
+0.50 | crap
+0.50 | crappy
+0.50 | piss
+0.50 | pissed
+0.50 | pissing
+0.50 | douche*
+0.50 | arse*
+0.50 | dick
+0.50 | dickhead*
+0.50 | prick
+0.50 | what the hell
+0.50 | damn
+0.50 | damned
+
+# ambiguous bare words: flag only at the most lenient setting
+0.15 | ass
+0.15 | hell
+0.15 | cock
+0.15 | pussy

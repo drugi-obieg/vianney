@@ -1,0 +1,48 @@
+# Vianney rules, English. INTERIM: the four rules built on the word lists written by the project.
+# The questions and word lists are drafts for the rule author to correct. Weights are placeholders.
+pack: vianney-en
+version: 1
+language: en
+note: Drafts by the project. Categories come from the Cure d'Ars (Sur le deuxieme Commandement). Correct the questions and word lists to match what you want filtered.
+
+rule lords_name
+  title: Taking the Lord's name in vain
+  source: Sur le deuxieme Commandement
+  where: feed-card, watch-meta, subtitles
+  lexicon: lords_name_strong, lords_name_bare
+  ask noul: Is the name of God, Jesus or Christ used here as an exclamation, an oath or a curse, and not in prayer, quotation or discussion?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=hide, watch-meta=warn-overlay, subtitles=mute-word
+  enabled: true
+
+rule blasphemy
+  title: Blasphemy
+  source: Sur le deuxieme Commandement
+  where: feed-card, watch-meta, subtitles
+  lexicon: blasphemy_terms
+  ask noul: Does this text mock, insult or curse God, Jesus, Mary, the saints or the Church, as opposed to merely discussing or reporting such speech?
+  gate: lexicon
+  flag at: 0.75
+  action: feed-card=hide, watch-meta=warn-overlay, subtitles=mute-word
+  enabled: true
+
+rule curses
+  title: Curses and imprecations
+  source: Sur le deuxieme Commandement
+  where: feed-card, watch-meta, subtitles
+  lexicon: curses_imprecations
+  ask noul: Is this a curse or imprecation, such as wishing damnation or harm on someone, or calling a penalty on oneself, and not a quotation or a description of one?
+  gate: lexicon
+  flag at: 0.70
+  action: feed-card=hide, watch-meta=warn-overlay, subtitles=mute-word
+  enabled: true
+
+rule coarse_words
+  title: Coarse words
+  source: Sur le deuxieme Commandement
+  where: feed-card, watch-meta, subtitles
+  lexicon: coarse_words
+  flag at: 0.70
+  action: feed-card=hide, watch-meta=warn-overlay, subtitles=mute-word
+  enabled: true

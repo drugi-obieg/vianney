@@ -1,6 +1,6 @@
 # The plan
 
-Status: working draft, 2026-11-25. No extension code exists yet.
+Status: working draft, 2026-11-25. Version 0.1 of the extension is built (see section 10 and the README); the plan below is still the reference.
 
 How to read the tags. **[verified]** means read on the source page or measured in an experiment during this research (sources are listed at the end). **[unverified]** means a secondary source, or not yet tested. **[choice]** means a design decision that can be changed.
 
@@ -382,6 +382,17 @@ rule lords_name
 
 ## 10. Milestones
 
+- **Built so far (version 0.1, 2026-11-25)**
+  - The rule text format with a parser, word lists with weights, the cascade engine (lexicon first, a model only inside the uncertain band), per-rule sensitivity and an event log. 54 unit tests pass.
+  - The feed filter with structure-based card discovery (hide, blank, dim, label), re-evaluated at once when a slider moves.
+  - The video page: a check of title, description and keywords with a warning overlay; capture of the player's own caption request; mute, skip and masking of visible captions.
+  - The break reminder: a card in the list (or a banner when there is no list), with watch-time counting across tabs.
+  - A settings page with a slider or dropdown per rule, the rule text editor, break and subtitle settings, an AI panel, the log and a test box.
+  - The Prompt API backend, written to the documentation and tested only against a fake of the API.
+  - End-to-end checks in a real Chrome 158 with the extension loaded (`Extensions.loadUnpacked`), on real YouTube pages: 33 checks pass. They cover finding cards, hiding, the slider moving the outcome in both directions without a reload, the break card appearing and being snoozed, planned muting following the playhead, caption masking, and the settings page.
+  - The Prompt API object exists in an extension page and in the extension service worker of Chrome 158, and both answered `availability()`. Sessions were not created.
+- **Not verified yet:** captions from a real signed session (the anonymous headless test got an empty body from YouTube, even for the player's own request), the Prompt API with a real model, and Firefox.
+- **Not built yet:** a local decision model, translation, the offline fit and the measured presets, the "would change" preview on real data, caption prefetch, thumbnails, the Shorts interstitial.
 - **M0, spikes (before real code)**
   1. Prompt API and Translator on a low-end laptop (8 GB): `availability()` inside an offscreen document, a side panel and the service worker of a throwaway extension; `create({topK: 1, temperature: 0})`; boolean, `enum` and RegExp constraints; identical answers on repeated runs; 50 to 100 offensive and quoted subtitle lines with the answers and exception names logged (and `chrome://on-device-internals` open); 100 timed classification calls; one 50-chunk translation run; memory with and without a live session.
   2. Local decision models in the browser (Kev-0.6B through open-jev, Laya English, an NLI baseline): size, latency and memory on a low-end laptop, with and without WebGPU, and accuracy on a first labelled set.

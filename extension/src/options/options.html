@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vianney Content Blocker: settings</title>
+<link rel="stylesheet" href="options.css">
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>Vianney Content Blocker</h1>
+    <p class="lede">Rules you write, applied on your machine. Nothing leaves your browser.</p>
+  </div>
+  <label class="switch"><input type="checkbox" id="enabled"> <span>On</span></label>
+</header>
+
+<nav class="tabs" aria-label="Sections">
+  <a href="#rules">Rules</a>
+  <a href="#break">Break reminder</a>
+  <a href="#subtitles">Subtitles</a>
+  <a href="#ai">On-device AI</a>
+  <a href="#log">Log</a>
+  <a href="#test">Test box</a>
+</nav>
+
+<main>
+  <section id="rules">
+    <h2>Rules</h2>
+    <p class="note">Each rule says how confident it must be before it flags. Move the slider if a rule flags too much or too little. The percentages are placeholders: no labelled data has calibrated them yet.</p>
+    <div id="problems" class="problems" hidden></div>
+    <div id="rule-list"></div>
+    <details class="editor">
+      <summary>Edit the rule text</summary>
+      <p class="note">Rules are plain text. Questions and word lists are drafts; correct them to match what you want filtered.</p>
+      <textarea id="rules-text" spellcheck="false" rows="22"></textarea>
+      <div class="row">
+        <button id="rules-validate">Check</button>
+        <button id="rules-save" class="primary">Save rules</button>
+        <button id="rules-reset">Back to the shipped rules</button>
+      </div>
+      <div id="rules-messages" class="messages" aria-live="polite"></div>
+    </details>
+    <div id="lexicons" class="note"></div>
+  </section>
+
+  <section id="break">
+    <h2>Break reminder</h2>
+    <p class="note">After you have watched for a while, a card that looks like a recommendation tells you to take a break. Only time a video is actually playing counts, summed over all YouTube tabs, and it never leaves this machine.</p>
+    <div class="grid">
+      <label class="check"><input type="checkbox" id="brk-enabled"> Remind me</label>
+      <label>After <input type="number" id="brk-after" min="1" step="1"> minutes of watching</label>
+      <label>"Remind me later" waits <input type="number" id="brk-snooze" min="1" step="1"> minutes</label>
+      <label>Count by <select id="brk-period"><option value="session">session (a long pause starts a new one)</option><option value="day">calendar day</option></select></label>
+      <label>A session ends after a pause of <input type="number" id="brk-gap" min="1" step="1"> minutes</label>
+      <label class="check"><input type="checkbox" id="brk-card"> Show the card in lists</label>
+      <label class="check"><input type="checkbox" id="brk-banner"> Show a banner when no list is on the page</label>
+      <label class="wide">Message <input type="text" id="brk-message" placeholder="This is a good moment to take a break."></label>
+    </div>
+    <p id="brk-status" class="note"></p>
+    <div class="row"><button id="brk-test">Show a test reminder now</button><button id="brk-reset">Reset watch time</button></div>
+  </section>
+
+  <section id="subtitles">
+    <h2>Subtitles</h2>
+    <div class="grid">
+      <label class="check"><input type="checkbox" id="sub-feed"> Filter feed cards (title, channel)</label>
+      <label class="check"><input type="checkbox" id="sub-meta"> Check the video page (title, description, keywords)</label>
+      <label class="check"><input type="checkbox" id="sub-subs"> Check the subtitles while watching</label>
+      <label class="check"><input type="checkbox" id="sub-auto"> Turn captions on so the subtitles can be read</label>
+      <label class="check"><input type="checkbox" id="sub-mask"> Mask flagged words in the visible captions</label>
+      <label>Mute starts <input type="number" id="sub-pre" min="0" max="1" step="0.01"> s early</label>
+      <label>and ends <input type="number" id="sub-post" min="0" max="1" step="0.01"> s late</label>
+    </div>
+    <p class="note">Subtitles come from YouTube's own player request, so they are only available once captions are on and the player has loaded them.</p>
+    <p id="sub-diag" class="note"></p>
+  </section>
+
+  <section id="ai">
+    <h2>On-device AI</h2>
+    <p class="note">Optional. Chrome's built-in model can answer a rule's question when a word list alone cannot decide. Without it, the rules still work from their word lists.</p>
+    <p id="ai-status"></p>
+    <div class="row"><button id="ai-download" hidden>Download and enable the on-device model</button><label class="check"><input type="checkbox" id="ai-enabled"> Use it when available</label></div>
+    <progress id="ai-progress" max="1" value="0" hidden></progress>
+    <p class="note">Chrome asks for about 22 GB of free disk space for the model and removes it again when free space falls below 10 GB.</p>
+  </section>
+
+  <section id="log">
+    <h2>Log</h2>
+    <div class="row">
+      <label class="check"><input type="checkbox" id="log-flagged"> Only items that were flagged</label>
+      <button id="log-export">Export as JSON</button>
+      <button id="log-clear">Clear</button>
+    </div>
+    <ol id="log-list" class="log"></ol>
+  </section>
+
+  <section id="test">
+    <h2>Test box</h2>
+    <p class="note">Paste a title, a description or a few lines of subtitles and see which rules react, with their confidence.</p>
+    <div class="row"><select id="test-surface"><option value="feed-card">Feed card (title)</option><option value="watch-meta">Video page (title and description)</option><option value="subtitles">Subtitles</option></select></div>
+    <textarea id="test-text" rows="5" placeholder="Paste text here"></textarea>
+    <div class="row"><button id="test-run" class="primary">Evaluate</button></div>
+    <div id="test-result" class="result"></div>
+  </section>
+</main>
+<script type="module" src="options.js"></script>
+</body>
+</html>

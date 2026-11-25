@@ -1,0 +1,11 @@
+{
+  "name": "vianney-content-blocker",
+  "private": true,
+  "type": "module",
+  "description": "Vianney Content Blocker: tests and tools. The extension itself is plain JavaScript in extension/ and needs no build step.",
+  "scripts": {
+    "test": "node --test tests/",
+    "pack": "node tools/pack.mjs"
+  },
+  "license": "MIT"
+}

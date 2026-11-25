@@ -11,6 +11,13 @@ exclude:
   - README.md
   - research
   - .gitignore
+  - extension
+  - tests
+  - tools
+  - package.json
+  - dist
+  - e2e-shots
+  - node_modules
 defaults:
   - scope:
       path: ""

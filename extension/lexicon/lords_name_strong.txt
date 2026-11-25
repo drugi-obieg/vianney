@@ -1,0 +1,41 @@
+# lords_name_strong: forms in which the name of God, Jesus or Christ is used as an exclamation or an oath.
+# Source category: Sur le deuxieme Commandement ("profaner son saint nom"; "jurer: prendre le bon Dieu a temoin").
+# DRAFT. Tiers are placeholders until calibrated: 0.95 / 0.75 / 0.50 / 0.15.
+
+0.95 | omg
+0.95 | oh my god
+0.95 | oh my christ
+0.95 | jesus h christ
+0.95 | holy christ
+0.95 | christ almighty
+0.95 | for christ's sake
+0.95 | for christ sake
+0.95 | for god's sake
+0.95 | for god sake
+0.95 | goddamn*
+0.95 | goddam
+0.95 | god damn
+0.95 | god dammit
+
+0.75 | jesus christ
+0.75 | oh jesus
+0.75 | oh god
+0.75 | my god
+0.75 | good god
+0.75 | oh my lord
+0.75 | sweet jesus
+0.75 | holy jesus
+0.75 | jesus mary and joseph
+0.75 | for the love of god
+0.75 | swear to god
+0.75 | swear to jesus
+0.75 | i swear on my
+0.75 | as god is my witness
+
+0.50 | dear god
+0.50 | god almighty
+0.50 | oh lord
+0.50 | good lord
+0.50 | thank god
+0.50 | so help me god
+0.50 | god help me

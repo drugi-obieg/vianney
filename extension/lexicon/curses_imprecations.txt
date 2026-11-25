@@ -1,0 +1,25 @@
+# curses_imprecations: the Curé's "imprecations" and "maledictions" (Sur le deuxieme Commandement).
+# His example of an imprecation: "Si j'ai fait cela, je ne veux jamais voir la face de Dieu !"
+# DRAFT. Tiers are placeholders until calibrated: 0.95 / 0.75 / 0.50 / 0.15.
+
+# imprecation: calling a penalty on oneself if something is untrue
+0.75 | may i never see god
+0.75 | may god strike me
+0.75 | god strike me
+0.75 | strike me dead
+0.50 | i hope i die
+0.50 | cross my heart and hope to die
+
+# malediction: wishing harm or damnation on someone
+0.75 | damn you
+0.75 | go to hell
+0.75 | burn in hell
+0.75 | rot in hell
+0.75 | hell with you
+0.75 | screw you
+0.75 | curse you
+0.75 | may you rot
+0.50 | to hell with
+0.50 | drop dead
+0.50 | i hope you die
+0.50 | go to the devil

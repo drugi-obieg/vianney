@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Vianney Content Blocker",
+  "version": "0.1.0",
+  "description": "Hides YouTube content you decided against, using rules you write in plain text. Everything runs on your machine.",
+  "minimum_chrome_version": "138",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Vianney Content Blocker",
+    "default_popup": "src/popup/popup.html"
+  },
+  "options_page": "src/options/options.html",
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["src/content/hook-main.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["src/content/loader.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["src/core/*.js", "src/content/*.js", "src/shared/*.js", "rules/*", "lexicon/*"],
+      "matches": ["https://www.youtube.com/*"]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# lords_name_bare: the bare names. They are everywhere in reverent speech, so a hit alone proves nothing.
+# Weight 0.15 means: flag only at the most lenient setting. These entries exist so that a model can be
+# asked about the surrounding words when the user lowers the sensitivity of the rule.
+0.15 | jesus
+0.15 | christ
+0.15 | god
+0.15 | lord

@@ -1,0 +1,21 @@
+# blasphemy_terms: speech against God, His justice, or holy things.
+# The Curé's own example of a blasphemy (not an oath): "Le bon Dieu n'est pas juste de me faire souffrir ou perdre cela."
+# DRAFT. Most of these are cues that need a context question: weight 0.50 or below unless unambiguous.
+
+0.75 | i hate god
+0.75 | god is a liar
+0.75 | god is evil
+0.75 | god is an idiot
+0.50 | god is not just
+0.50 | god is unjust
+0.50 | god is unfair
+0.50 | god hates me
+0.50 | god is cruel
+0.50 | god is dead
+0.50 | there is no god
+0.50 | god does not exist
+0.50 | god doesn't exist
+0.50 | god doesnt exist
+0.50 | how could god let
+0.50 | why would god let
+0.50 | where was god

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vianney</title>
+<style>
+  :root { color-scheme: light dark; --accent: #7a1f2b; }
+  body { margin: 0; width: 280px; font: 14px/1.5 system-ui, sans-serif; padding: 14px 16px 16px; }
+  h1 { font: 600 16px Georgia, serif; margin: 0 0 8px; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 6px 0; }
+  .muted { opacity: .7; font-size: 13px; }
+  button { font: inherit; font-weight: 600; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; width: 100%; margin-top: 10px; }
+  #due { color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+  <h1>Vianney Content Blocker</h1>
+  <label class="row"><span>Filtering is on</span><input type="checkbox" id="enabled"></label>
+  <div class="row muted"><span>Flagged today</span><span id="flagged">0</span></div>
+  <div class="row muted"><span>Watch time counted</span><span id="watch">-</span></div>
+  <div id="due" hidden>A break is due.</div>
+  <button id="open">Settings</button>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
