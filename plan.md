@@ -1,4 +1,4 @@
-# Vianney Content Blocker: plan
+# The plan
 
 Status: working draft, 2026-11-25. No extension code exists yet.
 
@@ -29,7 +29,7 @@ How to read the tags. **[verified]** means read on the source page or measured i
 - **Non-English text:** detect the language and translate titles and subtitles to English with Chrome's on-device Translator API before classifying (section 4.4).
 - **Deterministic filter** (channel lists, keyword lists, regexes) in front of every model.
 - **No continuous learning.** Thresholds and rules are edited by hand.
-- **Distribution:** the project's own website first. A store listing is optional and later.
+- **Distribution:** the project's own website first (a zip for "Load unpacked"; a signed add-on for Firefox), with the model downloaded on first run (section 3.9). A store listing is optional and later.
 - **Combine approaches** for accuracy (section 4.2).
 - **Extras:** an attention-calming module for Shorts, thumbnails and clickbait titles (section 4.5), and page-structure discovery that survives YouTube layout changes (section 4.3).
 
@@ -83,12 +83,18 @@ How to read the tags. **[verified]** means read on the source page or measured i
 
 ### 3.2 Cactus and Needle
 
-- **What it is** **[verified from the README and a Cactus blog post]**
-  - Python package `cactus-compute`. **Needle 3** is a 29 MB model for tool calling, structured extraction and text embedding, with a ladder of subnetworks from 2 to 20 layers (25M to 121M parameters). **Whistle** is speech-to-text with word timestamps. **Mirage** describes images.
-  - There is a `wasm` platform folder with `cactus.js` and `cactus.wasm` (engine under 1 MB). Apache-2.0.
-- **Fit for this project.** A yes/no judgment is a tool call with a boolean or enum argument, so a function-calling model is a close relative of a decision model. Needle is therefore a real candidate for a very small, fast first stage. The open questions are whether it can judge content zero-shot at all (unlikely at this size), whether it can be fine-tuned on a labelled set, and whether it exposes a confidence. The Cactus page says smaller depths lose accuracy on the general task and recover it when fine-tuned to one product's tools.
-
-- **Still being researched:** whether the engine exposes a confidence or token probabilities, how fine-tuning works, and how the WASM runtime behaves inside an extension. <!-- @@CACTUS@@ -->
+- **What it is** **[verified from the README, the Cactus docs and the Hugging Face repository]**
+  - Python package `cactus-compute`, Apache-2.0 for the engine and the Needle weights. **Needle 3** is a 121M-parameter model for tool calling, structured extraction and text embedding, in a ladder of subnetworks from 2 to 20 layers (25M to 121M parameters). The vendor quotes 29 MB for the 20-layer file. The file served on Hugging Face is 35.3 MB, and the training checkpoint is 242 MB. **Whistle** is speech-to-text with word timestamps, and **Mirage** describes images.
+  - **WASM runtime.** `cactus.wasm` is 1.27 MB and `cactus.js` is 62 KB. It is single-threaded, needs no `SharedArrayBuffer` or cross-origin isolation (confirmed on the vendor's live demo), and caps its heap at 2 GiB. The model bytes are copied into that heap. The script has no `eval`, so it should run in an MV3 offscreen document with `'wasm-unsafe-eval'`. The vendor demo imports the script from a Blob URL, which an extension's CSP would block, so the script has to be bundled. It has not been run inside a real extension yet.
+- **Fit for this project.** A yes/no judgment is a tool call with a boolean or enum argument, and the vendor documents classification as "extraction with an enum". Decoding is grammar-constrained, so the answer cannot leave its set. Needle is therefore a real candidate for a very small, fast first stage, but only after fine-tuning on our labelled set:
+  - Untuned, its published scores are modest: about 62 on tool-call suites and about 33 on extraction suites (read off the vendor's chart, plus or minus one point). No classification accuracy is published and no third-party evaluation exists.
+  - Fine-tuning is documented: LoRA through `cactus-compute[train]` (JAX), JSONL examples, and "a few hundred clean examples measurably improve which tool gets picked". The vendor's reported gains are for its own hosted fine-tunes, on its own task. Local training on a small machine is untested.
+- **No probabilities.** There are no logprobs. The `confidence` field is the minimum of a calibrated head and the decoding probability. It exists only for the base model and for hosted fine-tunes, and locally fine-tuned weights return none. The engine also withholds any call below 0.1, repairs arguments deterministically (a step designed for device control), and has "grounding gates" that can drop a required enum value the request never names. Any of these could corrupt a yes/no label, so they must be tested on real titles.
+- **Ways to get a threshold.** Use the hard label and measure precision and recall on the labelled set. Or take the `embed()` vector and fit our own logistic-regression head offline, which gives a real probability. Or vote across depths or prompt variants.
+- **Language.** The tokenizer has 8,192 pieces and is English-centric: non-English text costs about 1.7 times the tokens, and the vendor measured a calibrated score of 0.0 on correct Spanish calls. This fits the decision to translate to English first.
+- **Telemetry.** The Python package sends anonymous usage counts (opt out with `CACTUS_TELEMETRY=0`). The WASM glue contains no analytics code.
+- **Cheapest spike (half a day).** Load the engine in an offscreen document, run 100 labelled titles through the base model with one enum tool, and record the raw JSON, memory (`peak_ram_mb`), time per title and the suppressed or refused rate.
+- **Size.** A 35 MB model fits in any store package, so the distribution problem in section 3.9 does not apply to Needle.
 
 ### 3.3 Chrome built-in AI
 
@@ -165,15 +171,37 @@ The question was whether subtitles can be fetched when a video merely appears in
 
 ### 3.8 Brave and other built-in features
 
-The claim that Brave ships built-in blocking of Shorts and thumbnails and rewriting of video titles is being verified. This section is filled in the next revision. <!-- @@BRAVE@@ -->
+- **Shorts blocking: true, opt-in** **[verified from Brave's issue tracker, filter-list catalog and list sources]**
+  - Desktop: Settings > Shields > Content filtering > "YouTube Shorts blocker" (earlier called "YouTube Anti-Shorts"). Android: Settings > Media > "Block YouTube Shorts" (shipped in 1.66.x). iOS: three toggles in Settings > Media since 1.81.x. It is off by default, and the product owner wrote that blocking "should be user initiated".
+  - It is a cosmetic filter list: element hiding only, with no model and no AI. A direct `/shorts/` URL still opens and plays. The list was fixed at least 15 times between 2024-02 and 2026-09 because YouTube's selectors change, which supports the plan's choice not to rely on selectors alone.
+- **Thumbnail blocking: true, opt-in.** "YouTube thumbnail image blocker" on the same settings page. It is a cosmetic list taken from EasyList, and Brave announced it on 2026-03-27. It also stops hover previews.
+- **Title rewriting: not found.** None of the 62 entries in Brave's filter-list catalog rewrites text, and the desktop release notes from 1.67 to 1.100 mention no such feature. An open, unassigned request asks Brave to integrate extensions such as DeArrow. The claim could not be confirmed, and it is probably a mix-up with extensions: DeArrow (crowd-sourced titles and thumbnails) and Unbait (LLM rewrite).
+- **Other opt-in toggles** in the same catalog: Playables, autodubbed videos, end-video elements and members-only videos, and on mobile recommendations and distracting elements.
+- **Other browsers.** No built-in equivalent was found in Chrome, Edge, Firefox or Safari (one search, unverified).
+- **Implications.**
+  - The overlap holds for Shorts, thumbnails, recommendations and end cards. It does not hold for title rewriting, which is a real gap and a reason to build that part.
+  - Brave's features are list toggles and not an API, so the extension cannot reliably detect them. Hiding must be idempotent, so that double-hiding is harmless.
+  - EasyList's Shorts and no-thumbnails lists are a maintained selector source for the fallback path. Their licence was not checked.
 
 ### 3.9 Distribution
 
+- **A personal website (first target)** **[verified from the docs, except where marked]**
+  - Chrome on macOS and Windows: "Load unpacked" with Developer mode on at `chrome://extensions`, which is the route Google itself points developers to. The `--load-extension` flag was removed from Chrome-branded builds in Chrome 137 (it still works in Chromium and Chrome for Testing), so installation cannot be scripted and the user picks the folder.
+  - Self-hosted `.crx` files and policy installs: on Windows and macOS the docs say external installs must come from the Chrome Web Store, and force-install policies work only on managed devices. Linux still allows a local `.crx` through an external-extensions JSON file. Dragging a `.crx` onto the extensions page was not tested.
+  - Edge: "Load unpacked" at `edge://extensions` is documented. Brave: assumed to be the same, **[unverified]**.
+  - Firefox: sign the add-on through addons.mozilla.org as "unlisted" and host the signed file with the content type `application/x-xpinstall`. Release Firefox refuses unsigned add-ons. ESR, Developer Edition and Nightly allow turning the check off.
+  - Unpacked installs do not update themselves, so updates are manual.
+- **Size limits**
+  - Firefox: a 200 MB limit at signing was reported for the official page (search result only, **[unverified]**). A 340 to 520 MB model cannot be inside a signed Firefox package, so it has to be downloaded after install.
+  - Chrome Web Store: no official package-size figure was found. An informal 2023 answer in the Chromium extensions group says there is no fixed limit below 4 GB per uploaded file. **[unverified]**
 - **Chrome Web Store and model files** **[verified from the docs]**
   - Google's extensions-and-AI guidance says to download larger client-side models after the extension is installed, to manage the model's life cycle separately from the extension, and that "models are not considered remote hosted code".
-  - Remote hosted code, which the store forbids, is anything the browser executes that is loaded from outside the package, such as JavaScript and WASM. It does not include data such as JSON or CSS. So the runtime (scripts and the onnxruntime WASM files) must be bundled, while model weights are data.
-  - One reply in the Chromium extensions group, to a developer who planned to download ONNX weights on first use, said "It must be bundled with the extension." That is an informal answer from one person and it contradicts the guidance above, so the store question needs a direct check before a store listing is planned.
-- **A personal website** is the first distribution target (decision). The install routes for Chrome, Brave, Edge and Firefox are being researched. <!-- @@DIST@@ -->
+  - The store's MV3 policy text lets an extension "reference and load data and other information sources that are external to the extension, but these external resources must not contain any logic", and forbids building an interpreter for remotely fetched commands. A weights file loaded by a bundled runtime is data under that text, so a first-run download is plausible. A reviewer could still call an ONNX graph "logic", and no store text mentions ML models, so only a real submission settles it.
+  - Remote hosted code means anything the browser executes that is loaded from outside the package, such as JavaScript and WASM. So the runtime (scripts and the onnxruntime WASM files) must be bundled.
+  - One reply in the Chromium extensions group said "It must be bundled with the extension." That is an informal answer from one person and is stricter than the policy text.
+  - The "Unlisted" visibility (anyone with the link can install) exists, and goes through the same review as a public listing.
+- **Storing a downloaded model.** The `unlimitedStorage` permission lifts the quota for IndexedDB, Cache Storage and the Origin Private File System (without it `chrome.storage.local` holds 10 MB). Chromium lets an origin use up to 60% of the disk. Firefox's best-effort quota is the smaller of 10% of the disk or 10 GiB, and persistent storage can use up to 50%. Real free disk space is the practical limit.
+- **Recommended design.** A small extension that holds only the runtime and the code, plus a model downloaded on first run from the project's website, pinned by SHA-256 and stored in OPFS, with `unlimitedStorage`. This avoids size limits in both stores. Whether the Chrome Web Store accepts it should be tested with one unlisted submission before anything depends on it. The model version is pinned in a manifest with a checksum, so updates stay controlled.
 
 ---
 
@@ -235,7 +263,7 @@ The aim is accuracy without a bigger model: independent signals that fail in dif
 
 - **Features.** Hide Shorts shelves and the Shorts tab, hide or blur thumbnails, and rewrite attention-grabbing titles (strip ALL CAPS, emoji and stock clickbait phrases by rule, with an optional model rewrite).
 - **Why.** It costs little, many people do not know such features exist, and it reduces the pull of the feed even for items that pass the rules.
-- **Overlap.** Brave ships some of this natively (see above), so on Brave the module should detect the native feature and stay out of the way.
+- **Overlap.** Brave ships Shorts, thumbnail and recommendation blocking natively, as opt-in list toggles (section 3.8), but no title rewriting. The module therefore hides idempotently, and title rewriting is its real addition.
 
 ---
 
@@ -312,7 +340,7 @@ rule lords_name
   3. **A zero-shot NLI baseline** (DeBERTa-xsmall or ModernBERT-base). Small and cheap. It is a floor the others must beat and a possible pre-filter.
   4. **GLiNER2.5-Decide**, if a browser export appears. Best vendor-reported accuracy at its size.
 - **Fitting on the labelled set** (temperatures, thresholds, or a small head) is an offline, one-time step. The result is a frozen file that ships with the extension, so verdicts stay repeatable. This is not continuous learning, but it is training, so it needs explicit agreement. **[choice, open question 10]**
-- **Experiments, not tiers.** Needle (section 3.2) as a very small fine-tuned classifier, and Granite Guardian only as an optional power-user backend.
+- **Experiments, not tiers.** Needle (section 3.2) as a very small fine-tuned classifier, with its own logistic-regression head on `embed()` vectors if a probability is needed, and Granite Guardian only as an optional power-user backend.
 - **Selection rule.** A model is adopted only if, on the labelled set, it beats the NLI floor and the Prompt API at the chosen operating point of the rule, and fits the memory budget measured in spike 2.
 
 ---
@@ -334,8 +362,9 @@ rule lords_name
   2. Local decision models in the browser (Kev-0.6B through open-jev, Laya English, an NLI baseline): size, latency and memory on a low-end laptop, with and without WebGPU, and accuracy on a first labelled set.
   3. Captions: routes B and C on a normal logged-in profile, and whether word timing arrives.
   4. A selector-discovery health check against a live search page.
-  5. Needle: can it return a usable confidence, and how does a fine-tuned tiny model compare on the labelled set.
+  5. Needle, a half-day spike: the engine in an offscreen document, 100 labelled titles through the base model with one enum tool, the raw JSON, `peak_ram_mb`, time per title and the suppressed rate. Fine-tuning is considered only after that.
   6. Translator pairs (de, fr, es, it, pt, pl to en): availability per pair, size of the download, latency, and quality on a sample of titles. Whether Latin can be detected.
+  7. One unlisted Chrome Web Store submission whose extension downloads its model on first run, to see whether review accepts it.
 - **M1, feed filter.** JSON interception, ID-anchored DOM hiding, the deterministic stage, the Prompt API backend, the rule parser, an event log and a test box. Actions: hide, blank, refill.
 - **M2, watch page.** Caption capture through the player's own request, lexicon plus context, mute and skip, overlay.
 - **M3, second opinion.** The local decision model chosen in the spike, translation, the labelled set and calibration tooling.
@@ -352,7 +381,7 @@ rule lords_name
 - **Caption access.** PO-token enforcement may tighten further. The plan depends only on the player's own request.
 - **Terms of service.** Local page modification is common practice. Minting PO tokens or prefetching captions is a gray area and stays optional.
 - **Memory and disk.** Many users have 8 GB RAM. A 500 MB model plus the runtime must be measured on such a machine. The Prompt API needs 22 GB free disk.
-- **Distribution.** Browsers do not install extensions from arbitrary websites by default (see 3.9). Early users need developer-mode install.
+- **Distribution.** Chrome and Edge install an extension from a website only through developer-mode "Load unpacked", with no scripted install since Chrome 137. Firefox needs add-on signing and has a signing-size limit. Updates are manual. Early users need some patience (section 3.9).
 - **The Prompt API may not run.** It can be unavailable on small machines, can be removed by Chrome at any time, and may reject offensive input through its safety pipeline. Its extension-only sampling parameters are deprecated. The extension must work, with less accuracy, without it.
 - **Wrongly hiding good content** such as Scripture, sermons and sacred music is the failure that would cost the most trust, so false positives weigh more when choosing thresholds.
 
@@ -370,6 +399,7 @@ rule lords_name
 8. **PO-token routes.** Test them at all, given the terms-of-service question?
 9. **Sites beyond YouTube.** The adapter design allows it. When?
 10. **Offline fitting.** Is a one-time, offline fit of thresholds or a small head on the labelled set acceptable, given that nothing learns after release? Without it, Laya English is not usable.
+11. **Needle fine-tuning.** If Needle is tried, locally (JAX, untested on small machines) or through the vendor's hosted service (paid, hosted, calibrated head)? The plan assumes local only.
 
 ---
 
@@ -388,6 +418,30 @@ Decision models
 Cactus
 - [github.com/cactus-compute/cactus](https://github.com/cactus-compute/cactus)
 - [cactuscompute.com/blog/needle-supported-devices](https://cactuscompute.com/blog/needle-supported-devices)
+- [Needle product page and charts](https://cactuscompute.com/needle)
+- [Needle confidence](https://cactuscompute.com/blog/needle-confidence)
+- [Fine-tuning Needle](https://cactuscompute.com/blog/finetuning-needle)
+- [Structured extraction and enums](https://cactuscompute.com/blog/structured-extraction-with-needle)
+- [Needle Python docs](https://cactuscompute.com/blog/needle-python-docs)
+- [Needle 3 weights and config](https://huggingface.co/Cactus-Compute/needle3)
+
+Brave
+- [Filter-list catalog](https://raw.githubusercontent.com/brave/adblock-resources/master/filter_lists/list_catalog.json)
+- [Shorts list](https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/yt-shorts.txt)
+- [Android Shorts toggle](https://github.com/brave/brave-browser/issues/36465)
+- [iOS toggles](https://github.com/brave/brave-browser/issues/37966)
+- [Request to integrate extensions such as DeArrow](https://github.com/brave/brave-browser/issues/56658)
+- [EasyList thumbnail list](https://raw.githubusercontent.com/easylist/easylist/refs/heads/master/custom-lists/youtube-nothumbnails.txt)
+
+Distribution
+- [Chrome team notice on `--load-extension` and Load unpacked](https://groups.google.com/a/chromium.org/g/chromium-extensions/c/1-g8EFx2BBY/m/S0ET5wPjCAAJ)
+- [Installing extensions outside the store](https://developer.chrome.com/docs/extensions/how-to/distribute/install-extensions)
+- [Edge sideloading](https://learn.microsoft.com/en-us/microsoft-edge/extensions/getting-started/extension-sideloading)
+- [Firefox self-distribution](https://extensionworkshop.com/documentation/publish/self-distribution/)
+- [Chrome Web Store MV3 policy](https://developer.chrome.com/docs/webstore/program-policies/mv3-requirements)
+- [Chrome Web Store distribution options](https://developer.chrome.com/docs/webstore/cws-dashboard-distribution)
+- [`unlimitedStorage` and other permissions](https://developer.chrome.com/docs/extensions/reference/permissions-list)
+- [Storage quotas](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria)
 
 Small decision models
 - [Kev-0.8B card](https://huggingface.co/jaredpalmer/kev-0.8b)
