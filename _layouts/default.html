@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>{% if page.title and page.url != '/' %}{{ page.title | strip_html | escape }} · {% endif %}{{ site.title }}</title>
+<meta name="description" content="{{ page.description | default: site.description | escape }}">
+<link rel="stylesheet" href="{{ '/assets/site.css' | relative_url }}">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="{{ '/' | relative_url }}">
+      <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M10 2h4v7h7v4h-7v9h-4v-9H3V9h7z" fill="currentColor"/></svg>
+      <span>Vianney</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="{{ '/' | relative_url }}"{% if page.url == '/' %} aria-current="page"{% endif %}>Idea</a>
+      <a href="{{ '/sermons.html' | relative_url }}"{% if page.url == '/sermons.html' %} aria-current="page"{% endif %}>Sermons</a>
+      <a href="{{ '/plan.html' | relative_url }}"{% if page.url == '/plan.html' %} aria-current="page"{% endif %}>Plan</a>
+      <a href="https://github.com/drugi-obieg/vianney">Source</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="{% if page.url == '/' %}home{% else %}prose{% endif %}">
+{{ content }}
+</main>
+
+<footer class="site-footer{% if page.url == '/' %} wide{% endif %}">
+  <p>An independent, personal project. Not affiliated with or endorsed by YouTube or Google. The rules are the user's own; this tool does not speak for the Church.</p>
+  <p>Quotations are from the public-domain French edition of the Curé d'Ars's sermons. English renderings on these pages are working translations by the project, not an official text.</p>
+</footer>
+
+<script>
+(function () {
+  var main = document.querySelector('main.prose');
+  if (!main) return;
+  var heads = main.querySelectorAll('h2[id]');
+  if (heads.length < 3) return;
+  var first = main.querySelector('h1');
+  var box = document.createElement('details');
+  box.className = 'toc';
+  var sum = document.createElement('summary');
+  sum.textContent = 'On this page';
+  box.appendChild(sum);
+  var list = document.createElement('ol');
+  heads.forEach(function (h) {
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent.replace(/^\s*\d+\.\s*/, '');
+    li.appendChild(a);
+    list.appendChild(li);
+  });
+  box.appendChild(list);
+  if (first && first.nextSibling) first.parentNode.insertBefore(box, first.nextSibling);
+  else main.insertBefore(box, main.firstChild);
+})();
+</script>
+</body>
+</html>

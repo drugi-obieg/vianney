@@ -1,0 +1,182 @@
+:root {
+  --bg: #faf6ee;
+  --surface: #fffdf8;
+  --ink: #231f1a;
+  --muted: #6b6256;
+  --rule: #e5dcca;
+  --accent: #7a1f2b;
+  --accent-ink: #ffffff;
+  --accent-soft: #f4e6e3;
+  --gold: #b48a2c;
+  --code-bg: #f1ebdd;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16130e;
+    --surface: #1d1912;
+    --ink: #ece4d3;
+    --muted: #a69c8a;
+    --rule: #352f24;
+    --accent: #e3a0a5;
+    --accent-ink: #1a1210;
+    --accent-soft: #2b1d1e;
+    --gold: #c9a24a;
+    --code-bg: #211c14;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  line-height: 1.65;
+  padding-inline: max(1.25rem, env(safe-area-inset-left));
+}
+
+a { color: var(--accent); text-underline-offset: 0.18em; text-decoration-thickness: 0.06em; }
+a:hover { text-decoration-thickness: 0.12em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+.skip {
+  position: absolute; left: -999px; top: 0;
+  background: var(--accent); color: var(--accent-ink); padding: 0.5rem 0.9rem; z-index: 10;
+}
+.skip:focus { left: 0.5rem; top: 0.5rem; }
+
+/* ---------- header ---------- */
+.site-header { border-bottom: 1px solid var(--rule); margin-inline: calc(-1 * max(1.25rem, env(safe-area-inset-left))); padding-inline: max(1.25rem, env(safe-area-inset-left)); }
+.bar {
+  max-width: 62rem; margin-inline: auto;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 0.4rem 1.5rem; padding-block: 0.9rem;
+  font-family: var(--sans); font-size: 0.95rem;
+}
+.brand { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--ink); text-decoration: none; font-weight: 650; letter-spacing: 0.02em; }
+.brand svg { color: var(--accent); }
+.bar nav { display: flex; flex-wrap: wrap; gap: 0.2rem 1.25rem; }
+.bar nav a { color: var(--muted); text-decoration: none; padding-block: 0.2rem; border-bottom: 2px solid transparent; }
+.bar nav a:hover { color: var(--ink); }
+.bar nav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+/* ---------- containers ---------- */
+main { max-width: 46rem; margin-inline: auto; padding-block: 2.5rem 3.5rem; }
+main.home { max-width: 52rem; }
+
+.site-footer {
+  max-width: 46rem; margin-inline: auto; padding-block: 1.5rem 3rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans); font-size: 0.82rem; line-height: 1.55; color: var(--muted);
+}
+.site-footer.wide { max-width: 52rem; }
+.site-footer p { margin: 0 0 0.6rem; }
+
+/* ---------- prose (plan, sermons) ---------- */
+.prose h1 { font-size: clamp(1.9rem, 5.5vw, 2.7rem); line-height: 1.15; margin: 0 0 1rem; letter-spacing: -0.01em; }
+.prose h2 {
+  font-size: 1.5rem; line-height: 1.25; margin: 2.8rem 0 0.8rem; padding-top: 1.1rem;
+  border-top: 1px solid var(--rule); letter-spacing: -0.005em; scroll-margin-top: 1rem;
+}
+.prose hr + h2 { border-top: 0; padding-top: 0; margin-top: 1.2rem; }
+.prose h3 { font-size: 1.15rem; margin: 1.9rem 0 0.4rem; }
+.prose h4 { font-size: 1rem; margin: 1.4rem 0 0.3rem; font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.prose p { margin: 0.8rem 0; }
+.prose ul, .prose ol { padding-left: 1.3rem; margin: 0.6rem 0; }
+.prose li { margin: 0.3rem 0; }
+.prose li > ul, .prose li > ol { margin: 0.25rem 0; }
+.prose hr { border: 0; border-top: 1px solid var(--rule); margin: 2.4rem 0; }
+.prose strong { font-weight: 650; }
+.prose img { max-width: 100%; height: auto; }
+
+code, pre { font-family: var(--mono); font-size: 0.86em; }
+code { background: var(--code-bg); padding: 0.1em 0.35em; border-radius: 3px; overflow-wrap: anywhere; }
+pre {
+  background: var(--code-bg); padding: 0.9rem 1.1rem; border-radius: 6px;
+  overflow-x: auto; line-height: 1.5; border: 1px solid var(--rule);
+}
+pre code { background: none; padding: 0; overflow-wrap: normal; }
+
+.prose blockquote { margin: 1.2rem 0; padding: 0.1rem 1.1rem; border-left: 3px solid var(--gold); color: var(--ink); }
+
+.toc {
+  margin: 1.2rem 0 1.6rem; padding: 0.7rem 1rem; background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 6px; font-family: var(--sans); font-size: 0.93rem;
+}
+.toc summary { cursor: pointer; font-weight: 600; color: var(--muted); }
+.toc ol { margin: 0.6rem 0 0.2rem; padding-left: 1.3rem; columns: 2 14rem; column-gap: 2rem; }
+.toc li { margin: 0.2rem 0; break-inside: avoid; }
+
+/* ---------- quotation figure ---------- */
+figure.quote {
+  margin: 1.8rem 0; padding: 1.2rem 1.4rem 1rem; background: var(--surface);
+  border: 1px solid var(--rule); border-left: 4px solid var(--gold); border-radius: 4px;
+}
+figure.quote blockquote { margin: 0; padding: 0; border: 0; }
+figure.quote blockquote[lang="fr"] { font-size: 1.12rem; line-height: 1.6; font-style: italic; }
+figure.quote blockquote.tr {
+  margin-top: 0.9rem; padding-top: 0.8rem; border-top: 1px dashed var(--rule);
+  font-size: 1rem; color: var(--muted); font-style: normal;
+}
+figure.quote blockquote.tr::before {
+  content: "Working translation"; display: block; font-family: var(--sans); font-size: 0.7rem;
+  letter-spacing: 0.09em; text-transform: uppercase; margin-bottom: 0.25rem; color: var(--muted);
+}
+figure.quote figcaption {
+  margin-top: 0.85rem; font-family: var(--sans); font-size: 0.82rem; line-height: 1.5; color: var(--muted);
+}
+
+/* ---------- landing page ---------- */
+.home .hero { padding-block: 1.5rem 2.2rem; }
+.home .eyebrow {
+  display: inline-block; font-family: var(--sans); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); background: var(--accent-soft); padding: 0.28rem 0.7rem; border-radius: 999px; margin: 0 0 1.1rem;
+}
+.home h1 { font-size: clamp(2.3rem, 7vw, 3.7rem); line-height: 1.05; margin: 0 0 1.1rem; letter-spacing: -0.02em; }
+.home .lead { font-size: clamp(1.15rem, 2.6vw, 1.38rem); line-height: 1.55; color: var(--ink); max-width: 38rem; margin: 0; }
+.home h2 { font-size: 1.55rem; line-height: 1.25; margin: 3rem 0 0.6rem; letter-spacing: -0.005em; }
+.home p { margin: 0.7rem 0; }
+.home .cta { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1.6rem; font-family: var(--sans); }
+.btn {
+  display: inline-block; padding: 0.6rem 1.15rem; border-radius: 6px; font-size: 0.95rem; text-decoration: none;
+  border: 1px solid var(--accent); color: var(--accent); background: transparent;
+}
+.btn:hover { background: var(--accent-soft); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); background: var(--accent); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 1rem; margin: 1.3rem 0; padding: 0; list-style: none; }
+.cards li {
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 1.05rem 1.2rem 1.15rem; margin: 0;
+}
+.cards h3 { margin: 0 0 0.35rem; font-size: 1.08rem; }
+.cards p { margin: 0; font-size: 0.99rem; line-height: 1.55; color: var(--muted); }
+
+.status {
+  margin: 1.4rem 0; padding: 1rem 1.2rem; border: 1px solid var(--rule); border-left: 4px solid var(--accent);
+  background: var(--surface); border-radius: 4px;
+}
+.status h3 { margin: 0 0 0.4rem; font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--accent); }
+.status ul { margin: 0.3rem 0 0; padding-left: 1.2rem; }
+.status li { margin: 0.3rem 0; font-size: 1rem; }
+.home pre { font-size: 0.82rem; }
+
+@media (max-width: 30rem) {
+  body { font-size: 1.05rem; }
+  figure.quote { padding: 1rem 1rem 0.85rem; }
+}
+
+@media print {
+  .site-header, .toc, .skip { display: none; }
+  body { background: #fff; color: #000; }
+}
