@@ -1,0 +1,25 @@
+0.95 | there is no god
+0.95 | /\bthere'?s no god\b/
+0.95 | god does not exist
+0.95 | /\bgod doesn'?t exist\b/
+0.95 | /\bgod (is not|isn'?t) real\b/
+0.95 | god is a myth
+0.75 | god is dead
+0.75 | proof that god does not exist
+0.75 | disproving god
+0.75 | debunking god
+0.75 | debunking religion
+0.75 | /\breligion is (a )?(lie|scam|poison|delusion)\b/
+0.50 | atheis*
+0.50 | godless
+0.50 | nonbeliever*
+0.50 | non believer*
+0.50 | unbeliever*
+0.50 | the god delusion
+0.50 | there is no such thing as god
+0.50 | /\bno (such thing as )?god\b/
+0.15 | agnostic*
+0.15 | does god exist
+0.15 | is there a god
+0.15 | existence of god
+0.15 | debunk*

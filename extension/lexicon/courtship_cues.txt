@@ -1,0 +1,29 @@
+0.75 | dating show
+0.75 | love island
+0.75 | /\bpick[- ]?up (lines?|artist)\b/
+0.75 | situationship*
+0.75 | friends with benefits
+0.50 | dating app*
+0.50 | blind date*
+0.50 | first date*
+0.50 | speed dating
+0.50 | flirt*
+0.50 | hookup*
+0.50 | hook up
+0.50 | how to seduce
+0.50 | how to get a girl
+0.50 | how to get a guy
+0.50 | dating coach*
+0.50 | rizz
+0.50 | making out
+0.50 | make out
+0.50 | tinder
+0.50 | bachelorette
+0.50 | the bachelor
+0.15 | bumble
+0.15 | dating
+0.15 | boyfriend
+0.15 | girlfriend
+0.15 | crush
+0.15 | romance
+0.15 | relationship advice

@@ -1,0 +1,26 @@
+0.75 | revenge
+0.75 | take revenge
+0.75 | taking revenge
+0.75 | get revenge
+0.75 | getting revenge
+0.75 | petty revenge
+0.75 | sweet revenge
+0.75 | avenge*
+0.75 | vengeance
+0.75 | vengeful
+0.75 | vindictive
+0.75 | payback
+0.50 | get even
+0.50 | getting even
+0.50 | /\bget(ting)? back at\b/
+0.50 | settle the score
+0.50 | settling the score
+0.50 | /\bteach (him|her|them) a lesson\b/
+0.50 | /\bmake (him|her|them) (pay|regret)\b/
+0.50 | /\bmade (him|her|them) pay\b/
+0.50 | revenge prank*
+0.50 | revenge on my ex
+0.15 | grudge*
+0.15 | retaliat*
+0.15 | enemies
+0.15 | enemy

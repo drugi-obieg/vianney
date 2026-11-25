@@ -1,0 +1,29 @@
+0.75 | /\bwhat \w+ (really )?said about (me|you|us|her|him|them)\b/
+0.75 | said about you
+0.75 | said about me
+0.50 | talking about you
+0.50 | talking behind
+0.50 | /\bbehind (your|my|her|his|their) backs?\b/
+0.50 | leaked messages
+0.50 | leaked texts
+0.50 | leaked dms
+0.50 | leaked audio
+0.50 | leaked call
+0.50 | leaked chat
+0.50 | private messages
+0.50 | secretly recorded
+0.50 | recorded without
+0.50 | diss track
+0.50 | reacting to what
+0.50 | reaction to what
+0.15 | screenshots
+0.15 | text messages
+0.15 | call out
+0.15 | called out
+0.15 | callout
+0.15 | responds to
+0.15 | responding to
+0.15 | response to
+0.15 | dms
+0.15 | texts
+0.15 | exposed

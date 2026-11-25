@@ -1,0 +1,28 @@
+0.95 | mukbang
+0.75 | eating challenge*
+0.75 | food challenge*
+0.75 | eating contest*
+0.75 | /\bhot dog eating\b/
+0.75 | all you can eat
+0.75 | binge eating
+0.75 | cheat day
+0.50 | /\b\d{1,2},\d{3} calories?\b/
+0.50 | giant burger*
+0.50 | huge portion*
+0.50 | massive portion*
+0.50 | stuffed myself
+0.50 | stuff myself
+0.50 | pig out
+0.50 | pigging out
+0.50 | overeat*
+0.50 | extreme eating
+0.50 | eat everything
+0.50 | /\beat(ing)? (the )?(whole|entire)\b/
+0.50 | /\b(24|48) hours? (of )?eating\b/
+0.50 | buffet
+0.15 | challenge
+0.15 | feast
+0.15 | gorge*
+0.15 | binge
+0.15 | calories
+0.15 | portion*

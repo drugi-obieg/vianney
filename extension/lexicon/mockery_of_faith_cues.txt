@@ -1,0 +1,21 @@
+0.75 | /\b(mocking|mocks|mock|making fun of|make fun of|ridiculing|ridicule|trolling|roasting|roast|owning|destroying) (christians?|catholics?|believers|the pope|priests?|nuns?|pastors?|preachers?|the church|jesus|god|the bible|religion|religious people)\b/
+0.75 | /\breligion is (a )?(lie|scam|poison|cancer|nonsense|delusion|fairy ?tale|joke)\b/
+0.50 | sky daddy
+0.50 | sky fairy
+0.50 | invisible friend
+0.50 | imaginary friend in the sky
+0.50 | bible thumper*
+0.50 | holy roller*
+0.50 | jesus freak*
+0.50 | religious nut*
+0.50 | god botherer*
+0.50 | brainwashed
+0.50 | sheeple
+0.50 | fairy tale
+0.50 | fairytale
+0.50 | religious people are
+0.50 | cringe christians
+0.50 | /\b(priest|nun|pastor|preacher|pope|bible|jesus|christian|church) jokes?\b/
+0.15 | blasphemous
+0.15 | satire
+0.15 | parody

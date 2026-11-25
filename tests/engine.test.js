@@ -152,3 +152,149 @@ test('subtitles: the per-video model budget is respected', async () => {
   await engine({}, be).evaluateSubtitles(toks, { maxModelCalls: 3 });
   assert.equal(be.calls.length, 3);
 });
+
+test('subtitles: a skip-segment judged by the model covers the whole context window, a lexicon-only hit just the cue', async () => {
+  const { rules, errors } = parseRules(`
+rule gossip
+  where: subtitles
+  lexicon: cues
+  ask noul: Is this gossip about a named person?
+  flag at: 0.7
+  action: subtitles=skip-segment
+`);
+  assert.deepEqual(errors, []);
+  const lex = { cues: parseLexicon('0.5 | exposed\n0.95 | leaked', 'cues') };
+  const toks = timed('well everyone says he was exposed in the end really');
+  const yes = new FakeBackend({ p: 1 });
+  const e = new Engine({ rules, lexicons: lex, settings: {}, backend: yes });
+  const [d] = await e.evaluateSubtitles(toks, { context: 3 });
+  assert.equal(d.via, 'model');
+  assert.ok(d.start < toks.find((t) => t.t === 'exposed').start, 'the skip starts before the cue word');
+  assert.ok(d.end > toks.find((t) => t.t === 'exposed').end, 'and ends after it');
+  // a strong cue flags by the lexicon alone and keeps its own narrow span
+  const e2 = new Engine({ rules, lexicons: lex, settings: {}, backend: null });
+  const [d2] = await e2.evaluateSubtitles(timed('it was leaked yesterday'));
+  assert.equal(d2.via, 'lexicon');
+  assert.equal(d2.text, 'leaked');
+});
+
+// ---------------------------------------------------------------- pictures and sound
+const MEDIA_RULES = `
+rule explicit_images
+  title: Explicit pictures
+  where: thumbnail
+  ask noul: Does this picture show nudity?
+  flag at: 0.6
+  refusal: flag
+  action: thumbnail=hide
+
+rule immodest_images
+  title: Immodest pictures
+  where: thumbnail
+  ask noul: Does this picture show swimwear?
+  flag at: 0.6
+  action: thumbnail=blur
+
+rule audio_coarse
+  title: Coarse sound
+  where: audio
+  ask noul: Is vulgar language used?
+  flag at: 0.6
+  action: audio=mute-next
+`;
+
+class FakeMediaBackend {
+  constructor(fn) { this.fn = fn; this.calls = []; this.mediaEnabled = { image: true, audio: true }; }
+  async askMedia(kind, question, media, opts) { this.calls.push({ kind, question, media, opts }); return this.fn({ kind, question, media, opts }); }
+}
+
+function mediaEngine(backend, settings = {}) {
+  const { rules, errors } = parseRules(MEDIA_RULES);
+  assert.deepEqual(errors, []);
+  return new Engine({ rules, lexicons: {}, settings, backend });
+}
+
+test('a picture is judged by every thumbnail rule; the strongest action wins', async () => {
+  const be = new FakeMediaBackend(({ question }) => ({ p: question.includes('nudity') ? 1 : 0.5 }));
+  const v = await mediaEngine(be).evaluateMedia('thumbnail', { id: 'vid', media: { videoId: 'vid' } });
+  assert.equal(be.calls.length, 2);
+  assert.ok(be.calls.every((c) => c.kind === 'image'));
+  assert.deepEqual(v.flagged.map((r) => r.ruleId), ['explicit_images']); // 0.5 stays below 0.6
+  assert.equal(v.action, 'hide');
+  assert.deepEqual(v.ps, { explicit_images: 1, immodest_images: 0.5 });
+  const r = v.results.find((x) => x.ruleId === 'immodest_images');
+  assert.equal(r.uncertain, true);
+});
+
+test('sound goes to the audio rules only, and the vote count is passed through', async () => {
+  const be = new FakeMediaBackend(() => ({ p: 1 }));
+  const v = await mediaEngine(be, { media: { votes: 3 } }).evaluateMedia('audio', { id: 'vid', window: 0, media: { wav: 'AAAA' } });
+  assert.equal(be.calls.length, 1);
+  assert.equal(be.calls[0].kind, 'audio');
+  assert.equal(be.calls[0].opts.votes, 3);
+  assert.equal(v.action, 'mute-next');
+});
+
+test('the sensitivity of a media rule moves its verdict without asking the model again', async () => {
+  const be = new FakeMediaBackend(() => ({ p: 0.5 }));
+  const e = mediaEngine(be);
+  assert.equal((await e.evaluateMedia('thumbnail', { id: 'vid', media: {} })).flagged.length, 0);
+  e.setSettings({ sensitivity: { immodest_images: 0.4, explicit_images: 0.4 } });
+  assert.equal((await e.evaluateMedia('thumbnail', { id: 'vid', media: {} })).flagged.length, 2);
+  assert.equal(be.calls.length, 2, 'the pictures were asked about once per rule, then served from the cache');
+});
+
+test('sound windows are not cached, pictures are', async () => {
+  const be = new FakeMediaBackend(() => ({ p: 0 }));
+  const e = mediaEngine(be);
+  await e.evaluateMedia('audio', { id: 'v', window: 0, media: {} });
+  await e.evaluateMedia('audio', { id: 'v', window: 0, media: {} });
+  assert.equal(be.calls.length, 2);
+});
+
+test('a refusal ("unsafe response") counts as a flag only for rules that opt in, and only while the setting allows it', async () => {
+  const be = new FakeMediaBackend(() => ({ p: null, error: 'NotReadableError' }));
+  const v = await mediaEngine(be).evaluateMedia('thumbnail', { id: 'vid', media: {} });
+  assert.deepEqual(v.flagged.map((r) => r.ruleId), ['explicit_images']);
+  assert.equal(v.flagged[0].via, 'refusal');
+  assert.equal(v.results.find((r) => r.ruleId === 'immodest_images').modelError, 'NotReadableError');
+  const off = await mediaEngine(be, { media: { refusalIsFlag: false } }).evaluateMedia('thumbnail', { id: 'vid2', media: {} });
+  assert.equal(off.flagged.length, 0);
+});
+
+test('without a media-capable backend nothing is flagged and the rules say they need the model', async () => {
+  const be = new FakeMediaBackend(() => ({ p: 1 }));
+  be.mediaEnabled = { image: false, audio: true };
+  const v = await mediaEngine(be).evaluateMedia('thumbnail', { id: 'vid', media: {} });
+  assert.equal(v.flagged.length, 0);
+  assert.ok(v.results.every((r) => r.needsModel));
+  assert.equal(be.calls.length, 0);
+  assert.equal((await mediaEngine(null).evaluateMedia('audio', { id: 'v', window: 0, media: {} })).flagged.length, 0);
+});
+
+test('pictures and sound do not depend on the switch for the text questions', async () => {
+  const be = new FakeMediaBackend(() => ({ p: 1 }));
+  be.enabled = false; // "use the on-device AI for rules" is off
+  const v = await mediaEngine(be).evaluateMedia('thumbnail', { id: 'vid', media: {} });
+  assert.deepEqual(v.flagged.map((r) => r.ruleId), ['explicit_images', 'immodest_images']);
+});
+
+test('a remembered video is judged again under the current sensitivity and enabled rules', () => {
+  const e = mediaEngine(new FakeMediaBackend(() => ({ p: 0 })));
+  const entry = { by: [{ rule: 'loud_audio', p: 0.5 }, { rule: 'explicit_images', p: 1 }, { rule: 'gone', p: 1 }] };
+  assert.deepEqual(e.rememberedVerdict(entry).flagged.map((r) => r.ruleId), ['explicit_images']);
+  e.setSettings({ sensitivity: { explicit_images: 1 }, ruleEnabled: { explicit_images: false } });
+  assert.equal(e.rememberedVerdict(entry).top, null, 'a rule that is switched off no longer hides remembered videos');
+  e.setSettings({ ruleEnabled: { explicit_images: true }, sensitivity: { explicit_images: 1 } });
+  assert.equal(e.rememberedVerdict(entry).top.ruleId, 'explicit_images');
+  e.setSettings({ sensitivity: { explicit_images: 1 } });
+  assert.equal(e.rememberedVerdict({ by: [{ rule: 'explicit_images', p: 0.5 }] }).top, null);
+  assert.equal(e.rememberedVerdict(null).top, null);
+});
+
+test('a model error that is not a refusal is reported and flags nothing', async () => {
+  const be = new FakeMediaBackend(() => ({ p: null, error: 'QuotaExceededError' }));
+  const v = await mediaEngine(be).evaluateMedia('thumbnail', { id: 'vid', media: {} });
+  assert.equal(v.flagged.length, 0);
+  assert.equal(v.results[0].modelError, 'QuotaExceededError');
+});

@@ -1,0 +1,26 @@
+0.75 | stage play
+0.75 | theatre show
+0.75 | theater show
+0.75 | broadway
+0.75 | west end
+0.75 | comedy show*
+0.75 | comedy special*
+0.75 | comedy club*
+0.75 | /\bstand[- ]?up (special|show|set|comedy)\b/
+0.75 | variety show*
+0.50 | circus
+0.50 | theatre
+0.50 | theater
+0.50 | live show
+0.50 | live performance
+0.50 | sketch comedy
+0.50 | skit*
+0.50 | pantomime
+0.50 | burlesque
+0.50 | cabaret
+0.50 | opening night
+0.50 | curtain call
+0.15 | musical
+0.15 | opera
+0.15 | the play
+0.15 | acting

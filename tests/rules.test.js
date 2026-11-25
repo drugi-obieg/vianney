@@ -79,14 +79,74 @@ test('the shipped rule pack parses cleanly and only references lexicons that exi
   const dir = new URL('rules/', ROOT);
   const files = readdirSync(dir).filter((f) => f.endsWith('.rules'));
   assert.ok(files.length >= 1, 'no .rules file shipped');
+  let total = 0;
   for (const f of files) {
     const { rules, errors } = parseRules(readFileSync(new URL(f, dir), 'utf8'));
     assert.deepEqual(errors, [], `${f}: ${JSON.stringify(errors)}`);
-    assert.ok(rules.length >= 4, `${f}: expected a real pack`);
+    assert.ok(rules.length >= 1, `${f}: no rules`);
+    total += rules.length;
     for (const r of rules) {
       for (const name of r.lexicon) {
         assert.ok(existsSync(new URL(`lexicon/${name}.txt`, ROOT)), `${f}: rule ${r.id} references missing lexicon ${name}`);
       }
     }
   }
+  assert.ok(total >= 4, 'expected a real pack');
+});
+
+test('the shipped files join into one pack: no errors, unique ids, and the picture and sound rules are all there', () => {
+  const dir = new URL('rules/', ROOT);
+  const text = ['vianney.en.rules', 'vianney.media.en.rules'].map((f) => readFileSync(new URL(f, dir), 'utf8')).join('\n\n');
+  const { rules, errors } = parseRules(text);
+  assert.deepEqual(errors, []);
+  assert.equal(new Set(rules.map((r) => r.id)).size, rules.length);
+  const media = rules.filter((r) => r.where.some((w) => ['thumbnail', 'audio'].includes(w)));
+  assert.deepEqual(media.map((r) => r.id), ['explicit_images', 'immodest_images', 'violent_images', 'audio_explicit', 'audio_coarse', 'audio_lords_name']);
+  assert.ok(media.every((r) => !r.lexicon.length && r.asks.every((a) => a.type === 'noul')));
+  // every picture or sound rule must say where its authority is
+  assert.ok(media.every((r) => r.source));
+});
+
+// ---------------------------------------------------------------- pictures and sound (experimental surfaces)
+const MEDIA = `
+rule explicit_images
+  title: Explicit pictures
+  where: thumbnail
+  ask noul: Does this picture show nudity or a sex act?
+  flag at: 0.30
+  refusal: flag
+  action: thumbnail=hide
+
+rule audio_coarse
+  where: audio
+  ask noul: Is vulgar language used in this audio?
+  flag at: 0.6
+  action: mute-next
+`;
+
+test('rules can look at thumbnails and sound, with media actions and the refusal key', () => {
+  const { rules, errors } = parseRules(MEDIA);
+  assert.deepEqual(errors, []);
+  assert.deepEqual(rules[0].where, ['thumbnail']);
+  assert.deepEqual(rules[0].action, { thumbnail: 'hide' });
+  assert.equal(rules[0].refusal, 'flag');
+  assert.equal(rules[0].flagAt, 0.3);
+  assert.equal(rules[1].refusal, 'ignore'); // default
+  assert.deepEqual(rules[1].action, { audio: 'mute-next' }); // a bare action applies where valid
+});
+
+test('media surfaces get their own default actions', () => {
+  const { rules } = parseRules('rule a\n  where: thumbnail\n  ask noul: q\nrule b\n  where: audio\n  ask noul: q\n');
+  assert.equal(rules[0].action.thumbnail, 'blur');
+  assert.equal(rules[1].action.audio, 'pause-overlay');
+});
+
+test('a media rule must ask a yes/no question, must not mix with text surfaces, and takes no word list', () => {
+  const msgs = (text) => parseRules(text).errors.map((e) => e.message).join(' | ');
+  assert.match(msgs('rule a\n  where: thumbnail\n  lexicon: x\n'), /needs an "ask noul"/);
+  assert.match(msgs('rule a\n  where: thumbnail\n  lexicon: x\n  ask noul: q\n'), /word lists only work on text/);
+  assert.match(msgs('rule a\n  where: thumbnail, feed-card\n  ask noul: q\n'), /both text and pictures or sound/);
+  assert.match(msgs('rule a\n  where: audio\n  ask score: q\n    levels: no, yes\n'), /"ask noul" questions only/);
+  assert.match(msgs('rule a\n  where: thumbnail\n  ask noul: q\n  action: thumbnail=mute-next\n'), /not valid for thumbnail/);
+  assert.match(msgs('rule a\n  where: thumbnail\n  ask noul: q\n  refusal: maybe\n'), /refusal must be/);
 });

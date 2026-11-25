@@ -1,0 +1,33 @@
+0.95 | fortune teller*
+0.95 | fortune telling
+0.95 | /\bfortune[- ]tell(er|ers|ing)\b/
+0.95 | tarot
+0.95 | horoscope*
+0.95 | clairvoyant*
+0.95 | palm reading
+0.95 | palmist*
+0.95 | seance*
+0.95 | ouija
+0.75 | psychic*
+0.75 | medium reading
+0.75 | spirit medium*
+0.75 | astrology
+0.75 | astrologer*
+0.75 | numerology
+0.75 | divination
+0.75 | diviner*
+0.75 | soothsayer*
+0.75 | crystal ball
+0.75 | tea leaves
+0.75 | birth chart*
+0.75 | natal chart*
+0.50 | zodiac
+0.50 | star sign*
+0.50 | mercury retrograde
+0.50 | pick a card
+0.50 | angel numbers
+0.50 | spirit guide*
+0.50 | i ching
+0.15 | channeling
+0.15 | channelling
+0.15 | runes

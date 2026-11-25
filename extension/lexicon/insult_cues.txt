@@ -1,0 +1,31 @@
+0.75 | /\byou('?re| are)? (an? )?(idiot|moron|imbecile|fool|loser|clown|scoundrel|rascal|crook|thief|liar|swine|pig|disgrace|waste of space)\b/
+0.50 | you idiot
+0.50 | you fool
+0.50 | you liar
+0.50 | you thief
+0.50 | what an idiot
+0.50 | dirty liar
+0.50 | scoundrel*
+0.50 | rascal*
+0.50 | crook*
+0.50 | swindler*
+0.50 | scumbag*
+0.50 | scum
+0.50 | lowlife*
+0.50 | /\bgood[- ]for[- ]nothing\b/
+0.15 | worthless
+0.15 | pathetic
+0.15 | idiot*
+0.15 | moron*
+0.15 | imbecile*
+0.15 | stupid
+0.15 | dumb
+0.15 | fool
+0.15 | loser*
+0.15 | clown
+0.15 | jerk*
+0.15 | creep*
+0.15 | liar*
+0.15 | thief
+0.15 | swine
+0.15 | disgrace

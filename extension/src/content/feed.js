@@ -2,6 +2,7 @@
 
 import { findCards, extractMeta } from './discover.js';
 import { applyCardAction, clearCard, ensureStyle } from './actions.js';
+import { listVerdict } from '../core/lists.js';
 
 const DEBOUNCE_MS = 250;
 const CONCURRENCY = 3;
@@ -16,11 +17,17 @@ export class FeedFilter {
     this.getSettings = getSettings;
     this.onCards = onCards || (() => {});
     this.seen = new WeakMap(); // element -> signature that was already evaluated
+    this.remembered = {};      // videoId -> what an earlier sound check found (see media-flag in the service worker)
     this.timer = null;
     this.running = false;
     this.rerun = false;
-    this.hiddenCount = 0;
+    this.lastScanMs = 0;     // how long the last scan took, for diagnostics
     this.observer = new MutationObserver(() => this.schedule());
+  }
+
+  /** Cards hidden or blanked right now, by a title rule, a list or a thumbnail check. Counted live: pictures are judged later than titles. */
+  get hiddenCount() {
+    return document.querySelectorAll('[data-vianney-state="hide"], [data-vianney-state="blank"], [data-vianney-thumb="hide"], [data-vianney-thumb="blank"]').length;
   }
 
   start() {
@@ -33,6 +40,11 @@ export class FeedFilter {
   stop() {
     this.observer.disconnect();
     for (const el of document.querySelectorAll('[data-vianney-state]')) clearCard(el);
+  }
+
+  setRemembered(map) {
+    this.remembered = map || {};
+    this.refilter();
   }
 
   /** Forget earlier verdicts (rules or settings changed) and evaluate again. */
@@ -50,11 +62,13 @@ export class FeedFilter {
   async scan() {
     if (this.running) { this.rerun = true; return; }
     this.running = true;
+    const t0 = performance.now();
     try {
       const s = this.getSettings();
-      if (!s.enabled || s.surfaces.feed === false) return;
+      if (!s.enabled) return;
       const cards = findCards();
-      this.onCards(cards);
+      this.onCards(cards); // the thumbnail check has its own switch and does not depend on the title filter
+      if (s.surfaces.feed === false) return;
       const todo = [];
       for (const card of cards) {
         const meta = extractMeta(card);
@@ -71,15 +85,36 @@ export class FeedFilter {
         }
       };
       await Promise.all(Array.from({ length: Math.min(CONCURRENCY, todo.length) }, worker));
-      this.hiddenCount = document.querySelectorAll('[data-vianney-state="hide"], [data-vianney-state="blank"]').length;
     } finally {
+      this.lastScanMs = Math.round(performance.now() - t0);
       this.running = false;
       if (this.rerun) { this.rerun = false; this.schedule(50); }
     }
   }
 
+  /** Allow and block lists, and videos remembered from a sound check. They come before any rule. */
+  decide(card, meta) {
+    const s = this.getSettings();
+    const listed = listVerdict(s.lists, { id: card.id, channel: meta.channel });
+    if (listed === 'allow') return { skip: true };
+    if (listed === 'deny') return { action: 'hide', reason: 'On your block list', via: 'list' };
+    const entry = this.remembered[card.id];
+    if (entry && s.media && s.media.rememberFlagged !== false) {
+      const v = this.engine.rememberedVerdict(entry);
+      if (v.top) return { action: (s.media.rememberedAction || 'hide'), reason: `Sound: ${v.top.title}`, via: 'remembered', top: v.top };
+    }
+    return null;
+  }
+
   async handle(card, meta) {
     if (!meta.title && !meta.channel) return;
+    const decided = this.decide(card, meta);
+    if (decided && decided.skip) { clearCard(card.el); return; }
+    if (decided) {
+      applyCardAction(card.el, decided.action, decided.reason);
+      this.log({ surface: 'feed-card', id: card.id, title: meta.title, channel: meta.channel, ps: decided.top ? { [decided.top.ruleId]: decided.top.p } : {}, flagged: decided.top ? [decided.top.ruleId] : [], uncertain: [], action: decided.action, via: decided.via, hits: [] });
+      return;
+    }
     const verdict = await this.engine.evaluate(meta, 'feed-card');
     const top = verdict.top;
     if (top && verdict.action) {

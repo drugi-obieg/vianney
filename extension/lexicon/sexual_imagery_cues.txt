@@ -1,0 +1,34 @@
+0.95 | onlyfans
+0.75 | nude
+0.75 | nudes
+0.75 | topless
+0.75 | nudity
+0.75 | lingerie
+0.75 | thirst trap*
+0.75 | striptease
+0.75 | twerk*
+0.50 | naked
+0.50 | uncensored
+0.50 | /\bsee[- ]through\b/
+0.50 | bikini*
+0.50 | swimsuit*
+0.50 | swimwear
+0.50 | sexy
+0.50 | cleavage
+0.50 | booty
+0.50 | sensual
+0.50 | seductive
+0.50 | sultry
+0.50 | boudoir
+0.50 | /\bpin[- ]?up\b/
+0.50 | sugar baby
+0.50 | wardrobe malfunction
+0.50 | busty
+0.50 | steamy
+0.15 | sheer
+0.15 | spicy
+0.15 | hot girls
+0.15 | hottest
+0.15 | photoshoot
+0.15 | model*
+0.15 | bathing

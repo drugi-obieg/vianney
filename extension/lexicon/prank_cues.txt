@@ -1,0 +1,23 @@
+0.95 | prank
+0.95 | pranks
+0.95 | pranked
+0.95 | pranking
+0.75 | hoax*
+0.75 | april fools
+0.75 | /\bapril fool'?s\b/
+0.50 | social experiment*
+0.50 | hidden camera
+0.50 | tricked
+0.50 | tricking
+0.50 | scare prank*
+0.50 | caught on hidden camera
+0.15 | gotcha
+0.15 | fooled
+0.15 | lied to
+0.15 | lying to
+0.15 | gone wrong
+0.15 | trick
+0.15 | fake
+0.15 | faked
+0.15 | faking
+0.15 | /\bon my (mom|dad|girlfriend|boyfriend|wife|husband|roommate|sister|brother|teacher|friend|friends|parents)\b/

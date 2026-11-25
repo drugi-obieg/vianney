@@ -1,0 +1,43 @@
+0.75 | meltdown*
+0.75 | melts down
+0.75 | rage quit
+0.75 | ragequit
+0.75 | road rage
+0.75 | temper tantrum*
+0.75 | /\bloses? (his|her|their|my) (temper|mind|cool)\b/
+0.50 | tantrum*
+0.50 | unhinged
+0.50 | berserk
+0.50 | rage
+0.50 | raging
+0.50 | enraged
+0.50 | furious
+0.50 | fuming
+0.50 | livid
+0.50 | tirade*
+0.50 | outburst*
+0.50 | loses it
+0.50 | lost it
+0.50 | losing it
+0.15 | explodes
+0.15 | exploded
+0.15 | snaps
+0.15 | snapped
+0.15 | screaming
+0.15 | screams
+0.15 | yelling
+0.15 | yells
+0.15 | shouting
+0.15 | rant
+0.15 | ranting
+0.15 | blows up
+0.15 | blew up
+0.15 | freaks out
+0.15 | freaking out
+0.15 | angry
+0.15 | anger
+0.15 | mad
+0.15 | upset
+0.15 | annoyed
+0.15 | fed up
+0.15 | triggered

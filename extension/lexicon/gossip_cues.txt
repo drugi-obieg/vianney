@@ -1,0 +1,41 @@
+0.75 | gossip
+0.75 | gossiping
+0.75 | spill the tea
+0.75 | spilling the tea
+0.50 | celebrity gossip
+0.50 | exposed
+0.50 | exposing
+0.50 | scandal*
+0.50 | rumor*
+0.50 | rumour*
+0.50 | cheating scandal
+0.50 | caught cheating
+0.50 | cheated on
+0.50 | breakup drama
+0.50 | divorce drama
+0.50 | feud
+0.50 | /\bbehind (her|his|their|your|my) backs?\b/
+0.50 | what really happened
+0.50 | the real reason
+0.50 | leaked
+0.50 | allegedly
+0.50 | /\bi heard (that )?(she|he|they)\b/
+0.50 | /\bdid you hear (about|what)\b/
+0.50 | between you and me
+0.50 | /\bdon'?t tell (anyone|anybody|her|him)\b/
+0.50 | /\bguess what (she|he|they) (did|said)\b/
+0.15 | apparently
+0.15 | the tea
+0.15 | tea
+0.15 | drama
+0.15 | affair
+0.15 | beef
+0.15 | secret
+0.15 | secretly
+0.15 | secrets
+0.15 | receipts
+0.15 | cancelled
+0.15 | shocking
+0.15 | reveals
+0.15 | the truth about
+0.15 | /\b(she|he) (is|was) such an? \w+\b/

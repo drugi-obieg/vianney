@@ -5,6 +5,9 @@ import { Engine } from '../core/engine.js';
 import { parseRules } from '../core/rules.js';
 import { flagAtFor, wouldChange, PRESETS } from '../core/sensitivity.js';
 import { formatDuration } from '../core/breaktimer.js';
+import { addToList, parseListText, videoIdFrom } from '../core/lists.js';
+import { encodeWav } from '../core/audio.js';
+import { decodeToMono16k } from '../shared/decode.js';
 import * as ai from '../ai/prompt-backend.js';
 
 const $ = (id) => document.getElementById(id);
@@ -36,8 +39,35 @@ async function update(mutator) {
 const pct = (x) => Math.round(x * 100) + '%';
 
 // ------------------------------------------------------------------ rules
+/** Highest weight any word-list entry of the rule has: the most a lexicon alone can ever reach. */
+function lexiconReach(rule) {
+  let reach = 0;
+  for (const name of rule.lexicon) for (const e of (pack.lexicons[name] && pack.lexicons[name].entries) || []) reach = Math.max(reach, e.weight);
+  return reach;
+}
+
+const MEDIA_SURFACES = ['thumbnail', 'audio'];
+const isMediaRule = (rule) => rule.where.length > 0 && rule.where.every((w) => MEDIA_SURFACES.includes(w));
+
 function sensitivityControl(rule, card) {
   const preview = h('div', { class: 'preview' });
+  const reachNote = h('div', { class: 'preview reach' });
+  const showReach = (candidate) => {
+    if (isMediaRule(rule)) {
+      // the model gives no probability: a score is the share of prompt wordings that said yes
+      const v = Math.min(3, Math.max(1, Number(settings.media.votes) || 2));
+      const needed = Array.from({ length: v }, (_, i) => i + 1).find((k) => k / v >= candidate - 1e-9);
+      reachNote.textContent = needed
+        ? `With ${v} prompt${v > 1 ? 's' : ''} per question this flags when ${needed} of ${v} say yes. A rule can only flag while pictures and sound are switched on below and the model is available.`
+        : 'At this setting the rule never flags.';
+      return;
+    }
+    const reach = lexiconReach(rule);
+    if (!rule.lexicon.length) { reachNote.textContent = 'This rule has no word list: it only works with the on-device AI.'; return; }
+    reachNote.textContent = reach < candidate - 1e-9
+      ? `At this setting the word lists alone never flag this rule (they reach ${pct(reach)}). It needs the on-device AI, or a lower setting.`
+      : '';
+  };
   const wrap = h('div', { class: 'sens' });
   const saved = () => flagAtFor(rule, settings);
   const showPreview = (candidate) => {
@@ -49,8 +79,8 @@ function sensitivityControl(rule, card) {
   if (rule.levels) {
     const sel = h('select', {}, rule.levels.map((l) => h('option', { value: l }, `flag at "${l}" or above`)));
     sel.value = rule.levels[Math.round(saved() * (rule.levels.length - 1))];
-    sel.addEventListener('change', async () => { showPreview(rule.levels.indexOf(sel.value) / (rule.levels.length - 1)); await update((s) => { s.sensitivity[rule.id] = sel.value; }); });
-    sel.addEventListener('input', () => showPreview(rule.levels.indexOf(sel.value) / (rule.levels.length - 1)));
+    sel.addEventListener('change', async () => { showPreview(rule.levels.indexOf(sel.value) / (rule.levels.length - 1)); showReach(rule.levels.indexOf(sel.value) / (rule.levels.length - 1)); await update((s) => { s.sensitivity[rule.id] = sel.value; }); });
+    sel.addEventListener('input', () => { showPreview(rule.levels.indexOf(sel.value) / (rule.levels.length - 1)); showReach(rule.levels.indexOf(sel.value) / (rule.levels.length - 1)); });
     wrap.append(sel);
   } else {
     const range = h('input', { type: 'range', min: 0, max: 100, step: 5 });
@@ -58,7 +88,7 @@ function sensitivityControl(rule, card) {
     const out = h('output', {});
     const label = () => { out.textContent = `Flags when at least ${range.value}% sure`; };
     label();
-    range.addEventListener('input', () => { label(); showPreview(Number(range.value) / 100); });
+    range.addEventListener('input', () => { label(); showPreview(Number(range.value) / 100); showReach(Number(range.value) / 100); });
     range.addEventListener('change', async () => { await update((s) => { s.sensitivity[rule.id] = Number(range.value) / 100; }); showPreview(saved()); });
     const preset = (name) => h('button', {
       class: 'small', title: `${name}: ${pct(PRESETS[name])} (unmeasured)`,
@@ -71,8 +101,9 @@ function sensitivityControl(rule, card) {
     onclick: async () => { await update((s) => { delete s.sensitivity[rule.id]; }); renderRules(); },
   }, `default (${rule.levels ? rule.flagAtLabel : pct(rule.flagAt)})`);
   wrap.append(reset);
-  card.append(wrap, preview);
+  card.append(wrap, preview, reachNote);
   showPreview(saved());
+  showReach(saved());
 }
 
 function renderRules() {
@@ -83,14 +114,17 @@ function renderRules() {
     const toggle = h('input', { type: 'checkbox', checked: enabled });
     const card = h('article', { class: 'rule' + (enabled ? '' : ' off') });
     toggle.addEventListener('change', async () => { card.classList.toggle('off', !toggle.checked); await update((s) => { s.ruleEnabled[rule.id] = toggle.checked; }); });
+    const media = isMediaRule(rule);
     card.append(
-      h('label', {}, toggle, h('h3', {}, rule.title)),
+      h('label', {}, toggle, h('h3', {}, rule.title), media ? h('span', { class: 'tag' }, 'Experimental') : null),
       h('div', { class: 'meta' }, [
         rule.source ? `Source: ${rule.source}. ` : '',
         `Looks at: ${rule.where.join(', ')}. `,
         rule.lexicon.length ? `Word lists: ${rule.lexicon.join(', ')}. ` : '',
         `Action: ${rule.where.map((w) => `${w} = ${rule.action[w]}`).join(', ')}.`,
+        media && rule.refusal === 'flag' ? ' A refusal by the browser\'s safety filter counts as a flag.' : '',
       ].join('')),
+      media && !settings.media.enabled ? h('div', { class: 'meta warnline' }, 'Does nothing until "Experimental: pictures and sound" is switched on below.') : null,
       ...rule.asks.map((a) => h('div', { class: 'ask' }, `${a.type === 'noul' ? 'Question' : 'Scale'} for the on-device AI: ${a.question}`)),
     );
     sensitivityControl(rule, card);
@@ -243,7 +277,174 @@ function bindAi() {
   refreshAi();
 }
 
+
+// ------------------------------------------------------------------ experimental: pictures and sound
+const MEDIA_TEXT = {
+  unsupported: 'this browser has no Prompt API',
+  unavailable: 'Chrome says it cannot judge this kind of input on this machine or in this profile (the model, a supported graphics card or enough free disk space may be missing)',
+  downloadable: 'the model for this input is not on this machine yet',
+  downloading: 'the model is downloading',
+  available: 'ready',
+};
+
+async function mediaAvailability() {
+  // ask the service worker, which is where the checks really run; fall back to this page's own answer
+  try {
+    const r = await chrome.runtime.sendMessage({ type: 'media-status', force: true });
+    if (r && r.image) return r;
+  } catch (e) { /* the worker is asleep or reloading */ }
+  return { image: await ai.getMediaAvailability('image'), audio: await ai.getMediaAvailability('audio') };
+}
+
+async function renderMediaStatus() {
+  const r = await mediaAvailability();
+  const line = (name, a) => `${name}: ${a}${MEDIA_TEXT[a] ? ' (' + MEDIA_TEXT[a] + ')' : ''}.`;
+  $('media-status').textContent = `${line('Pictures', r.image)} ${line('Sound', r.audio)}`;
+  $('media-download-image').hidden = r.image !== 'downloadable';
+  $('media-download-audio').hidden = r.audio !== 'downloadable';
+  return r;
+}
+
+function renderLists() {
+  for (const key of ['allowVideos', 'allowChannels', 'denyVideos', 'denyChannels']) {
+    const ta = $('list-' + key);
+    if (document.activeElement !== ta) ta.value = (settings.lists[key] || []).join('\n');
+  }
+}
+
+function bindMedia() {
+  const m = () => settings.media;
+  const checks = [
+    ['media-enabled', (s) => s.media, 'enabled'], ['media-refusal', (s) => s.media, 'refusalIsFlag'], ['media-remember', (s) => s.media, 'rememberFlagged'],
+    ['th-enabled', (s) => s.media.thumbnails, 'enabled'], ['th-near', (s) => s.media.thumbnails, 'nearViewOnly'], ['th-hold', (s) => s.media.thumbnails, 'hold'],
+    ['au-enabled', (s) => s.media.audio, 'enabled'], ['au-nocap', (s) => s.media.audio, 'onlyWithoutCaptions'],
+  ];
+  for (const [id, where, key] of checks) {
+    const el = $(id);
+    el.checked = where(settings)[key] !== false && !!where(settings)[key];
+    el.addEventListener('change', async () => {
+      await update((s) => { where(s)[key] = el.checked; });
+      if (id === 'media-enabled') renderRules();
+    });
+  }
+  const numbers = [
+    ['th-hold-s', (s) => s.media.thumbnails, 'holdSeconds', 0, 60], ['th-max', (s) => s.media.thumbnails, 'maxPerPage', 1, 500],
+    ['au-window', (s) => s.media.audio, 'windowSeconds', 3, 20], ['au-start', (s) => s.media.audio, 'startAfterSeconds', 0, 120], ['au-max', (s) => s.media.audio, 'maxWindowsPerVideo', 1, 1000],
+  ];
+  for (const [id, where, key, lo, hi] of numbers) {
+    const el = $(id);
+    el.value = where(settings)[key];
+    el.addEventListener('change', async () => {
+      const v = Math.min(hi, Math.max(lo, Math.round(Number(el.value)) || lo));
+      el.value = v;
+      await update((s) => { where(s)[key] = v; });
+    });
+  }
+  const votes = $('media-votes');
+  votes.value = String(m().votes);
+  votes.addEventListener('change', async () => { await update((s) => { s.media.votes = Number(votes.value); }); renderRules(); });
+  const acted = $('media-remembered-action');
+  acted.value = m().rememberedAction;
+  acted.addEventListener('change', () => update((s) => { s.media.rememberedAction = acted.value; }));
+
+  $('media-recheck').addEventListener('click', renderMediaStatus);
+  for (const kind of ['image', 'audio']) {
+    $('media-download-' + kind).addEventListener('click', async () => {
+      if (!confirm('This downloads or prepares Chrome\'s on-device model for ' + (kind === 'image' ? 'pictures' : 'sound') + '. It can be several gigabytes. Chrome removes it again if free disk space falls below 10 GB. Continue?')) return;
+      const bar = $('media-progress');
+      bar.hidden = false;
+      try { await ai.prepareMedia(kind, (f) => { bar.value = f; }); } catch (e) { $('media-status').textContent = `The download failed: ${(e && e.name) || e}.`; }
+      bar.hidden = true;
+      await renderMediaStatus();
+    });
+  }
+  $('media-clear').addEventListener('click', async () => {
+    await chrome.runtime.sendMessage({ type: 'media-clear' });
+    $('media-clear').textContent = 'Forgotten';
+    setTimeout(() => { $('media-clear').textContent = 'Forget remembered verdicts and videos'; }, 2000);
+  });
+
+  // lists
+  renderLists();
+  for (const key of ['allowVideos', 'allowChannels', 'denyVideos', 'denyChannels']) {
+    const ta = $('list-' + key);
+    ta.addEventListener('change', async () => {
+      const lines = parseListText(ta.value);
+      let kept = lines;
+      const dropped = [];
+      if (key.endsWith('Videos')) {
+        kept = [];
+        for (const l of lines) { const id = videoIdFrom(l); if (id) kept.push(id); else dropped.push(l); }
+      }
+      kept = [...new Set(kept)];
+      await update((s) => { s.lists[key] = kept; });
+      ta.value = kept.join('\n');
+      const msg = $('list-messages');
+      msg.textContent = '';
+      if (dropped.length) msg.append(h('div', { class: 'err' }, `Not a video id or YouTube address, so left out: ${dropped.join(', ')}`));
+      else msg.append(h('div', { class: 'ok' }, 'Saved.'));
+    });
+  }
+
+  // test box
+  $('media-run').addEventListener('click', async () => {
+    const out = $('media-result');
+    out.textContent = '';
+    const file = $('media-file').files[0];
+    if (!file) { out.textContent = 'Choose a picture or an audio file first.'; return; }
+    const audio = file.type.startsWith('audio/');
+    const kind = audio ? 'audio' : 'image';
+    const avail = await ai.getMediaAvailability(kind);
+    if (avail !== 'available') { out.append(h('div', { class: 'r' }, `The model cannot judge ${audio ? 'sound' : 'pictures'} yet: status "${avail}". ${MEDIA_TEXT[avail] || ''}`)); return; }
+    out.textContent = 'Judging ...';
+    try {
+      let media = file;
+      if (audio) media = new Blob([encodeWav(await decodeToMono16k(file, settings.media.audio.windowSeconds))], { type: 'audio/wav' });
+      const backend = { mediaEnabled: { image: !audio, audio }, askMedia: (k, q, blob, o) => ai.askMedia(k, q, blob, o) };
+      const engine = new Engine({ rules: pack.parsed.rules, lexicons: pack.lexicons, settings, backend });
+      const verdict = await engine.evaluateMedia(audio ? 'audio' : 'thumbnail', { id: 'test', window: 0, media });
+      out.textContent = '';
+      if (!verdict.results.length) { out.append(h('div', { class: 'r' }, `No ${audio ? 'sound' : 'picture'} rule is switched on.`)); return; }
+      for (const r of [...verdict.results].sort((a, b) => b.p - a.p)) {
+        out.append(h('div', { class: 'r' + (r.flagged ? ' f' : '') },
+          h('strong', {}, r.title), ` — ${pct(r.p)} (flags at ${pct(r.flagAt)}): `,
+          r.flagged ? `FLAGGED → ${r.action}` : 'not flagged',
+          r.via !== 'none' ? ` · via ${r.via}` : '',
+          r.modelError ? ` · model error: ${r.modelError}` : '',
+        ));
+      }
+    } catch (e) {
+      out.textContent = `Could not judge this file: ${(e && e.message) || e}`;
+    }
+  });
+
+  renderMediaStatus();
+}
+
 // ------------------------------------------------------------------ log
+function logActions(e) {
+  if (!/^[\w-]{11}$/.test(e.id || '')) return null;
+  const flagged = e.flagged && e.flagged.length;
+  const row = h('div', { class: 'acts' });
+  const add = (label, key, value) => row.append(h('button', {
+    class: 'small',
+    onclick: async (ev) => {
+      await update((s) => { s.lists = addToList(s.lists, key, value); });
+      ev.target.textContent = 'Added to the list';
+      ev.target.disabled = true;
+      renderLists();
+    },
+  }, label));
+  if (flagged) {
+    add('Not a problem: never flag this video', 'allowVideos', e.id);
+    if (e.channel) add('Never flag this channel', 'allowChannels', e.channel);
+  } else {
+    add('Always hide this video', 'denyVideos', e.id);
+    if (e.channel) add('Always hide this channel', 'denyChannels', e.channel);
+  }
+  return row;
+}
+
 function renderLog() {
   const only = $('log-flagged').checked;
   const list = $('log-list');
@@ -261,6 +462,8 @@ function renderLog() {
         ps ? `(${ps})` : '',
       ]),
       e.hits && e.hits.length ? h('div', { class: 't' }, e.hits.map((x) => `${x.rule}: ${x.hits.join(', ')}`).join(' · ')) : null,
+      e.error ? h('div', { class: 't' }, `model error: ${e.error}`) : null,
+      logActions(e),
     ));
   }
 }
@@ -318,7 +521,7 @@ async function init() {
   defaultRulesText = await loadDefaultRulesText();
   ({ log = [] } = await chrome.storage.local.get('log'));
   bindGeneral(); renderRules(); renderProblems(); renderLexicons(); bindEditor();
-  bindBreak(); bindSubtitles(); bindAi(); bindLog(); bindTest();
+  bindBreak(); bindSubtitles(); bindAi(); bindMedia(); bindLog(); bindTest();
   chrome.storage.onChanged.addListener(onStorage);
 }
 

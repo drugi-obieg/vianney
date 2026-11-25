@@ -2,6 +2,8 @@
 // subtitles (mute a word, skip a passage, mask words in the visible captions).
 
 import { parseJson3, buildSpans, findActive } from '../core/captions.js';
+import { listVerdict } from '../core/lists.js';
+import { setMuteLock } from './actions.js';
 
 const getVideo = () => document.querySelector('video.html5-main-video') || document.querySelector('video');
 const currentVideoId = () => new URL(location.href).searchParams.get('v');
@@ -12,7 +14,6 @@ export class SpanScheduler {
     this.video = video;
     this.spans = spans;
     this.muted = false;
-    this.prevMuted = false;
     this.raf = 0;
     this.skips = 0;
     this.mutes = 0;
@@ -33,19 +34,18 @@ export class SpanScheduler {
     }
     const wantMute = !!s && s.action === 'mute-word';
     if (wantMute && !this.muted) {
-      this.prevMuted = v.muted;
-      v.muted = true;
+      setMuteLock(v, 'subtitles', true);
       this.muted = true;
       this.mutes++;
     } else if (!wantMute && this.muted) {
-      v.muted = this.prevMuted;
+      setMuteLock(v, 'subtitles', false);
       this.muted = false;
     }
   }
 
   stop() {
     cancelAnimationFrame(this.raf);
-    if (this.muted && this.video) this.video.muted = this.prevMuted;
+    if (this.muted && this.video) setMuteLock(this.video, 'subtitles', false);
     this.muted = false;
   }
 }
@@ -147,6 +147,7 @@ export class WatchGuard {
 
   reset() {
     this.video = null;
+    this.listed = null;
     this.tokens = null;
     this.decisions = [];
     this.captionStatus = 'none';
@@ -171,6 +172,13 @@ export class WatchGuard {
     this.state.metaChecked = true;
     const s = this.getSettings();
     if (!s.enabled) return;
+    this.listed = listVerdict(s.lists, { id: v.id, channel: v.author });
+    if (this.listed === 'allow') return; // on the allow list: no check at all, not even of the subtitles
+    if (this.listed === 'deny') {
+      this.log({ surface: 'watch-meta', id: v.id, title: v.title, channel: v.author, ps: {}, flagged: [], uncertain: [], action: 'warn-overlay', via: 'list' });
+      this.showWarning({ title: 'Blocked by you', p: 1, flagAt: 1 }, 'This video or its channel is on your block list.');
+      return;
+    }
     if (s.subtitles && s.subtitles.autoCaptions) this.enableCaptionsSoon();
     if (s.surfaces.watchMeta !== false) {
       const verdict = await this.engine.evaluate({ title: v.title, channel: v.author, description: v.description, keywords: v.keywords }, 'watch-meta');
@@ -187,7 +195,7 @@ export class WatchGuard {
     if (this.tokens) this.planSubtitles(); // captions arrived before the details
   }
 
-  showWarning(top) {
+  showWarning(top, reason) {
     const video = getVideo();
     if (video) video.pause();
     this.removeOverlay();
@@ -199,7 +207,7 @@ export class WatchGuard {
     };
     this.overlay = createOverlay({
       title: top.title,
-      reason: `This video matches a rule you set (${top.title}). It was flagged at ${Math.round(top.p * 100)}% confidence; your threshold for this rule is ${Math.round(top.flagAt * 100)}%.`,
+      reason: reason || `This video matches a rule you set (${top.title}). It was flagged at ${Math.round(top.p * 100)}% confidence; your threshold for this rule is ${Math.round(top.flagAt * 100)}%.`,
       onWatch: () => { this.removeOverlay(); const v = getVideo(); if (v) v.play().catch(() => {}); },
       onLeave: () => { this.removeOverlay(); if (history.length > 1) history.back(); else location.href = 'https://www.youtube.com/'; },
     });
@@ -246,7 +254,7 @@ export class WatchGuard {
   async planSubtitles() {
     if (!this.tokens) return;
     const s = this.getSettings();
-    if (!s.enabled || s.surfaces.subtitles === false) return;
+    if (!s.enabled || s.surfaces.subtitles === false || this.listed === 'allow') return;
     const decisions = await this.engine.evaluateSubtitles(this.tokens);
     this.decisions = decisions;
     if (this.captionStatus === 'loaded') this.setStatus('loaded');

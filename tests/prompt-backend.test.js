@@ -106,3 +106,69 @@ test('requests are serialised: the model never sees two prompts at once', async 
   assert.equal(maxActive, 1);
   assert.equal(prompts.length, 9);
 });
+
+// ---------------------------------------------------------------- pictures and sound
+const picture = new Blob([new Uint8Array(2048)], { type: 'image/jpeg' });
+const clip = new Blob([new Uint8Array(4096)], { type: 'audio/wav' });
+
+test('media availability is asked with the matching input type', async () => {
+  const seen = [];
+  globalThis.LanguageModel.availability = async (o) => { seen.push(o.expectedInputs.map((i) => i.type)); return 'downloadable'; };
+  assert.equal(await ai.getMediaAvailability('image'), 'downloadable');
+  assert.equal(await ai.getMediaAvailability('audio'), 'downloadable');
+  assert.deepEqual(seen, [['text', 'image'], ['text', 'audio']]);
+  assert.equal(await ai.getMediaAvailability('video'), 'unsupported');
+});
+
+test('picture question: documented multimodal prompt shape, boolean constraint, p from the votes', async () => {
+  const outs = ['true', 'false'];
+  answer = () => outs.shift();
+  const r = await ai.askMedia('image', 'Does this picture show nudity?', picture, { votes: 2 });
+  assert.equal(prompts.length, 2);
+  const msg = prompts[0].text; // for media the "text" the fake receives is the message array
+  assert.ok(Array.isArray(msg) && msg[0].role === 'user');
+  assert.equal(msg[0].content[0].type, 'text');
+  assert.ok(msg[0].content[0].value.includes('Does this picture show nudity?'));
+  assert.equal(msg[0].content[1].type, 'image');
+  assert.equal(msg[0].content[1].value, picture);
+  assert.equal(JSON.stringify(prompts[0].opts.responseConstraint), '{"type":"boolean"}');
+  assert.equal(r.p, 0.5);
+});
+
+test('image and audio get separate base sessions that declare their input type', async () => {
+  await ai.askMedia('image', 'q', picture, { votes: 1 });
+  await ai.askMedia('audio', 'q', clip, { votes: 1 });
+  const types = created.map((o) => o.expectedInputs.map((i) => i.type).join('+'));
+  assert.deepEqual(types, ['text+image', 'text+audio']);
+  assert.ok(created.every((o) => o.topK === 1 && o.temperature === 0));
+});
+
+test('votes are clamped between one and three prompt wordings', async () => {
+  await ai.askMedia('image', 'q', picture, { votes: 0 });
+  assert.equal(prompts.length, 1);
+  prompts.length = 0;
+  await ai.askMedia('image', 'q', picture, { votes: 9 });
+  assert.equal(prompts.length, 3);
+});
+
+test('an unsupported input type and a safety refusal both come back as error results', async () => {
+  globalThis.LanguageModel.create = async () => { const e = new Error('no image input'); e.name = 'NotSupportedError'; throw e; };
+  assert.deepEqual(await ai.askMedia('image', 'q', picture), { p: null, error: 'NotSupportedError' });
+  ai.resetSession();
+  globalThis.LanguageModel.create = async () => new FakeSession();
+  answer = () => { const e = new Error('unsafe'); e.name = 'NotReadableError'; throw e; };
+  assert.deepEqual(await ai.askMedia('image', 'q', picture), { p: null, error: 'NotReadableError' });
+});
+
+test('NotSupportedError is not retried as if it were a bad sampling parameter', async () => {
+  let calls = 0;
+  globalThis.LanguageModel.create = async () => { calls++; const e = new Error('x'); e.name = 'NotSupportedError'; throw e; };
+  await ai.askMedia('audio', 'q', clip);
+  assert.equal(calls, 1);
+});
+
+test('without the API the media functions report unsupported', async () => {
+  delete globalThis.LanguageModel;
+  assert.deepEqual(await ai.askMedia('image', 'q', picture), { p: null, error: 'unsupported' });
+  assert.equal(await ai.getMediaAvailability('audio'), 'unsupported');
+});

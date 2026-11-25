@@ -33,6 +33,11 @@ export function resetSession() {
   const p = basePromise;
   basePromise = null;
   if (p) p.then((s) => s.destroy && s.destroy()).catch(() => {});
+  for (const kind of Object.keys(mediaBase)) {
+    const m = mediaBase[kind];
+    mediaBase[kind] = null;
+    if (m) m.then((s) => s.destroy && s.destroy()).catch(() => {});
+  }
 }
 
 async function createBase(monitor) {
@@ -128,6 +133,102 @@ export function askScore(question, levels, text) {
         sum += i / (levels.length - 1);
       }
       return { p: sum / prompts.length };
+    } catch (e) {
+      return fail(e);
+    }
+  });
+}
+
+
+// ------------------------------------------------------------------ pictures and sound (experimental)
+// Gemini Nano can take an image or an audio clip next to the text of a prompt. A session has to declare
+// the kinds of input it will receive when it is created, so each kind gets its own base session.
+// Documented prompt shape: session.prompt([{role: 'user', content: [{type: 'text', value}, {type: 'image', value: blob}]}]).
+// Audio input needs a GPU, and either kind may report "unavailable" on a given machine: callers must ask first.
+
+const MEDIA_IO = {
+  image: { expectedInputs: [{ type: 'text', languages: ['en'] }, { type: 'image' }], expectedOutputs: [{ type: 'text', languages: ['en'] }] },
+  audio: { expectedInputs: [{ type: 'text', languages: ['en'] }, { type: 'audio' }], expectedOutputs: [{ type: 'text', languages: ['en'] }] },
+};
+const mediaBase = { image: null, audio: null };
+
+/** 'unsupported' | 'unavailable' | 'downloadable' | 'downloading' | 'available' | 'error:<name>' */
+export async function getMediaAvailability(kind) {
+  if (!isSupported() || !MEDIA_IO[kind]) return 'unsupported';
+  try {
+    return await LanguageModel.availability(MEDIA_IO[kind]);
+  } catch (e) {
+    return 'error:' + ((e && e.name) || 'unknown');
+  }
+}
+
+async function createMediaBase(kind, monitor) {
+  const common = { ...MEDIA_IO[kind], initialPrompts: [{ role: 'system', content: SYSTEM }] };
+  if (monitor) common.monitor = monitor;
+  try {
+    return await LanguageModel.create({ ...common, topK: 1, temperature: 0 });
+  } catch (e) {
+    // only invalid sampling parameters justify a retry; NotSupportedError means this kind of input is not available
+    if (e && (e.name === 'TypeError' || e.name === 'RangeError')) return LanguageModel.create(common);
+    throw e;
+  }
+}
+
+function mediaBaseFor(kind) {
+  if (!mediaBase[kind]) mediaBase[kind] = createMediaBase(kind).catch((e) => { mediaBase[kind] = null; throw e; });
+  return mediaBase[kind];
+}
+
+/** Download/prepare the model for a kind of input. Call from an extension page, in response to a click. */
+export async function prepareMedia(kind, onProgress) {
+  const session = await createMediaBase(kind, (m) => m.addEventListener('downloadprogress', (e) => onProgress && onProgress(e.loaded)));
+  if (session.destroy) session.destroy();
+  mediaBase[kind] = null;
+  return getMediaAvailability(kind);
+}
+
+function mediaFrames(kind, question) {
+  const what = kind === 'image' ? 'picture' : 'audio clip';
+  return [
+    `${question}\nAnswer with true or false.`,
+    `Look at the ${what} carefully, then answer with true (yes) or false (no).\nQuestion: ${question}`,
+    `About this ${what}: ${question}\nReply with only true or false.`,
+  ];
+}
+
+async function runMediaOnce(kind, text, blob) {
+  const root = await mediaBaseFor(kind);
+  const session = await root.clone();
+  try {
+    return await session.prompt(
+      [{ role: 'user', content: [{ type: 'text', value: text }, { type: kind, value: blob }] }],
+      { responseConstraint: { type: 'boolean' } },
+    );
+  } finally {
+    if (session.destroy) session.destroy();
+  }
+}
+
+/**
+ * Ask a yes/no question about a picture or a sound clip.
+ * p is the share of the prompt wordings (1 to 3, the `votes` setting) that answer true.
+ * A "NotReadableError" is the browser's "unsafe response" filter; it is returned as an error so the
+ * caller can decide whether a refusal counts as a flag.
+ * @param {'image'|'audio'} kind
+ * @param {Blob} blob
+ */
+export function askMedia(kind, question, blob, { votes = 2 } = {}) {
+  return serial(async () => {
+    if (!isSupported()) return { p: null, error: 'unsupported' };
+    if (!MEDIA_IO[kind]) return { p: null, error: 'bad-kind' };
+    try {
+      const prompts = mediaFrames(kind, question).slice(0, Math.min(3, Math.max(1, Math.round(votes) || 1)));
+      let yes = 0;
+      for (const prompt of prompts) {
+        const out = await runMediaOnce(kind, prompt, blob);
+        if (JSON.parse(out) === true) yes++;
+      }
+      return { p: yes / prompts.length, votes: yes, of: prompts.length };
     } catch (e) {
       return fail(e);
     }

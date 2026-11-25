@@ -1,0 +1,31 @@
+0.75 | i swear to god
+0.75 | swear to god
+0.75 | swear to jesus
+0.75 | swear to christ
+0.75 | swear by god
+0.75 | swear before god
+0.75 | as god is my witness
+0.75 | god as my witness
+0.75 | god is my witness
+0.75 | so help me god
+0.50 | honest to god
+0.50 | /\bgod'?s honest truth\b/
+0.50 | /\bswear (on|by) (my|the|his|her|our) (life|mother|mom|dad|father|children|kids|grave|bible|word|soul|honou?r)\b/
+0.50 | /\bon my (mother'?s|mom'?s|father'?s|dad'?s|kids'?|children'?s) (life|grave|head)\b/
+0.50 | upon my soul
+0.50 | on my soul
+0.50 | by all that is holy
+0.50 | by heaven
+0.50 | by the saints
+0.50 | cross my heart
+0.50 | hope to die
+0.50 | stack of bibles
+0.50 | swear on the bible
+0.15 | honest to goodness
+0.15 | word of honor
+0.15 | word of honour
+0.15 | on my life
+0.15 | i swear
+0.15 | swear
+0.15 | swore
+0.15 | sworn

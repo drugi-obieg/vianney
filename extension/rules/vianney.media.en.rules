@@ -1,0 +1,84 @@
+# Experimental: pictures and sound. These rules are judged by Chrome's on-device model (Gemini Nano).
+#
+# They do nothing until "Experimental: pictures and sound" is switched on in the settings, and only
+# where the browser reports that the model can take pictures (thumbnails) or sound (audio).
+# This file has no pack header on purpose: the extension joins it to vianney.en.rules.
+#
+# How a score is made. The model gives no confidence number. Each rule's question is asked in 1 to 3
+# differently worded prompts (the "votes" setting) and the score is the share that answered yes.
+# With 2 votes a score is 0, 0.5 or 1; with 3 votes 0, 0.33, 0.67 or 1. So:
+#   flag at 0.30  =  flag when any prompt says yes (cautious: more false alarms)
+#   flag at 0.60  =  flag when most prompts agree
+#   flag at 0.90  =  flag only when all agree (fewer false alarms, more misses)
+# Every number below is a choice, not a measurement: no labelled set of pictures or sound has been run.
+#
+# "refusal: flag" means: if the browser's own safety filter refuses to answer ("unsafe response"),
+# that counts as a flag. It can be switched off in the settings ("Treat a refusal as a flag").
+#
+# There is no word list here, so these rules cannot work from lexicons alone, and a rule cannot mix text
+# with pictures or sound.
+
+# ---------------------------------------------------------------
+# The eyes: thumbnails (Sur la Pénitence on the eyes; Sur l'Impureté)
+# ---------------------------------------------------------------
+
+rule explicit_images
+  title: Nudity and pornography in a thumbnail
+  source: Sur l'Impureté; Sur la Pénitence (the eyes)
+  where: thumbnail
+  ask noul: Does this picture show a naked person, exposed breasts or genitals, or a sexual act, whether in a photograph, a drawing or a computer-made image?
+  flag at: 0.30
+  refusal: flag
+  action: thumbnail=hide
+  enabled: true
+
+rule immodest_images
+  title: Immodest pictures
+  source: Sur l'Impureté
+  where: thumbnail
+  ask noul: Is the main attraction of this picture a person in underwear, lingerie or very revealing clothing, or in a sexually suggestive pose?
+  flag at: 0.60
+  action: thumbnail=blur
+  enabled: true
+
+rule violent_images
+  title: Gore and cruelty in a thumbnail
+  source: Sur la Pénitence (the eyes)
+  where: thumbnail
+  ask noul: Does this picture show a wounded or dead body, blood, or an act of cruelty?
+  flag at: 0.60
+  action: thumbnail=blur
+  enabled: false
+
+# ---------------------------------------------------------------
+# The ears: the sound of a video (Sur la Pénitence on the ears; Sur le deuxième Commandement)
+# A window of sound is judged after it has played, so these can only act on what comes next.
+# ---------------------------------------------------------------
+
+rule audio_explicit
+  title: Sexual sounds or explicit sexual talk
+  source: Sur l'Impureté; Sur la Pénitence (the ears)
+  where: audio
+  ask noul: Does this audio contain sexual sounds, such as moaning, or explicit talk about sex?
+  flag at: 0.60
+  refusal: flag
+  action: audio=pause-overlay
+  enabled: true
+
+rule audio_coarse
+  title: Coarse or obscene language in the sound
+  source: Sur la Pénitence (the ears)
+  where: audio
+  ask noul: Does a speaker or singer in this audio use vulgar, obscene or profane words?
+  flag at: 0.60
+  action: audio=mute-next
+  enabled: true
+
+rule audio_lords_name
+  title: The Lord's name used as an exclamation or a curse (sound)
+  source: Sur le deuxième Commandement
+  where: audio
+  ask noul: Does a speaker use the name of God, Jesus or Christ as an exclamation or a curse, and not in prayer, worship or religious teaching?
+  flag at: 0.80
+  action: audio=mute-next
+  enabled: false

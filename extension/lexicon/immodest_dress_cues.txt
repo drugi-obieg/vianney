@@ -1,0 +1,26 @@
+0.75 | /\b(bikini|swimsuit|swimwear|lingerie) (try[- ]?on )?haul\b/
+0.75 | braless
+0.75 | skimpy
+0.75 | plunging neckline*
+0.50 | try on haul
+0.50 | try-on haul
+0.50 | /\bsee[- ]through\b/
+0.50 | /\blow[- ]cut\b/
+0.50 | cleavage
+0.50 | /\bmini ?skirt\b/
+0.50 | crop top*
+0.50 | bodycon
+0.50 | /\bskin[- ]?tight\b/
+0.50 | tight dress
+0.50 | tight outfit
+0.50 | backless
+0.50 | barely there
+0.50 | club outfit*
+0.50 | going out outfit*
+0.50 | wardrobe malfunction
+0.15 | revealing
+0.15 | sheer
+0.15 | haul
+0.15 | ootd
+0.15 | outfit*
+0.15 | swimsuit*

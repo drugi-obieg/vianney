@@ -1,0 +1,40 @@
+0.95 | xxx
+0.95 | /\bx[- ]?rated\b/
+0.75 | dirty talk
+0.75 | dirty joke*
+0.75 | sex joke*
+0.75 | innuendo*
+0.75 | double entendre*
+0.75 | raunchy
+0.75 | explicit lyrics
+0.75 | nsfw
+0.75 | porn
+0.75 | pornographic
+0.75 | erotic*
+0.75 | /\b18\s?\+/
+0.50 | adult humor
+0.50 | adult humour
+0.50 | adults only
+0.50 | sexual
+0.50 | sexually
+0.50 | steamy
+0.50 | naughty
+0.50 | kinky
+0.50 | seduc*
+0.50 | foreplay
+0.50 | one night stand
+0.50 | hookup
+0.50 | hook up
+0.50 | sex tape
+0.50 | sex scene*
+0.50 | sex positions
+0.50 | sexting
+0.50 | strip club
+0.50 | striptease
+0.50 | lap dance
+0.50 | orgasm*
+0.50 | lust
+0.50 | lustful
+0.15 | sex
+0.15 | sexy
+0.15 | explicit

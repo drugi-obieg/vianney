@@ -3,6 +3,7 @@
 // and restarted by the browser at any time, so all state lives in chrome.storage.local.
 
 import { addPlayback, snooze, dismiss, freshState } from '../core/breaktimer.js';
+import { hashText } from '../core/text.js';
 import { loadSettings } from '../shared/config.js';
 import * as ai from '../ai/prompt-backend.js';
 
@@ -35,6 +36,103 @@ async function aiAvailability(force = false) {
   if (!force && Date.now() - availabilityCache.at < 30000) return availabilityCache.value;
   availabilityCache = { at: Date.now(), value: await ai.getAvailability() };
   return availabilityCache.value;
+}
+
+// ------------------------------------------------------------------ pictures and sound (experimental)
+const MEDIA_CACHE_MAX = 1500;
+const MEDIA_CACHE_TTL_MS = 30 * 24 * 3600 * 1000;
+const FLAGGED_MAX = 2000;
+const thumbBlobs = new Map(); // small in-memory LRU of thumbnail blobs
+
+let mediaAvailCache = { at: 0, value: null };
+async function mediaAvailability(force = false) {
+  if (!force && mediaAvailCache.value && Date.now() - mediaAvailCache.at < 30000) return mediaAvailCache.value;
+  const [image, audio] = await Promise.all([ai.getMediaAvailability('image'), ai.getMediaAvailability('audio')]);
+  mediaAvailCache = { at: Date.now(), value: { image, audio } };
+  return mediaAvailCache.value;
+}
+
+/** The thumbnail of a video, from YouTube's image server (which allows cross-origin reads). */
+async function fetchThumbnail(id) {
+  if (!/^[\w-]{11}$/.test(id)) throw new Error('bad video id');
+  if (thumbBlobs.has(id)) { const b = thumbBlobs.get(id); thumbBlobs.delete(id); thumbBlobs.set(id, b); return b; }
+  let blob = null;
+  for (const name of ['mqdefault', 'hqdefault']) {
+    const res = await fetch(`https://i.ytimg.com/vi/${id}/${name}.jpg`, { credentials: 'omit' });
+    if (!res.ok) continue;
+    blob = await res.blob();
+    if (blob.size > 1500) break; // a missing size comes back as a tiny placeholder
+  }
+  if (!blob) throw new Error('no thumbnail');
+  thumbBlobs.set(id, blob);
+  while (thumbBlobs.size > 24) thumbBlobs.delete(thumbBlobs.keys().next().value);
+  return blob;
+}
+
+function wavBlobFromBase64(b64) {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: 'audio/wav' });
+}
+
+async function mediaCacheGet(key) {
+  const { mediaCache = {} } = await chrome.storage.local.get('mediaCache');
+  const hit = mediaCache[key];
+  return hit && Date.now() - hit.t < MEDIA_CACHE_TTL_MS ? hit.p : null;
+}
+
+function mediaCachePut(key, p) {
+  return exclusive(async () => {
+    const { mediaCache = {} } = await chrome.storage.local.get('mediaCache');
+    mediaCache[key] = { p, t: Date.now() };
+    const keys = Object.keys(mediaCache);
+    if (keys.length > MEDIA_CACHE_MAX) {
+      keys.sort((a, b) => mediaCache[a].t - mediaCache[b].t).slice(0, keys.length - MEDIA_CACHE_MAX).forEach((k) => delete mediaCache[k]);
+    }
+    await chrome.storage.local.set({ mediaCache });
+  });
+}
+
+async function handleMediaAsk(msg) {
+  const settings = await loadSettings();
+  const kind = msg.kind === 'audio' ? 'audio' : 'image';
+  const part = kind === 'audio' ? settings.media.audio : settings.media.thumbnails;
+  if (!settings.enabled || !settings.media.enabled || !part.enabled) return { p: null, error: 'disabled' };
+  const avail = (await mediaAvailability())[kind];
+  if (avail !== 'available') return { p: null, error: 'unavailable' };
+  const votes = Math.min(3, Math.max(1, Number(msg.votes) || 2));
+  let key = null;
+  if (kind === 'image') {
+    key = `image|${msg.media.videoId}|${hashText(msg.question)}|${votes}`;
+    const cached = await mediaCacheGet(key);
+    if (cached !== null) return { p: cached, cached: true };
+  }
+  let blob;
+  try {
+    blob = kind === 'image' ? await fetchThumbnail(msg.media.videoId) : wavBlobFromBase64(msg.media.wav);
+  } catch (e) {
+    return { p: null, error: 'fetch-failed' };
+  }
+  const r = await ai.askMedia(kind, msg.question, blob, { votes });
+  if (key && typeof r.p === 'number') await mediaCachePut(key, r.p);
+  return r;
+}
+
+function rememberFlagged(entry) {
+  return exclusive(async () => {
+    const settings = await loadSettings();
+    if (!settings.media.rememberFlagged || !/^[\w-]{11}$/.test(entry.id || '')) return { ok: false };
+    const { flaggedVideos = {} } = await chrome.storage.local.get('flaggedVideos');
+    // keep the highest score seen for each rule: the verdict itself is made again from these scores when it is used
+    const merged = new Map(((flaggedVideos[entry.id] && flaggedVideos[entry.id].by) || []).map((b) => [b.rule, b.p]));
+    for (const b of entry.by || []) if (b && typeof b.rule === 'string' && typeof b.p === 'number') merged.set(b.rule, Math.max(merged.get(b.rule) || 0, b.p));
+    flaggedVideos[entry.id] = { t: Date.now(), by: [...merged].map(([rule, p]) => ({ rule, p })), kind: entry.kind || 'audio' };
+    const keys = Object.keys(flaggedVideos);
+    if (keys.length > FLAGGED_MAX) keys.sort((a, b) => flaggedVideos[a].t - flaggedVideos[b].t).slice(0, keys.length - FLAGGED_MAX).forEach((k) => delete flaggedVideos[k]);
+    await chrome.storage.local.set({ flaggedVideos });
+    return { ok: true };
+  });
 }
 
 async function handle(msg, sender) {
@@ -84,6 +182,22 @@ async function handle(msg, sender) {
       if ((await aiAvailability()) !== 'available') return { p: null, error: 'unavailable' };
       return msg.kind === 'score' ? ai.askScore(msg.question, msg.levels, msg.text) : ai.askNoul(msg.question, msg.text);
     }
+
+    case 'media-status':
+      return mediaAvailability(!!msg.force);
+
+    case 'media-ask':
+      return handleMediaAsk(msg);
+
+    case 'media-flag':
+      return rememberFlagged(msg.entry || {});
+
+    case 'media-clear':
+      return exclusive(async () => {
+        await chrome.storage.local.remove(['mediaCache', 'flaggedVideos']);
+        thumbBlobs.clear();
+        return { ok: true };
+      });
 
     case 'badge': {
       if (!sender || !sender.tab) return { ok: false };

@@ -1,0 +1,20 @@
+0.75 | smut
+0.75 | erotica
+0.75 | /\bspicy (book|books|read|reads|romance)\b/
+0.75 | steamy romance
+0.75 | dark romance
+0.75 | /\b(fifty|50) shades\b/
+0.75 | satanic bible
+0.50 | romantasy
+0.50 | booktok
+0.50 | romance novel*
+0.50 | banned book*
+0.50 | forbidden book*
+0.50 | the god delusion
+0.50 | /\banti[- ]?religious (book|novel|polemic)\b/
+0.50 | why i am not a christian
+0.50 | book review*
+0.50 | book haul
+0.50 | book recommendations
+0.15 | novel*
+0.15 | audiobook*

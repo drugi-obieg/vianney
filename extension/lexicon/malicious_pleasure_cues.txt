@@ -1,0 +1,38 @@
+0.75 | schadenfreude
+0.75 | instant karma
+0.75 | gets what he deserves
+0.75 | gets what she deserves
+0.75 | get what they deserve
+0.75 | got what he deserved
+0.75 | got what she deserved
+0.75 | got what they deserved
+0.75 | /\b(he|she|they) (got|get|gets) (what|exactly what) (he|she|they) deserve[sd]?\b/
+0.50 | karma
+0.50 | epic fail*
+0.50 | fails compilation*
+0.50 | humiliated
+0.50 | humiliating
+0.50 | humiliation
+0.50 | downfall
+0.50 | cringe
+0.50 | pwned
+0.50 | rekt
+0.50 | gets destroyed
+0.50 | gets owned
+0.50 | gets exposed
+0.50 | public meltdown*
+0.50 | hilarious fails
+0.50 | try not to laugh
+0.50 | caught in the act
+0.50 | ruined his life
+0.50 | ruined her life
+0.15 | owned
+0.15 | roasted
+0.15 | rock bottom
+0.15 | fail
+0.15 | fails
+0.15 | failed
+0.15 | destroyed
+0.15 | busted
+0.15 | embarrassing
+0.15 | the fall of

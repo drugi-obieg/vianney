@@ -1,0 +1,36 @@
+0.75 | god hates me
+0.75 | god has abandoned me
+0.75 | god abandoned me
+0.75 | god has forsaken me
+0.75 | god forsook me
+0.75 | /\bgod (doesn'?t|does not|didn'?t|did not) (care|love me|listen|hear me)\b/
+0.75 | i hate god
+0.75 | hate god
+0.75 | curse god
+0.75 | cursed god
+0.75 | cursing god
+0.75 | to hell with god
+0.75 | screw god
+0.75 | damn god
+0.75 | down with god
+0.50 | god is cruel
+0.50 | god is unfair
+0.50 | god is unjust
+0.50 | god is punishing me
+0.50 | god has it in for me
+0.50 | /\b(done|finished|through) with god\b/
+0.50 | /\bi (don'?t|do not) believe in god (anymore|any more)\b/
+0.50 | i give up on god
+0.50 | where was god
+0.50 | where is god
+0.50 | where is your god
+0.50 | why would god let
+0.50 | why did god let
+0.50 | why does god allow
+0.50 | how could god allow
+0.50 | how can god allow
+0.50 | angry at god
+0.50 | mad at god
+0.50 | furious with god
+0.15 | blame god
+0.15 | blaming god

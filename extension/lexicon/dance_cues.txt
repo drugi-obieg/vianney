@@ -1,0 +1,28 @@
+0.75 | dance party
+0.75 | dance battle*
+0.75 | dance challenge*
+0.75 | dance trend*
+0.75 | twerk*
+0.75 | nightclub*
+0.75 | night club*
+0.50 | club dancing
+0.50 | ballroom
+0.50 | prom
+0.50 | homecoming dance
+0.50 | school dance
+0.50 | tiktok dance
+0.50 | dance cover
+0.50 | dance video
+0.50 | dancing with the stars
+0.50 | line dancing
+0.50 | salsa night
+0.50 | /\bdance (floor|night|off)\b/
+0.15 | rave
+0.15 | disco
+0.15 | dance
+0.15 | dancing
+0.15 | dancers
+0.15 | choreography
+0.15 | waltz
+0.15 | tango
+0.15 | ball

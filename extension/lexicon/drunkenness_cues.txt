@@ -1,0 +1,38 @@
+0.75 | drunk
+0.75 | drunken
+0.75 | sloshed
+0.75 | binge drinking
+0.75 | binge drink*
+0.75 | drinking game*
+0.75 | drinking challenge*
+0.75 | pub crawl*
+0.75 | bar crawl*
+0.75 | getting drunk
+0.75 | get drunk
+0.75 | got drunk
+0.75 | so drunk
+0.50 | wasted
+0.50 | hammered
+0.50 | plastered
+0.50 | blackout drunk
+0.50 | blacked out
+0.50 | hangover*
+0.50 | shot challenge*
+0.50 | chug*
+0.50 | keg stand*
+0.50 | beer pong
+0.50 | party hard
+0.50 | tipsy
+0.50 | booze
+0.50 | liquor
+0.50 | whiskey
+0.50 | whisky
+0.50 | vodka
+0.15 | alcohol
+0.15 | beer
+0.15 | wine
+0.15 | bar
+0.15 | pub
+0.15 | tavern
+0.15 | drinking
+0.15 | shots

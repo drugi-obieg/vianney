@@ -1,0 +1,39 @@
+0.95 | gladiator*
+0.95 | death match*
+0.95 | deathmatch*
+0.95 | fight to the death
+0.75 | gory
+0.75 | brutal knockout*
+0.75 | knockout compilation*
+0.75 | fight compilation*
+0.75 | death compilation*
+0.75 | killed on camera
+0.75 | died on camera
+0.75 | beheading*
+0.50 | gore
+0.50 | street fight*
+0.50 | real fight*
+0.50 | cage fight*
+0.50 | cage match*
+0.50 | bare knuckle
+0.50 | blood sport*
+0.50 | bloodsport*
+0.50 | bullfight*
+0.50 | bull fight*
+0.50 | cockfight*
+0.50 | dogfight*
+0.50 | graphic content
+0.50 | graphic footage
+0.50 | mauled
+0.15 | execution*
+0.15 | slaughter
+0.15 | arena
+0.15 | brawl*
+0.15 | fight
+0.15 | fights
+0.15 | fighting
+0.15 | bloody
+0.15 | blood
+0.15 | knockout
+0.15 | violent
+0.15 | brutal

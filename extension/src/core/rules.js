@@ -1,14 +1,19 @@
 // Parser for the plain-text rule format (see plan.md section 5 and extension/rules/*.rules).
 
-export const SURFACES = ['feed-card', 'watch-meta', 'subtitles'];
+export const TEXT_SURFACES = ['feed-card', 'watch-meta', 'subtitles'];
+// Experimental: judged by the on-device model from a thumbnail picture or from a few seconds of sound.
+export const MEDIA_SURFACES = ['thumbnail', 'audio'];
+export const SURFACES = [...TEXT_SURFACES, ...MEDIA_SURFACES];
 export const ACTIONS = {
   'feed-card': ['hide', 'blank', 'dim', 'label'],
   'watch-meta': ['warn-overlay', 'label'],
   subtitles: ['mute-word', 'skip-segment', 'censor-caption'],
+  thumbnail: ['blur', 'hide', 'blank', 'dim', 'label'],
+  audio: ['pause-overlay', 'mute-next', 'label'],
 };
-export const DEFAULT_ACTION = { 'feed-card': 'hide', 'watch-meta': 'warn-overlay', subtitles: 'mute-word' };
+export const DEFAULT_ACTION = { 'feed-card': 'hide', 'watch-meta': 'warn-overlay', subtitles: 'mute-word', thumbnail: 'blur', audio: 'pause-overlay' };
 
-const RULE_KEYS = new Set(['title', 'source', 'where', 'lexicon', 'gate', 'flag at', 'action', 'enabled', 'levels']);
+const RULE_KEYS = new Set(['title', 'source', 'where', 'lexicon', 'gate', 'flag at', 'action', 'enabled', 'levels', 'refusal']);
 
 function stripComment(v) {
   return v.replace(/\s+#.*$/, '').trim();
@@ -41,7 +46,7 @@ export function parseRules(text) {
     if (ruleHead) {
       cur = {
         id: ruleHead[1], title: ruleHead[1], source: '', where: [], lexicon: [], asks: [], gate: null,
-        flagAtRaw: null, flagAt: 0.7, actionRaw: null, action: {}, enabled: true, line: n,
+        flagAtRaw: null, flagAt: 0.7, actionRaw: null, action: {}, enabled: true, refusal: 'ignore', line: n,
       };
       lastAsk = null;
       rules.push(cur);
@@ -81,6 +86,7 @@ export function parseRules(text) {
       case 'flag at': cur.flagAtRaw = stripComment(value); break;
       case 'action': cur.actionRaw = stripComment(value); break;
       case 'enabled': cur.enabled = stripComment(value) !== 'false'; break;
+      case 'refusal': cur.refusal = stripComment(value); break;
       case 'levels':
         if (!lastAsk || lastAsk.type !== 'score') fail(n, '"levels" belongs under an "ask score" line');
         else lastAsk.levels = list(value);
@@ -99,6 +105,14 @@ export function parseRules(text) {
     if (!r.lexicon.length && !r.asks.length) fail(r.line, `rule ${r.id}: needs a lexicon or an "ask" question`);
     for (const a of r.asks) if (a.type === 'score' && (!a.levels || a.levels.length < 2)) fail(r.line, `rule ${r.id}: an "ask score" needs "levels" with at least two names`);
 
+    if (r.refusal !== 'flag' && r.refusal !== 'ignore') fail(r.line, `rule ${r.id}: refusal must be "flag" or "ignore"`);
+    const mediaWhere = r.where.filter((w) => MEDIA_SURFACES.includes(w));
+    if (mediaWhere.length) {
+      if (mediaWhere.length !== r.where.length) fail(r.line, `rule ${r.id}: a rule cannot look at both text and pictures or sound; split it into two rules`);
+      if (!r.asks.length) fail(r.line, `rule ${r.id}: pictures and sound are judged by a question, so it needs an "ask noul" line`);
+      if (r.lexicon.length) fail(r.line, `rule ${r.id}: word lists only work on text`);
+      if (r.asks.some((a) => a.type !== 'noul')) fail(r.line, `rule ${r.id}: pictures and sound take "ask noul" questions only`);
+    }
     if (r.gate === null) r.gate = r.lexicon.length ? 'lexicon' : 'always';
     if (r.gate !== 'lexicon' && r.gate !== 'always') fail(r.line, `rule ${r.id}: gate must be "lexicon" or "always"`);
 

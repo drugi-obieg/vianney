@@ -1,0 +1,26 @@
+0.75 | slander*
+0.75 | defam*
+0.75 | false accusation*
+0.75 | falsely accused
+0.50 | libel*
+0.50 | smear*
+0.50 | accused of
+0.50 | accusation*
+0.50 | allegation*
+0.50 | exposed as
+0.50 | caught lying
+0.50 | lied about
+0.50 | grifter*
+0.50 | fraud*
+0.50 | scammer*
+0.50 | con artist*
+0.50 | /\b(is|was|are|were) (a|an) (liar|fraud|con artist|criminal|thief|predator|scammer|cheater|abuser|pedophile|murderer|rapist|cult leader|grifter)\b/
+0.50 | /\bproof (that )?(he|she|they)\b/
+0.15 | predator*
+0.15 | liar*
+0.15 | lying
+0.15 | fake
+0.15 | cheater*
+0.15 | criminal*
+0.15 | guilty
+0.15 | thief

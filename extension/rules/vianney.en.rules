@@ -1,48 +1,373 @@
-# Vianney rules, English. INTERIM: the four rules built on the word lists written by the project.
-# The questions and word lists are drafts for the rule author to correct. Weights are placeholders.
 pack: vianney-en
 version: 1
 language: en
-note: Drafts by the project. Categories come from the Cure d'Ars (Sur le deuxieme Commandement). Correct the questions and word lists to match what you want filtered.
+note: Draft starter pack from the project; the questions, word lists and lexicon weights are drafts that the rule author should correct, and the weights are placeholder tiers (0.95, 0.75, 0.50, 0.15) to be calibrated later on a labelled set.
+
+# DEFAULT SENSITIVITY POLICY. For rules whose cue words also occur in reverent or educational speech
+# (the Lord's name, oaths, blasphemy, renunciation, curses, calumny) the default "flag at" is above the 0.75
+# tier: from word lists alone only the unambiguous 0.95-tier cues flag, and the 0.75 tier waits for the
+# on-device AI or for you to move the slider down. Wrongly hiding a sermon costs more than missing a cue.
+
+# Every rule below is traced to verbatim passages of the Curé d'Ars, quoted with their sources on the rules page
+# of the project site (rules.md in the repository).
+# Ten rules are enabled by default (the tongue, detraction and calumny, impure words and sights).
+# The other twenty are broad or over-flagging and ship disabled: see "Notes on defaults" on that page.
+
+# ---------------------------------------------------------------
+# The tongue: the six categories of the second Commandment
+# ---------------------------------------------------------------
 
 rule lords_name
   title: Taking the Lord's name in vain
-  source: Sur le deuxieme Commandement
+  source: Sur le deuxième Commandement
   where: feed-card, watch-meta, subtitles
   lexicon: lords_name_strong, lords_name_bare
-  ask noul: Is the name of God, Jesus or Christ used here as an exclamation, an oath or a curse, and not in prayer, quotation or discussion?
+  ask noul: Is the name of God, Jesus or Christ used here as an exclamation or a curse, and not in prayer, worship, quotation or talk about religion?
   gate: lexicon
   flag at: 0.80
   action: feed-card=hide, watch-meta=warn-overlay, subtitles=mute-word
   enabled: true
 
+rule oaths
+  title: Oaths, calling God to witness
+  source: Sur le deuxième Commandement
+  where: feed-card, watch-meta, subtitles
+  lexicon: oath_cues
+  ask noul: Does the speaker swear by God or by something sacred to vouch for a claim or promise (for example 'I swear to God', 'so help me God'), and not as a formal oath in court, a wedding vow or a prayer?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=warn-overlay, subtitles=mute-word
+  enabled: true
+
 rule blasphemy
   title: Blasphemy
-  source: Sur le deuxieme Commandement
+  source: Sur le deuxième Commandement
   where: feed-card, watch-meta, subtitles
   lexicon: blasphemy_terms
-  ask noul: Does this text mock, insult or curse God, Jesus, Mary, the saints or the Church, as opposed to merely discussing or reporting such speech?
+  ask noul: Is God, Jesus, the Virgin Mary or a saint insulted or mocked here (for example called cruel, unjust or powerless), and not just quoted, discussed or prayed to?
   gate: lexicon
-  flag at: 0.75
+  flag at: 0.80
   action: feed-card=hide, watch-meta=warn-overlay, subtitles=mute-word
   enabled: true
 
-rule curses
+rule renunciation
+  title: Renouncing God in anger
+  source: Sur le deuxième Commandement
+  where: feed-card, watch-meta, subtitles
+  lexicon: renunciation_cues
+  ask noul: Does the speaker rage against God or disown Him in anger over a loss or misfortune (for example 'God has abandoned me', 'to hell with God'), and not calmly explain why he does not believe?
+  gate: lexicon
+  flag at: 0.85
+  action: feed-card=dim, watch-meta=warn-overlay, subtitles=mute-word
+  enabled: true
+
+rule curses_imprecations
   title: Curses and imprecations
-  source: Sur le deuxieme Commandement
+  source: Sur le deuxième Commandement
   where: feed-card, watch-meta, subtitles
   lexicon: curses_imprecations
-  ask noul: Is this a curse or imprecation, such as wishing damnation or harm on someone, or calling a penalty on oneself, and not a quotation or a description of one?
+  ask noul: Does the speaker, in anger or despair, call down harm, damnation or death on a person, an animal, a thing or himself (for example 'damn you', 'I hope you die', 'may I be struck dead if I lie'), and not in a joke, a story or a quoted lyric?
   gate: lexicon
-  flag at: 0.70
+  flag at: 0.80
   action: feed-card=hide, watch-meta=warn-overlay, subtitles=mute-word
   enabled: true
 
 rule coarse_words
   title: Coarse words
-  source: Sur le deuxieme Commandement
+  source: Sur la Pénitence
   where: feed-card, watch-meta, subtitles
   lexicon: coarse_words
+  ask noul: Is a vulgar or obscene word used here crudely, and not as a medical or educational term, a place name or a quotation under discussion?
+  gate: lexicon
   flag at: 0.70
   action: feed-card=hide, watch-meta=warn-overlay, subtitles=mute-word
   enabled: true
+
+# ---------------------------------------------------------------
+# The tongue, continued: insults and mockery of holy things
+# ---------------------------------------------------------------
+
+rule insults
+  title: Insults
+  source: Sur le deuxième Commandement
+  where: feed-card, watch-meta, subtitles
+  lexicon: insult_cues
+  ask noul: Is a person being called insulting names here (for example 'thief', 'scoundrel', 'idiot') as an attack, and not as friendly teasing or a quotation?
+  gate: lexicon
+  flag at: 0.75
+  action: feed-card=dim, watch-meta=label, subtitles=mute-word
+  enabled: false
+
+rule mockery_of_faith
+  title: Mocking religion and holy things
+  source: Sur les ennemis de notre salut
+  where: feed-card, watch-meta, subtitles
+  lexicon: mockery_of_faith_cues
+  ask noul: Does this make fun of religion, prayer, believers, sacred things or clergy, rather than discuss them seriously?
+  gate: lexicon
+  flag at: 0.75
+  action: feed-card=dim, watch-meta=label, subtitles=skip-segment
+  enabled: false
+
+# ---------------------------------------------------------------
+# Detraction: Sur la Médisance and Sur le jugement téméraire
+# ---------------------------------------------------------------
+
+rule gossip
+  title: Detraction and gossip
+  source: Sur la Médisance
+  where: feed-card, watch-meta, subtitles
+  lexicon: gossip_cues
+  ask score: How much of this talks about the private faults or misdeeds of a named real person, living or dead?
+    levels: none, mild, heavy
+  gate: lexicon
+  flag at: heavy
+  action: feed-card=hide, watch-meta=warn-overlay, subtitles=skip-segment
+  enabled: true
+
+rule calumny
+  title: Calumny
+  source: Sur la Médisance
+  where: feed-card, watch-meta, subtitles
+  lexicon: calumny_cues
+  ask noul: Does this accuse a named real person of a crime or a serious fault as if it were certain, without giving any source or proof?
+  gate: lexicon
+  flag at: 0.85
+  action: feed-card=hide, watch-meta=warn-overlay, subtitles=skip-segment
+  enabled: true
+
+rule rash_judgment
+  title: Rash judgment
+  source: Sur le jugement téméraire
+  where: feed-card, watch-meta, subtitles
+  lexicon: rash_judgment_cues
+  ask noul: Does this suggest that a named real person is guilty, lying or acting from bad motives on thin evidence (guesswork, rumour, 'body language')?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label, subtitles=skip-segment
+  enabled: false
+
+rule tale_bearing
+  title: Tale-bearing
+  source: Sur la Médisance
+  where: feed-card, watch-meta, subtitles
+  lexicon: tale_bearing_cues
+  ask noul: Does this pass on what one person said or did against another (for example 'what X said about you', leaked messages, talk behind someone's back)?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label, subtitles=skip-segment
+  enabled: false
+
+rule curiosity
+  title: Curiosity about other people's affairs
+  source: Sur la Pénitence
+  where: feed-card, watch-meta
+  lexicon: curiosity_cues
+  ask noul: Is this title or description written to make us curious about someone's private affairs (what he said or did, what goes on inside his home or life)?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label
+  enabled: false
+
+# ---------------------------------------------------------------
+# Purity: Sur la pureté and Sur l'Impureté
+# ---------------------------------------------------------------
+
+rule impure_words
+  title: Impure words and songs
+  source: Sur la pureté
+  where: feed-card, watch-meta, subtitles
+  lexicon: impurity_cues
+  ask noul: Is this lewd talk or lewd song lyrics (sexual innuendo, sex jokes, explicit lyrics), and not sex education, medical information or news?
+  gate: lexicon
+  flag at: 0.75
+  action: feed-card=hide, watch-meta=warn-overlay, subtitles=mute-word
+  enabled: true
+
+rule impure_sights
+  title: Impure sights
+  source: Sur l'Impureté
+  where: feed-card, watch-meta
+  lexicon: sexual_imagery_cues
+  ask noul: Does this title or description offer nude or sexually suggestive images or scenes (for example nudity, lingerie, a 'thirst trap', an erotic dance), and not art history, medicine or news?
+  gate: lexicon
+  flag at: 0.75
+  action: feed-card=hide, watch-meta=warn-overlay
+  enabled: true
+
+rule immodest_dress
+  title: Immodest dress
+  source: Sur l'Impureté
+  where: feed-card, watch-meta
+  lexicon: immodest_dress_cues
+  ask noul: Is revealing or very tight clothing the attraction of this item (for example a swimwear or lingerie try-on, 'see-through', 'barely there')?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label
+  enabled: false
+
+rule familiar_company
+  title: Too-familiar company between the sexes
+  source: Sur l'Impureté
+  where: feed-card, watch-meta
+  lexicon: courtship_cues
+  ask noul: Does this present flirting, dating or casual hookups as entertainment or advice (a dating show, pick-up tips, 'situationship' drama)?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label
+  enabled: false
+
+rule bad_books
+  title: Bad books
+  source: Sur la Pénitence
+  where: feed-card, watch-meta
+  lexicon: bad_books_cues
+  ask noul: Is this a reading, review or promotion of a book whose selling point is lewdness or contempt for religion (erotica, 'spicy' romance, anti-religious polemic)?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label
+  enabled: false
+
+# ---------------------------------------------------------------
+# Occasions of sin: balls, shows, games, the tavern
+# ---------------------------------------------------------------
+
+rule dances
+  title: Balls and dances
+  source: Sur l'Impureté
+  where: feed-card, watch-meta
+  lexicon: dance_cues
+  ask noul: Is this a dance party, ball or club night, or a viral dance video made for fun?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label
+  enabled: false
+
+rule spectacles
+  title: Stage shows and comedies
+  source: Sur la Contrition
+  where: feed-card, watch-meta
+  lexicon: spectacle_cues
+  ask noul: Is this a staged show for amusement (a theatre play, comedy show, musical or circus act)?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label
+  enabled: false
+
+rule cruel_spectacles
+  title: Cruel spectacles
+  source: Sur le Monde
+  where: feed-card, watch-meta
+  lexicon: violence_spectacle_cues
+  ask noul: Does this show or advertise people being killed, maimed or beaten for entertainment (death matches, gore, real-fight compilations)?
+  gate: lexicon
+  flag at: 0.75
+  action: feed-card=hide, watch-meta=warn-overlay
+  enabled: false
+
+rule gambling
+  title: Games played for money
+  source: Sur les ennemis de notre salut
+  where: feed-card, watch-meta
+  lexicon: gambling_cues
+  ask noul: Is this about gambling or betting for money (casino, poker, slots, sports betting, lottery), including tips or promotion?
+  gate: lexicon
+  flag at: 0.75
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: false
+
+rule drunkenness
+  title: Drunkenness and the tavern
+  source: Sur l'Ivrognerie
+  where: feed-card, watch-meta
+  lexicon: drunkenness_cues
+  ask noul: Does this show or promote heavy drinking or getting drunk (drinking games, binge drinking, bar crawls)?
+  gate: lexicon
+  flag at: 0.75
+  action: feed-card=dim, watch-meta=label
+  enabled: false
+
+rule gluttony
+  title: Gluttony
+  source: Sur la Pénitence
+  where: feed-card, watch-meta
+  lexicon: gluttony_cues
+  ask noul: Does this show or promote eating far beyond need (eating challenges, mukbang, giant-portion contests)?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label
+  enabled: false
+
+# ---------------------------------------------------------------
+# Passions and other sins named in the sermons
+# ---------------------------------------------------------------
+
+rule anger
+  title: Anger
+  source: Sur la colère
+  where: feed-card, watch-meta
+  lexicon: anger_cues
+  ask noul: Does this feature a person in a violent fit of rage (screaming, raging, meltdown), and not a calm protest or a staged scene?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label
+  enabled: false
+
+rule revenge
+  title: Revenge
+  source: Sur la Satisfaction
+  where: feed-card, watch-meta, subtitles
+  lexicon: revenge_cues
+  ask noul: Does this present taking revenge as satisfying, or urge someone to get even (revenge stories, 'petty revenge', 'make them pay')?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label, subtitles=skip-segment
+  enabled: false
+
+rule pranks
+  title: Lies told to trick or amuse
+  source: Sur le Mensonge
+  where: feed-card, watch-meta
+  lexicon: prank_cues
+  ask noul: Is this a prank, hoax or trick in which someone is deceived for laughs?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label
+  enabled: false
+
+rule malicious_pleasure
+  title: Malicious pleasure in another's misfortune
+  source: Sur l'Envie
+  where: feed-card, watch-meta
+  lexicon: malicious_pleasure_cues
+  ask noul: Is this made to be enjoyed as someone else's misfortune or humiliation (fails, 'karma', 'gets what he deserves')?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label
+  enabled: false
+
+rule divination
+  title: Consulting diviners
+  source: Sur la Satisfaction
+  where: feed-card, watch-meta
+  lexicon: divination_cues
+  ask noul: Does this offer or advertise fortune-telling or divination for guidance (tarot, horoscopes, psychics, mediums)?
+  gate: lexicon
+  flag at: 0.75
+  action: feed-card=blank, watch-meta=label
+  enabled: false
+
+# ---------------------------------------------------------------
+# Faith: Sur la religion
+# ---------------------------------------------------------------
+
+rule denial_of_god
+  title: Denying that there is a God
+  source: Sur la religion
+  where: feed-card, watch-meta, subtitles
+  lexicon: denial_of_god_cues
+  ask noul: Does this state flatly that there is no God, and not just discuss atheism or the question of God's existence?
+  gate: lexicon
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=label, subtitles=skip-segment
+  enabled: false

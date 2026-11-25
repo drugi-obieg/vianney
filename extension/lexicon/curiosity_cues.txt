@@ -1,0 +1,30 @@
+0.75 | /\binside (her|his|their|the) (house|home|mansion|room|life)\b/
+0.75 | private life
+0.75 | personal life
+0.75 | love life
+0.50 | what really happened
+0.50 | /\bwhat (she|he|they)('?s| is| are) hiding\b/
+0.50 | the real reason
+0.50 | /\byou won'?t believe\b/
+0.50 | /\bwhat (she|he|they) (really|actually) (said|did|does|thinks?)\b/
+0.50 | behind the scenes
+0.50 | when the cameras are off
+0.50 | spied on
+0.50 | spying on
+0.50 | stalked
+0.50 | stalking
+0.50 | snooping
+0.50 | nosy
+0.50 | where are they now
+0.15 | caught on camera
+0.15 | unseen
+0.15 | what happened to
+0.15 | secret
+0.15 | secrets
+0.15 | revealed
+0.15 | reveals
+0.15 | shocking
+0.15 | exposed
+0.15 | house tour
+0.15 | day in the life
+0.15 | the truth about

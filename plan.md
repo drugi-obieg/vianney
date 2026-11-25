@@ -1,6 +1,6 @@
 # The plan
 
-Status: working draft, 2026-11-25. Version 0.1 of the extension is built (see section 10 and the README); the plan below is still the reference.
+Status: working draft, 2026-11-25. Version 0.2 of the extension is built (see section 10 and the README); the plan below is still the reference.
 
 How to read the tags. **[verified]** means read on the source page or measured in an experiment during this research (sources are listed at the end). **[unverified]** means a secondary source, or not yet tested. **[choice]** means a design decision that can be changed.
 
@@ -118,7 +118,7 @@ How to read the tags. **[verified]** means read on the source page or measured i
 - **Offensive text.** No page says that the model refuses or sanitizes profane or blasphemous input. Chromium does have a safety pipeline that can reject output with `NotReadableError` ("The execution yielded an unsafe response."), and what it screens, and with which thresholds, is not documented. The first spike must feed it offensive and quoted subtitle lines and record the answers and the exception names. The deterministic stage runs first, so a lexicon hit never depends on the model accepting the text.
 - **Throughput.** No documented numbers. One third-party measurement (M4 Pro): about 50 tokens per second decoding and about 1,000 per second prefill, which makes a title-length question roughly a quarter of a second. **[unverified]**
 - **Memory and disk.** About 4 GB on disk (a third party measured 4,072 MiB) and no documented RAM or VRAM use. The model is removed when free disk falls below 10 GB, after 30 days of ineligibility, by enterprise policy (`GenAILocalFoundationalModelSettings`) or by a user setting. So "unavailable" can appear at any time.
-- **Images and audio.** The API accepts image and audio input. Whether this works inside extensions is untested. It could later allow thumbnail checks. **[unverified]**
+- **Images and audio.** The API accepts image and audio input. Version 0.2 uses it for the experimental picture and sound checks: see section 3.10. On the machine used here, availability with image input is "downloadable" and with audio input "unavailable", and no real model has been run. **[measured, availability only]**
 - **Other browsers.** Edge ships its own experimental Prompt API (a 2.3B model called Aion Instruct, Edge 158 and later). Firefox has no Prompt API, but offers `browser.trial.ml`, an extension API that runs Transformers.js and ONNX models in Firefox's own runtime, which may replace bundling onnxruntime-web in a Firefox build. Safari has no equivalent and its vendor opposes the API. For Brave, nothing was found.
 - **Spot check on a small machine** **[measured, 2026-11-25]**. On an 8 GB Apple-silicon laptop with Chrome 158, in an ordinary page of a throwaway headless profile, `LanguageModel.availability()` answered "downloadable", `Translator.availability()` for German to English answered "downloadable", and `LanguageDetector.availability()` answered "available". Nothing was downloaded and no session was created. So the APIs are exposed in current Chrome, and this machine was not rejected at the availability stage, although it is below the documented 16 GB RAM figure. Whether a session can actually be created and run is untested.
 - **Consequence.** The documented requirements (16 GB RAM or more than 4 GB VRAM, 22 GB free disk) exclude some machines, and Chrome can remove the model at any time. So the Prompt API can be the first-draft backend but not the only one, and "unavailable" must be a normal, handled state.
@@ -205,6 +205,27 @@ The question was whether subtitles can be fetched when a video merely appears in
   - The "Unlisted" visibility (anyone with the link can install) exists, and goes through the same review as a public listing.
 - **Storing a downloaded model.** The `unlimitedStorage` permission lifts the quota for IndexedDB, Cache Storage and the Origin Private File System (without it `chrome.storage.local` holds 10 MB). Chromium lets an origin use up to 60% of the disk. Firefox's best-effort quota is the smaller of 10% of the disk or 10 GiB, and persistent storage can use up to 50%. Real free disk space is the practical limit.
 - **Recommended design.** A small extension that holds only the runtime and the code, plus a model downloaded on first run from the project's website, pinned by SHA-256 and stored in OPFS, with `unlimitedStorage`. This avoids size limits in both stores. Whether the Chrome Web Store accepts it should be tested with one unlisted submission before anything depends on it. The model version is pinned in a manifest with a checksum, so updates stay controlled.
+
+### 3.10 Pictures and sound (experimental, version 0.2)
+
+- **What was asked.** An experimental option that judges the thumbnail of every video in the same classifier style (immodesty, and all pornography), and the sound of a video, with Chrome's on-device model. Every part has to be configurable, in case the classifiers misfire.
+- **What is built** (off until switched on in the settings; no new permission)
+  - Two new surfaces for rules, `thumbnail` and `audio`. A rule on them has an `ask noul` question and no word list, and cannot also look at text. They ship in `extension/rules/vianney.media.en.rules`: nudity and pornography (hide the card), immodest pictures (blur), gore (off), explicit sound (pause behind a warning), coarse language in the sound (mute until a clean window), the Lord's name in the sound (off).
+  - A score is the share of 1 to 3 differently worded prompts that answered yes (the "votes" setting). With 2 votes it is 0, 0.5 or 1. So "flag at 0.3" means any prompt says yes, 0.6 means most agree, 0.9 means all agree. These numbers are choices, not measurements.
+  - A refusal by the browser's safety filter (`NotReadableError`, "unsafe response") counts as a flag only for rules that say `refusal: flag`, and only while the setting "treat a refusal as a flag" is on. That default is a guess in the cautious direction: it has not been seen happen.
+  - Thumbnails: the service worker fetches the picture from `i.ytimg.com` and gives it to the model with the question. Cards near the screen go first, a page has a budget (60 by default), and verdicts are kept for 30 days. A thumbnail can be held invisible until it was checked; it is shown anyway after a few seconds when the model is slow (0 seconds means never), and always when the model is unavailable, so the page never stays broken.
+  - Sound: the player's sound is recorded in windows of a few seconds (`video.captureStream()` and `MediaRecorder`), decoded to 16 kHz mono and sent as a WAV clip. A window is judged after it has played, so a sound check can only react to what comes next. It can pause the video, mute it until a window comes back clean, or show a label. If the model is slower than the sound, at most two windows wait and older ones are dropped and counted. Silence is not sent to the model. Ads are skipped. By default it stays idle when the captions were read, because the subtitle rules cover speech then.
+  - Remembered sound verdicts: a video flagged by sound is remembered with the score, and a feed hides (or dims, or labels) it next time. The verdict is made again from the stored score, so moving a slider changes it.
+  - For misfires: a switch and a slider per rule, a switch per part, allow and block lists that always win (allow beats block), a "Show" button on a blurred thumbnail, "never flag" and "always hide" buttons on log entries, and a test box that judges a picture or an audio file from disk.
+- **Measured here** **[measured, 2026-11-25; 8 GB Apple-silicon laptop, headless Chrome 158]**
+  - `LanguageModel.availability()` with image input answered "downloadable", with audio input "unavailable". No model was downloaded (Chrome wants 22 GB free, and this machine has about 13 GB), so no real model has judged a picture or a sound here.
+  - `i.ytimg.com` answers with `access-control-allow-origin: *`, so the service worker can read thumbnails without a host permission. A 320 by 180 `mqdefault.jpg` is 7 to 10 KB. Pages use `/vi/<id>/hq720.jpg`, `/vi/<id>/hqdefault.jpg` and the localised `/vi_lc/<id>/hqdefault_de.jpg`. Channel avatars come from `yt3.ggpht.com`.
+  - Recording the sound of a playing video works from a content script without a user gesture, and also while the browser itself is muted (`--mute-audio`) or the element is muted. A 4-second window arrived as a 126 KB WAV with real signal. A real-time `AudioContext` stays suspended without user activation, which is why the recorder is decoded offline.
+- **Tested with a stand-in model.** The browser tests put a fake `LanguageModel` into the service worker. Real thumbnails are fetched, real sound is recorded from a playing video, and only the model's yes or no is scripted. They show that the whole path works: fetch, message, votes, engine, hold, hide, lists, cache, mute, pause overlay and the remembered verdict.
+- **Not verified**
+  - The accuracy and the speed of the real model on pictures and on sound. Each picture rule asks one question per prompt wording for every thumbnail, so a feed is slow even when the model is fast.
+  - Whether Chrome takes a WAV blob as audio input in the documented message shape. The code follows the documented shape and was only run against the stand-in.
+  - Whether the safety filter refuses explicit pictures, or answers them.
 
 ---
 
@@ -382,17 +403,21 @@ rule lords_name
 
 ## 10. Milestones
 
-- **Built so far (version 0.1, 2026-11-25)**
-  - The rule text format with a parser, word lists with weights, the cascade engine (lexicon first, a model only inside the uncertain band), per-rule sensitivity and an event log. 54 unit tests pass.
+- **Built so far (version 0.2, 2026-11-25; version 0.1 was the same without the starter pack, lists and the picture and sound checks)**
+  - The rule text format with a parser, word lists with weights, the cascade engine (lexicon first, a model only inside the uncertain band), per-rule sensitivity and an event log. 93 unit tests pass.
+  - The starter pack: 30 text rules traced to verbatim passages of the Curé d'Ars (the rules page of the site), 10 on by default, with 31 word lists.
+  - Allow and block lists for videos and channels, which always win over a rule or a model.
   - The feed filter with structure-based card discovery (hide, blank, dim, label), re-evaluated at once when a slider moves.
   - The video page: a check of title, description and keywords with a warning overlay; capture of the player's own caption request; mute, skip and masking of visible captions.
   - The break reminder: a card in the list (or a banner when there is no list), with watch-time counting across tabs.
-  - A settings page with a slider or dropdown per rule, the rule text editor, break and subtitle settings, an AI panel, the log and a test box.
+  - A settings page with a slider or dropdown per rule, the rule text editor, break and subtitle settings, an AI panel, the log (with "never flag" and "always hide" buttons) and a test box.
   - The Prompt API backend, written to the documentation and tested only against a fake of the API.
-  - End-to-end checks in a real Chrome 158 with the extension loaded (`Extensions.loadUnpacked`), on real YouTube pages: 33 checks pass. They cover finding cards, hiding, the slider moving the outcome in both directions without a reload, the break card appearing and being snoozed, planned muting following the playhead, caption masking, and the settings page.
+  - The experimental picture and sound checks (section 3.10), off by default.
+  - End-to-end checks in a real Chrome 158 with the extension loaded (`Extensions.loadUnpacked`), on real YouTube pages: 97 checks pass. They cover finding cards, hiding, the slider moving the outcome in both directions without a reload, no false alarms on eight religious searches, the break card appearing and being snoozed, planned muting following the playhead, caption masking, the settings page, and the picture and sound checks with a stand-in model (real thumbnails, real recorded sound).
   - The Prompt API object exists in an extension page and in the extension service worker of Chrome 158, and both answered `availability()`. Sessions were not created.
-- **Not verified yet:** captions from a real signed session (the anonymous headless test got an empty body from YouTube, even for the player's own request), the Prompt API with a real model, and Firefox.
-- **Not built yet:** a local decision model, translation, the offline fit and the measured presets, the "would change" preview on real data, caption prefetch, thumbnails, the Shorts interstitial.
+  - A downloadable build and an install page on the site (`npm run release`).
+- **Not verified yet:** captions from a real signed session (the anonymous headless test got an empty body from YouTube, even for the player's own request), the Prompt API with a real model (also for pictures and sound: accuracy and speed), and Firefox.
+- **Not built yet:** a local decision model, translation, the offline fit and the measured presets, the "would change" preview on real data, caption prefetch, the Shorts interstitial, judging or blacking out the frames of a playing video.
 - **M0, spikes (before real code)**
   1. Prompt API and Translator on a low-end laptop (8 GB): `availability()` inside an offscreen document, a side panel and the service worker of a throwaway extension; `create({topK: 1, temperature: 0})`; boolean, `enum` and RegExp constraints; identical answers on repeated runs; 50 to 100 offensive and quoted subtitle lines with the answers and exception names logged (and `chrome://on-device-internals` open); 100 timed classification calls; one 50-chunk translation run; memory with and without a live session.
   2. Local decision models in the browser (Kev-0.6B through open-jev, Laya English, an NLI baseline): size, latency and memory on a low-end laptop, with and without WebGPU, and accuracy on a first labelled set.

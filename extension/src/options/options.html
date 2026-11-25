@@ -20,6 +20,7 @@
   <a href="#break">Break reminder</a>
   <a href="#subtitles">Subtitles</a>
   <a href="#ai">On-device AI</a>
+  <a href="#media">Pictures and sound</a>
   <a href="#log">Log</a>
   <a href="#test">Test box</a>
 </nav>
@@ -83,6 +84,68 @@
     <div class="row"><button id="ai-download" hidden>Download and enable the on-device model</button><label class="check"><input type="checkbox" id="ai-enabled"> Use it when available</label></div>
     <progress id="ai-progress" max="1" value="0" hidden></progress>
     <p class="note">Chrome asks for about 22 GB of free disk space for the model and removes it again when free space falls below 10 GB.</p>
+  </section>
+
+  <section id="media">
+    <h2>Experimental: pictures and sound <span class="tag">Experimental</span></h2>
+    <p class="note">Uses Chrome's built-in model (Gemini Nano) to look at the thumbnail of every video and to listen to the sound while a video plays. It is slow, it only works where Chrome can run the model with picture and sound input, and it can be wrong in both directions. That is why every part can be switched off, every rule has its own slider, and the lists below always win. Nothing leaves your machine. Off until you switch it on.</p>
+    <label class="check big"><input type="checkbox" id="media-enabled"> Turn on the picture and sound checks</label>
+    <p id="media-status" class="note"></p>
+    <div class="row">
+      <button id="media-download-image" hidden>Download the model for pictures</button>
+      <button id="media-download-audio" hidden>Download the model for sound</button>
+      <button id="media-recheck">Check again</button>
+    </div>
+    <progress id="media-progress" max="1" value="0" hidden></progress>
+
+    <h3>Thumbnails</h3>
+    <div class="grid">
+      <label class="check"><input type="checkbox" id="th-enabled"> Check the thumbnail of every video card</label>
+      <label class="check"><input type="checkbox" id="th-near"> Only cards near the screen, nearest first</label>
+      <label class="check"><input type="checkbox" id="th-hold"> Keep a thumbnail invisible until it has been checked</label>
+      <label>Show it anyway after <input type="number" id="th-hold-s" min="0" step="1"> seconds (0 = never)</label>
+      <label>At most <input type="number" id="th-max" min="1" step="1"> thumbnails per page</label>
+    </div>
+    <p class="note">Each picture rule asks the model one question per prompt wording for every thumbnail, so this takes a while. Hiding the picture until it is checked is the only way to never see a flagged one, but a slow model leaves empty frames. Verdicts are remembered for 30 days.</p>
+
+    <h3>Sound</h3>
+    <div class="grid">
+      <label class="check"><input type="checkbox" id="au-enabled"> Listen to the sound while a video plays</label>
+      <label class="check"><input type="checkbox" id="au-nocap"> Only when the video has no readable captions</label>
+      <label>Judge the sound in windows of <input type="number" id="au-window" min="3" max="20" step="1"> seconds</label>
+      <label>Start after <input type="number" id="au-start" min="0" step="1"> seconds</label>
+      <label>At most <input type="number" id="au-max" min="1" step="1"> windows per video</label>
+    </div>
+    <p class="note">A window of sound is judged after it has played. The check can therefore only react to what comes next: pause the video, mute it until a window comes back clean, or show a label. The first seconds of anything are always heard. If the model is slower than the sound, windows are skipped and counted.</p>
+
+    <h3>When it is wrong</h3>
+    <div class="grid">
+      <label>Prompts per question
+        <select id="media-votes"><option value="1">1 (fastest)</option><option value="2">2</option><option value="3">3 (slowest, most careful)</option></select>
+      </label>
+      <label class="check"><input type="checkbox" id="media-refusal"> Treat the browser's "unsafe response" refusal as a flag (only for rules that say so)</label>
+      <label class="check"><input type="checkbox" id="media-remember"> Remember videos the sound check flagged, so feeds can hide them next time</label>
+      <label>Such videos in feeds are
+        <select id="media-remembered-action"><option value="hide">hidden</option><option value="dim">dimmed</option><option value="label">labelled</option></select>
+      </label>
+    </div>
+    <p class="note">Every picture and sound rule is in the list of rules above, marked Experimental. A rule that flags too much: lower its slider, or switch it off. A single wrong verdict: use the buttons in the log, or the lists below.</p>
+    <div class="row"><button id="media-clear">Forget remembered verdicts and videos</button></div>
+
+    <h3>Allow and block lists</h3>
+    <p class="note">A list always wins over a rule, a model and the sliders. One entry per line. For videos: an id or any YouTube address. For channels: the name as YouTube shows it. If a video is on both lists, it is allowed.</p>
+    <div class="grid lists">
+      <label class="wide-col">Never flag these videos <textarea id="list-allowVideos" rows="3" spellcheck="false"></textarea></label>
+      <label class="wide-col">Never flag these channels <textarea id="list-allowChannels" rows="3" spellcheck="false"></textarea></label>
+      <label class="wide-col">Always hide these videos <textarea id="list-denyVideos" rows="3" spellcheck="false"></textarea></label>
+      <label class="wide-col">Always hide these channels <textarea id="list-denyChannels" rows="3" spellcheck="false"></textarea></label>
+    </div>
+    <div id="list-messages" class="messages" aria-live="polite"></div>
+
+    <h3>Try a picture or a sound</h3>
+    <p class="note">Choose a picture or an audio file from your computer. It is judged here with the rules above, exactly like a thumbnail or a window of sound, and goes nowhere.</p>
+    <div class="row"><input type="file" id="media-file" accept="image/*,audio/*"><button id="media-run" class="primary">Evaluate</button></div>
+    <div id="media-result" class="result"></div>
   </section>
 
   <section id="log">

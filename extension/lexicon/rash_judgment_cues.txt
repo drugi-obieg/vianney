@@ -1,0 +1,25 @@
+0.75 | body language expert
+0.50 | body language
+0.50 | /\bis (he|she|they) (lying|guilty|hiding something|faking|innocent)\b/
+0.50 | did he do it
+0.50 | did she do it
+0.50 | guilty or innocent
+0.50 | /\bsomething('?s| is) off\b/
+0.50 | /\bdoes(n'?t| not) add up\b/
+0.50 | /\bwhat (is|are) (he|she|they) hiding\b/
+0.50 | hiding something
+0.50 | red flag*
+0.50 | suspicious
+0.50 | my theory
+0.50 | speculat*
+0.50 | /\bi think (he|she|they)\b/
+0.50 | armchair
+0.50 | psychoanaly*
+0.50 | fake smile
+0.15 | suspect*
+0.15 | narcissist*
+0.15 | sociopath*
+0.15 | psychopath*
+0.15 | guilty
+0.15 | lying
+0.15 | secretly
