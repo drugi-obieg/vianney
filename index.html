@@ -31,11 +31,19 @@ description: A YouTube filter that runs in your browser. You write the rules in 
   </li>
   <li>
     <h3>Rules in plain text</h3>
-    <p>You write questions about the content (yes or no, pick one, score it), a threshold, and what to do. No code, no account.</p>
+    <p>You write questions about the content (yes or no, pick one, score it) and say what to do about it. No code, no account.</p>
+  </li>
+  <li>
+    <h3>A slider for every rule</h3>
+    <p>Each rule has a control for how confident it must be before it flags. If one flags too much or too little, you move it, and the settings show what that would have changed.</p>
   </li>
   <li>
     <h3>Eyes first, then ears</h3>
     <p>Titles, descriptions and channels are judged before you click. Once a video plays, its subtitles are checked, and a word or a passage can be muted or skipped.</p>
+  </li>
+  <li>
+    <h3>A break, in the feed</h3>
+    <p>After the number of hours you choose, a card that looks like a recommendation tells you that you have been watching for a while and should take a break.</p>
   </li>
   <li>
     <h3>Local and repeatable</h3>
@@ -48,7 +56,7 @@ description: A YouTube filter that runs in your browser. You write the rules in 
   where: watch
   ask score: "How much of this talks about the private faults of a named person?"
     levels: none, mild, heavy
-  block if level &gt;= heavy
+  flag at: heavy
   action: warn-overlay</code></pre>
 
 <h2>Where things stand</h2>

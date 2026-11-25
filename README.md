@@ -9,3 +9,7 @@ A planned browser extension, mainly for YouTube, that hides content you decided 
 - [sermons.md](sermons.md): the sermon passages the project starts from, with sources
 
 Not affiliated with or endorsed by YouTube or Google.
+
+## Licence
+
+MIT, see [LICENSE](LICENSE). It covers the project's own text and code. The quoted sermon passages are public domain; the English renderings are working translations by the project.

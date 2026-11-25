@@ -84,7 +84,7 @@ The verb is "se détourner", to turn away, and it is meant to be quick. That is 
 <figcaption>St. Jean-Marie Vianney, <em>Sur les qualités de la confession</em> (unpublished sermons, volume 4). Read in context: <a href="https://www.livres-mystiques.com/partieTEXTES/Ars/Sermons/tome4/18confession.htm">livres-mystiques.com</a>.</figcaption>
 </figure>
 
-This is about confession, not software, and is quoted only as the source of a design principle. A filter should say "certain" when the model is certain and "doubtful" when it is not, and it should not fill the day with warnings about borderline cases. The plan's strictness setting and its limit on warnings come from here.
+This is about confession, not software, and is quoted only as the source of a design principle. A filter should say "certain" when the model is certain and "doubtful" when it is not, and it should not fill the day with warnings about borderline cases. The plan's per-rule sensitivity control, which lets the user decide how confident a rule must be before it flags, and its calm wording follow from this.
 
 ## 7. What the extension takes from this
 

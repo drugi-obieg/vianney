@@ -18,7 +18,7 @@ How to read the tags. **[verified]** means read on the source page or measured i
   - **Combine approaches.** A cheap deterministic stage, a local model, and a second opinion on uncertain cases (section 4.2).
   - **Honest doubt.** Every verdict carries a probability and a reason. Uncertain cases are shown as uncertain. In feeds the fail-safe default is to show the item. On a playing video it is to warn.
   - **No guessing.** Every number comes from a source or from a measurement on a labelled set, or it is marked as a choice.
-  - **Personal tool.** Not a paid product. Distributed from the project's own website first.
+  - **Personal tool.** Not a paid product, and MIT-licensed. Distributed from the project's own website first.
 
 ---
 
@@ -28,9 +28,12 @@ How to read the tags. **[verified]** means read on the source page or measured i
 - **Second model:** a local English decision model, picked by a spike on our own labelled set (section 8). The first idea was English Laya (ModernBERT-large, 421M). The research changed the order: Laya is near chance zero-shot, and Kev-0.6B has a ready browser build (section 3.1).
 - **Non-English text:** detect the language and translate titles and subtitles to English with Chrome's on-device Translator API before classifying (section 4.4).
 - **Deterministic filter** (channel lists, keyword lists, regexes) in front of every model.
-- **No continuous learning.** Thresholds and rules are edited by hand.
+- **No continuous learning, but one offline fit is fine.** Nothing learns after release. A one-time fit on the labelled set (calibration, thresholds, presets, or a small head) is accepted, and its result ships as a frozen file (section 8).
 - **Distribution:** the project's own website first (a zip for "Load unpacked"; a signed add-on for Firefox), with the model downloaded on first run (section 3.9). A store listing is optional and later.
 - **Combine approaches** for accuracy (section 4.2).
+- **Sensitivity per rule.** Every rule has a control for how confident it must be before it flags, shown as a slider or a dropdown, so that a rule that flags too much or too little can be adjusted by the user (section 7).
+- **Break reminder.** After the user has watched for N hours, a card that looks like a video recommendation tells them to take a break (section 4.6).
+- **Licence:** MIT.
 - **Extras:** an attention-calming module for Shorts, thumbnails and clickbait titles (section 4.5), and page-structure discovery that survives YouTube layout changes (section 4.3).
 
 ---
@@ -167,7 +170,7 @@ The question was whether subtitles can be fetched when a video merely appears in
 - LLM-based feed filters: YouTube Focus, Dehook, Syte (Gemini Nano on Shorts), Clean Feed for YouTube. **[verified from store listings]**
 - Caption and audio muting: SilentShield (open source), Profanity Muter (open source, Whisper), ContentAngel, NoBadWords AI, Bleepster, Streaming Word Filter. **[verified from listings and READMEs]**
 - Generic blocking: BlockTube (JSON filtering), Unhook.
-- None of them offers user-written doctrinal rules with per-rule thresholds and a strictness setting. Their code was not reviewed.
+- None of them offers user-written doctrinal rules with a sensitivity control for each rule. Their code was not reviewed.
 
 ### 3.8 Brave and other built-in features
 
@@ -220,7 +223,7 @@ Page adapter, then signals, then rules, then decision backends, then actions.
   3. A local English decision model (section 8), through onnxruntime-web or Transformers.js, on WebGPU if present and otherwise WASM, in an offscreen document.
   4. Optional experiments: Needle, Granite Guardian (section 8).
 - **Hosted decision APIs.** Not built. They send content off the machine. **[choice]**
-- **Settings UI.** A rule editor, per-rule thresholds, a strictness setting, an event log ("why was this hidden?") and a test box where a pasted title or transcript shows the model's answers.
+- **Settings UI.** A rule editor, a sensitivity slider or dropdown for every rule (section 7), the break-reminder settings, an event log ("why was this hidden?", with a preview of what would change at another sensitivity) and a test box where a pasted title or transcript shows the model's answers.
 - **MV3 notes** **[verified]**: ship the onnxruntime WASM files inside the extension, use `'wasm-unsafe-eval'` in the CSP, and run onnxruntime-web inference in an offscreen document or a worker, not in the service worker. The Prompt API and the Translator cannot run in a worker: host them in an extension page or the service worker.
 
 ### 4.2 Combining approaches
@@ -228,7 +231,7 @@ Page adapter, then signals, then rules, then decision backends, then actions.
 The aim is accuracy without a bigger model: independent signals that fail in different ways.
 
 - **Stage 0, deterministic.** User-maintained allow lists (trusted channels pass without scanning) and deny lists (blocked channels and video IDs), keyword and regex lists on title and description, and the language check. These produce verdicts with no model at all.
-- **Stage 1, one model per question.** The first backend returns a probability. Above the high threshold the rule fires. Below the low threshold the item passes. Between the two, the item is "uncertain".
+- **Stage 1, one model per question.** The first backend returns a probability. Above the high threshold, which is the rule's sensitivity setting (section 7), the rule fires. Below the low threshold the item passes. Between the two, the item is "uncertain".
 - **Stage 2, a second opinion on uncertain items only.** A model from a different family (the Prompt API against the local model) answers the same question. How the two answers combine depends on the severity of the action:
   - Hiding a feed card fires on either answer above the high threshold, or on both above the low one.
   - Muting a word needs a lexicon hit and context agreement.
@@ -265,6 +268,23 @@ The aim is accuracy without a bigger model: independent signals that fail in dif
 - **Why.** It costs little, many people do not know such features exist, and it reduces the pull of the feed even for items that pass the rules.
 - **Overlap.** Brave ships Shorts, thumbnail and recommendation blocking natively, as opt-in list toggles (section 3.8), but no title rewriting. The module therefore hides idempotently, and title rewriting is its real addition.
 
+### 4.6 Break reminder
+
+- **What it does.** After the user has watched for N hours, the extension puts a card in the feed that looks like a video recommendation and tells them they have been watching for N hours and should take a break. N is set by the user.
+- **What counts as watching.** The time a video is actually playing, not time with a tab open. It is summed over all YouTube tabs by the extension's service worker and kept in extension storage on the machine. The period can be defined in two selectable ways: a session (it ends after a gap of M minutes without playback) or a calendar day. The values of N and M are the user's. **[choice]**
+- **Where the card can appear** (each place can be switched on or off):
+  - the first slot of the Home feed and of search results;
+  - the top of the "up next" list;
+  - in place of the autoplay target at the end of a video, with autoplay paused while the card is shown;
+  - optionally a banner over the player at the N-hour mark, which does not interrupt playback.
+- **How it looks.** The same size and layout as a real card, so that it sits naturally in the grid. It is drawn by the extension inside its own shadow DOM, so it copies none of YouTube's markup and survives layout changes, and it is inserted again if YouTube redraws the grid. A small label names the extension, so that it cannot be mistaken for YouTube content and the user knows who is speaking. Whether to allow a fully native-looking style is an open question (section 12). **[choice]**
+- **What it says.** A short plain message of the user's own choosing, for example the hours watched and a suggestion to stop. It has two buttons, "Remind me later" (a snooze whose length the user sets) and "Dismiss". It does not link to any video.
+- **Optional escalation, all off by default.** Pause autoplay while the card is up, and a second, longer threshold that covers the player with a pause screen. **[choice]**
+- **Calm.** No streaks, no guilt wording, and a limit on how often it repeats (the same principle as in section 7).
+- **Placement.** The card is inserted as the first of the repeated sibling cards that the structure test of section 4.3 finds. If no grid is found, it falls back to a fixed banner at the top of the page.
+- **Local only.** Watch time never leaves the machine and is not collected.
+- **Shorts.** The Shorts feed has no grid, so the card would have to be a full-screen interstitial. Later.
+
 ---
 
 ## 5. Rules in plain text
@@ -278,24 +298,25 @@ rule gossip
   where: watch
   ask score: "How much of this talks about the private faults of a named real person?"
     levels: none, mild, heavy
-  block if level >= heavy
+  flag at: heavy
   action: warn-overlay
 
 rule indifferentism
   where: feed-card
   ask noul: "Does this say all religions are equally true or equally valid paths?"
-  block if p >= 0.70 and confidence >= 0.4
+  flag at: 0.70
   action: blank
 
 rule lords_name
   where: subtitles
   lexicon: lords_name_terms
   ask noul: "Is the name of God or of Jesus used here as an exclamation or a curse, and not in prayer, quotation or discussion?"
-  mute if p >= 0.6
+  flag at: 0.60
   action: mute-word
 ```
 
-- Each rule has: where it applies, a deterministic part (lexicon, lists), one or more typed questions (`noul`, `choice`, `score`), a threshold, and an action.
+- Each rule has: where it applies, a deterministic part (lexicon, lists), one or more typed questions (`noul`, `choice`, `score`), a default `flag at` level, and an action.
+- **Sensitivity.** `flag at` is only the default. The settings page shows every rule with a slider (for `noul` questions: how confident the model must be, from "flag only when very sure" to "flag when in doubt") or a dropdown (for `score` and `choice` questions: which level counts). The user's setting overrides the default and is stored locally. Section 7 describes how the slider is mapped.
 - Questions are evaluated in parallel. A question that depends on another one runs in a second pass.
 - `p` is backend-specific. Decision models return a probability. The Prompt API returns none, so there `p` is the fraction of differently worded prompts that agree, which is a vote and not a calibrated probability.
 - Every decision is logged with the question, `p`, confidence and threshold.
@@ -313,20 +334,24 @@ rule lords_name
 - **Watch page.** `warn-overlay` (reason and a "watch anyway" button, optionally after a delay), `pause-before` (pause shortly before the first flagged segment), `close`.
 - **Subtitle level.** `mute-word` (exact timespan of the word, which needs word-level timing, available for auto-generated captions), `skip-segment`, `censor-caption`.
 - **Attention module.** `hide-shorts`, `blur-thumbnail`, `rewrite-title`.
+- **Break reminder.** `inject-card` (the card of section 4.6) and `pause-autoplay`.
 - **Autoplay.** The "up next" and autoplay target are filtered like any other card, and a blocked target is skipped.
 
 ---
 
-## 7. Subtitles, the Lord's name, gossip, strictness
+## 7. Subtitles, the Lord's name, gossip, sensitivity
 
 - **Profanity.** Lexicon first. Ambiguous cases go to a context question.
 - **The Lord's name.** The words alone do not decide it: "Jesus Christ" in a homily, a prayer or a hymn title is not a violation, and the same words as an exclamation are. So: lexicon match, then a context window of about 20 words either side, then a `noul` question. The taxonomy comes from the sermon.
 - **Blasphemy.** The same two steps, with a question about mockery or contempt of God, the Church or the saints.
 - **Gossip.** A video-level `score` question over transcript windows, aggregated by duration. The sermon treats the listener as an accomplice, which is the basis for hiding rather than merely warning. A small model will find this hard, so expect mediocre accuracy and tune thresholds.
-- **Strictness and scrupulosity. Interpretation to confirm (section 12).**
-  - One strictness dial (lax, normal, strict) shifts all thresholds and decides what happens on uncertainty (show, warn or hide).
-  - An anti-scrupulosity guard: a cap on warnings per hour or day, a "this was a false alarm" button that adds the item to the allow list, short calm reason text, and no streaks or counters by default.
-  - The design principle is the Curé's own: accuse the doubtful as doubtful and the certain as certain, and avoid the useless accusations that wear everyone out (sermons page, section 6).
+- **Sensitivity, the strictness dial** **[decided]**
+  - Every rule has a control for how confident it must be before it flags: a slider for yes/no rules and a dropdown for rules with levels. The user moves it when a rule flags too much or too little.
+  - The slider position is a confidence on a common scale. The offline fit (section 8) calibrates each rule so that the same position means the same thing for every backend. It also records what the rule did on the labelled set at a few positions: how many items it flagged, its precision and its recall. The settings page shows those measured numbers next to the slider and offers three named presets (strict, balanced, lenient), which are three measured positions. **[choice]**
+  - The slider moves the rule's flag threshold. The lower edge of the "uncertain" band (section 4.2) follows at a fixed offset chosen during the fit, so there is no second setting to keep in step. **[choice]**
+  - **Preview.** The event log lists recent items with their `p` for the rule. For a candidate slider position it shows which of them would change, so the effect is visible before saving. Nothing adjusts itself: a "this was a false alarm" or "this should have been flagged" button in the log only proposes a new position, and the user confirms it.
+  - An optional master dial moves all rules together by one step. **[choice]**
+- **Calm by default** **[choice, not yet confirmed]**: short, plain reason text, no streaks or counters, and an optional cap on warnings per hour. The design principle is the Curé's own: say "certain" when sure and "doubtful" when not (sermons page, section 6).
 - **No-caption videos.** Judge on title and description only, or opt in to on-device speech recognition (Whisper `base.en`, about 280 MB, trails the playhead).
 
 ---
@@ -339,7 +364,7 @@ rule lords_name
   2. **Laya English, only after fitting** its temperatures or a small head on the labelled set. Zero-shot it is near chance.
   3. **A zero-shot NLI baseline** (DeBERTa-xsmall or ModernBERT-base). Small and cheap. It is a floor the others must beat and a possible pre-filter.
   4. **GLiNER2.5-Decide**, if a browser export appears. Best vendor-reported accuracy at its size.
-- **Fitting on the labelled set** (temperatures, thresholds, or a small head) is an offline, one-time step. The result is a frozen file that ships with the extension, so verdicts stay repeatable. This is not continuous learning, but it is training, so it needs explicit agreement. **[choice, open question 10]**
+- **Offline fit (agreed).** A one-time fit on the labelled set is accepted: the calibration of each rule's probability, its default level and presets, and where needed a small head, such as Laya's temperatures or a logistic-regression head on Needle's `embed()` vectors. The result is a frozen file that ships with the extension, so verdicts stay repeatable. It is training, but it happens before release and nothing learns afterwards. The fit uses one part of the labelled set and the reported numbers come from a held-out part. **[choice]**
 - **Experiments, not tiers.** Needle (section 3.2) as a very small fine-tuned classifier, with its own logistic-regression head on `embed()` vectors if a probability is needed, and Granite Guardian only as an optional power-user backend.
 - **Selection rule.** A model is adopted only if, on the labelled set, it beats the NLI floor and the Prompt API at the chosen operating point of the rule, and fits the memory budget measured in spike 2.
 
@@ -349,8 +374,8 @@ rule lords_name
 
 - Every number in the system is either measured on a labelled set or marked as a choice.
 - The labelled set: titles, descriptions and transcript windows from YouTube, labelled per rule by the project's author, including hard negatives (a priest saying the Holy Name in a sermon, a Passion play, a documentary about a heresy).
-- Per rule: precision and recall at the chosen threshold, and the calibration curve of the model's probability.
-- A rule ships only with its threshold and measured error rates recorded next to it.
+- Per rule: precision and recall at several slider positions (the presets), and the calibration curve of the model's probability, measured on the held-out part of the labelled set.
+- A rule ships only with its default `flag at` level and the measured error rates of its presets recorded next to it.
 - A regression run repeats the whole set on every model, quantization or prompt change. Because the system is deterministic, a changed verdict always has a cause.
 
 ---
@@ -365,10 +390,10 @@ rule lords_name
   5. Needle, a half-day spike: the engine in an offscreen document, 100 labelled titles through the base model with one enum tool, the raw JSON, `peak_ram_mb`, time per title and the suppressed rate. Fine-tuning is considered only after that.
   6. Translator pairs (de, fr, es, it, pt, pl to en): availability per pair, size of the download, latency, and quality on a sample of titles. Whether Latin can be detected.
   7. One unlisted Chrome Web Store submission whose extension downloads its model on first run, to see whether review accepts it.
-- **M1, feed filter.** JSON interception, ID-anchored DOM hiding, the deterministic stage, the Prompt API backend, the rule parser, an event log and a test box. Actions: hide, blank, refill.
+- **M1, feed filter.** JSON interception, ID-anchored DOM hiding, the deterministic stage, the Prompt API backend, the rule parser, a sensitivity slider per rule, an event log and a test box. Actions: hide, blank, refill.
 - **M2, watch page.** Caption capture through the player's own request, lexicon plus context, mute and skip, overlay.
-- **M3, second opinion.** The local decision model chosen in the spike, translation, the labelled set and calibration tooling.
-- **M4, polish.** Strictness dial, warning cap, starter rule pack, attention module, packaging for download from the project website.
+- **M3, second opinion.** The local decision model chosen in the spike, translation, the labelled set, and the offline fit that turns each rule's slider into measured presets.
+- **M4, polish.** The measured presets and the "would change" preview for the sliders, the break reminder, the optional warning cap, the starter rule pack, the attention module, and packaging for download from the project website.
 - **M5, optional.** Firefox, caption prefetch, thumbnails, comments.
 
 ---
@@ -383,23 +408,23 @@ rule lords_name
 - **Memory and disk.** Many users have 8 GB RAM. A 500 MB model plus the runtime must be measured on such a machine. The Prompt API needs 22 GB free disk.
 - **Distribution.** Chrome and Edge install an extension from a website only through developer-mode "Load unpacked", with no scripted install since Chrome 137. Firefox needs add-on signing and has a signing-size limit. Updates are manual. Early users need some patience (section 3.9).
 - **The Prompt API may not run.** It can be unavailable on small machines, can be removed by Chrome at any time, and may reject offensive input through its safety pipeline. Its extension-only sampling parameters are deprecated. The extension must work, with less accuracy, without it.
+- **The injected card.** A card added to YouTube's grid could break the layout or be mistaken for real content. It is drawn in its own shadow DOM, labelled, and falls back to a plain banner when no grid is found (section 4.6).
 - **Wrongly hiding good content** such as Scripture, sermons and sacred music is the failure that would cost the most trust, so false positives weigh more when choosing thresholds.
 
 ---
 
 ## 12. Open questions
 
-1. **"Scrupulosity filter."** Is the reading in section 7 right (strictness dial plus anti-scrupulosity guard), or a stricter level that flags more borderline material?
-2. **Hosted decision APIs.** Never, or an opt-in "ask a hosted model when the local ones disagree"? The plan assumes never.
-3. **Languages at launch.** English only, or English plus German, French and Spanish (no translation step), and later Polish, Italian and Portuguese through the Translator? Latin cannot be translated.
-4. **Rule engine language.** Rust compiled to WASM, or TypeScript throughout? The model runtime is JavaScript either way. Whether a Rust runtime can run ModernBERT-large in a browser fast enough is **[unverified]**.
-5. **Starter rule pack.** Who writes the questions? They should be clearly marked as the author's.
-6. **"Reload until no more."** Read here as: after hiding a card, load more items until the visible slots are full, with hard caps. Correct?
-7. **Which browsers first.** Chrome, Edge and Brave share an engine, but only Chrome and Edge ship a built-in Prompt API. Firefox has `browser.trial.ml` instead, and its WebGPU support is limited.
-8. **PO-token routes.** Test them at all, given the terms-of-service question?
-9. **Sites beyond YouTube.** The adapter design allows it. When?
-10. **Offline fitting.** Is a one-time, offline fit of thresholds or a small head on the labelled set acceptable, given that nothing learns after release? Without it, Laya English is not usable.
-11. **Needle fine-tuning.** If Needle is tried, locally (JAX, untested on small machines) or through the vendor's hosted service (paid, hosted, calibrated head)? The plan assumes local only.
+1. **Hosted decision APIs.** Never, or an opt-in "ask a hosted model when the local ones disagree"? The plan assumes never.
+2. **Languages at launch.** English only, or English plus German, French and Spanish (no translation step), and later Polish, Italian and Portuguese through the Translator? Latin cannot be translated.
+3. **Rule engine language.** Rust compiled to WASM, or TypeScript throughout? The model runtime is JavaScript either way. Whether a Rust runtime can run ModernBERT-large in a browser fast enough is **[unverified]**.
+4. **Starter rule pack.** Who writes the questions? They should be clearly marked as the author's.
+5. **"Reload until no more."** Read here as: after hiding a card, load more items until the visible slots are full, with hard caps. Correct?
+6. **Which browsers first.** Chrome, Edge and Brave share an engine, but only Chrome and Edge ship a built-in Prompt API. Firefox has `browser.trial.ml` instead, and its WebGPU support is limited.
+7. **PO-token routes.** Test them at all, given the terms-of-service question?
+8. **Sites beyond YouTube.** The adapter design allows it. When?
+9. **Needle fine-tuning.** If Needle is tried, locally (JAX, untested on small machines) or through the vendor's hosted service (paid, hosted, calibrated head)? The plan assumes local only.
+10. **Break reminder details.** What counts as watching (only time a video is playing, summed over all tabs?), when a period resets (a gap of M minutes, or a calendar day), and whether the card may be fully native-looking or must carry a small label naming the extension. The plan proposes the label.
 
 ---
 
