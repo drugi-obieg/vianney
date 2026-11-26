@@ -1,0 +1,50 @@
+name: Deploy once to GitHub Pages
+
+# A one-off, started by hand: it puts the website on GitHub Pages (https://drugi-obieg.github.io/vianney/) until the deployment to Cloudflare (deploy.yml) is set up.
+# _config.yml is made for vianney.cc, at the root of a domain; GitHub Pages serves this project below /vianney, so the two addresses are set for this build only, in the copy
+# of the repository that this job checked out (nothing is committed). The settings page of the extension opens only for vianney.cc, so on this copy the links that open it do not work.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set the address of this copy
+        run: |
+          sed -i -e 's|^url: .*|url: "https://drugi-obieg.github.io"|' -e 's|^baseurl: .*|baseurl: "/vianney"|' _config.yml
+          grep -E '^(url|baseurl):' _config.yml
+
+      - name: Build the site
+        uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1.0.13
+        with:
+          source: ./
+          destination: ./_site
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: ./_site
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
