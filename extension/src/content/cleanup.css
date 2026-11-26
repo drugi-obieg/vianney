@@ -1,0 +1,31 @@
+/* Generated from src/core/cleanup.js by tools/make-cleanup-css.mjs: do not edit by hand. Every rule waits for the attribute data-vianney-clean on <html> (set by early.js and content/cleanup.js). */
+html[data-vianney-clean~="shorts"] ytd-reel-shelf-renderer,
+html[data-vianney-clean~="shorts"] ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts]),
+html[data-vianney-clean~="shorts"] ytd-rich-section-renderer:has(ytm-shorts-lockup-view-model),
+html[data-vianney-clean~="shorts"] grid-shelf-view-model:has(ytm-shorts-lockup-view-model),
+html[data-vianney-clean~="shorts"] ytd-video-renderer:has(a[href^="/shorts/"]),
+html[data-vianney-clean~="shorts"] ytd-rich-item-renderer:has(a[href^="/shorts/"]),
+html[data-vianney-clean~="shorts"] ytd-compact-video-renderer:has(a[href^="/shorts/"]),
+html[data-vianney-clean~="shorts"] ytd-grid-video-renderer:has(a[href^="/shorts/"]),
+html[data-vianney-clean~="shorts"] yt-lockup-view-model:has(a[href^="/shorts/"]),
+html[data-vianney-clean~="shorts"] ytd-guide-entry-renderer:has(a[title="Shorts"]),
+html[data-vianney-clean~="shorts"] ytd-mini-guide-entry-renderer:has(a[title="Shorts"]),
+html[data-vianney-clean~="shorts"] ytd-mini-guide-entry-renderer[aria-label="Shorts"] { display: none !important; }
+html[data-vianney-clean~="games"] ytd-guide-entry-renderer:has(a[href="/gaming"]),
+html[data-vianney-clean~="games"] ytd-mini-guide-entry-renderer:has(a[href="/gaming"]),
+html[data-vianney-clean~="games"] ytd-guide-entry-renderer:has(a[href="/playables"]),
+html[data-vianney-clean~="games"] ytd-mini-guide-entry-renderer:has(a[href="/playables"]),
+html[data-vianney-clean~="games"] ytd-rich-section-renderer:has(ytd-mini-game-card-view-model) { display: none !important; }
+html[data-vianney-clean~="movies"] ytd-guide-entry-renderer:has(a[href^="/feed/storefront"]),
+html[data-vianney-clean~="movies"] ytd-mini-guide-entry-renderer:has(a[href^="/feed/storefront"]),
+html[data-vianney-clean~="movies"] ytd-movie-renderer,
+html[data-vianney-clean~="movies"] ytd-compact-movie-renderer,
+html[data-vianney-clean~="movies"] ytd-shelf-renderer:has(ytd-grid-movie-renderer),
+html[data-vianney-clean~="movies"] ytd-shelf-renderer:has(ytd-movie-renderer) { display: none !important; }
+html[data-vianney-clean~="explore"] ytd-guide-section-renderer:has(a[href="/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ"]) { display: none !important; }
+html[data-vianney-clean~="more"] ytd-guide-section-renderer:has(a[href="/premium"]) { display: none !important; }
+html[data-vianney-clean~="banners"] ytd-feed-nudge-renderer,
+html[data-vianney-clean~="banners"] ytd-rich-section-renderer:has(ytd-feed-nudge-renderer),
+html[data-vianney-clean~="banners"] ytd-statement-banner-renderer,
+html[data-vianney-clean~="banners"] ytd-browse[page-subtype="home"] ytd-feed-filter-chip-bar-renderer { display: none !important; }
+[data-vianney-shelf="hidden"] { display: none !important; }

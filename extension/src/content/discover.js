@@ -1,3 +1,4 @@
+import { isMusic } from '../core/musicmark.js';
 // Find video cards on a YouTube page without depending on YouTube's element names.
 //
 // Method (prototyped and measured in plan.md section 3.6):
@@ -10,6 +11,14 @@
 const ID_RE = /(?:[?&]v=|\/shorts\/)([\w-]{11})(?![\w-])/;
 const LINKS = 'a[href*="/watch?v="], a[href*="/shorts/"]';
 const EXCLUDE = '#comments, ytd-comments, ytd-masthead, [data-vianney-ui]';
+// The player holds links to the first recommendations of the list next to it: its Next button, and the grid of stills of its end screen and of
+// full screen. Counted together with the list's own links they spread a video over the whole page, which then is no card (and the first
+// recommendations were never filtered). A button is no card at all, the stills are cards of their own (and only when they are drawn).
+const PLAYER = '#movie_player, .html5-video-player';
+const CONTROLS = '.ytp-next-button, .ytp-prev-button';
+
+/** True for what is inside the video player (its end screen holds cards of its own: nothing else of the page, such as the break card, goes there). */
+export const inPlayer = (el) => !!el.closest(PLAYER);
 const CHANNEL_LINKS = 'a[href^="/@"], a[href*="/channel/"], a[href^="/c/"], a[href^="/user/"]';
 
 export function videoIdOf(anchor) {
@@ -17,18 +26,21 @@ export function videoIdOf(anchor) {
   return m ? m[1] : null;
 }
 
-function idsIn(el) {
+function idsIn(el, memo) {
+  if (memo && memo.has(el)) return memo.get(el);
   const ids = new Set();
   el.querySelectorAll(LINKS).forEach((a) => { const i = videoIdOf(a); if (i) ids.add(i); });
+  if (memo) memo.set(el, ids);
   return ids;
 }
 
-function cardElementFor(id, anchors) {
-  let el = anchors[0];
-  while (el && !anchors.every((a) => el.contains(a))) el = el.parentElement;
-  if (!el) return null;
+// The card of ONE link: the largest ancestor of it that holds links to this video only. Each link finds its own card (the thumbnail and the title of a card climb to the same
+// element), so that a video that appears in two places of the page is two cards. It used to be one group of all its links, whose common ancestor was most of the page, and
+// then neither place was a card: the first results of a search for music, which also stand in a Mix further down, were never looked at (found 2026-11-26, by the music option).
+function cardElementOf(anchor, id, memo) {
+  let el = anchor;
   while (el.parentElement && el.parentElement !== document.body && el.parentElement !== document.documentElement) {
-    const ids = idsIn(el.parentElement);
+    const ids = idsIn(el.parentElement, memo);
     if (ids.size === 1 && ids.has(id)) el = el.parentElement;
     else break;
   }
@@ -48,20 +60,18 @@ function plausibleSize(el) {
  * @returns {{id:string, el:Element, anchors:Element[]}[]} in document order
  */
 export function findCards(root = document) {
-  const byId = new Map();
+  const memo = new Map();
+  const byElement = new Map();
   root.querySelectorAll(LINKS).forEach((a) => {
-    if (a.closest(EXCLUDE)) return;
+    if (a.closest(EXCLUDE) || a.matches(CONTROLS)) return;
     const id = videoIdOf(a);
     if (!id) return;
-    if (!byId.has(id)) byId.set(id, []);
-    byId.get(id).push(a);
+    const el = cardElementOf(a, id, memo);
+    if (!byElement.has(el)) byElement.set(el, { id, el, anchors: [] });
+    byElement.get(el).anchors.push(a);
   });
-  const candidates = [];
-  for (const [id, anchors] of byId) {
-    const el = cardElementFor(id, anchors);
-    if (el) candidates.push({ id, el, anchors });
-  }
-  const set = new Set(candidates.map((c) => c.el));
+  const candidates = [...byElement.values()];
+  const set = new Set(byElement.keys());
   const cards = candidates.filter((c) => {
     const parent = c.el.parentElement;
     if (!parent) return false;
@@ -73,6 +83,18 @@ export function findCards(root = document) {
   return cards;
 }
 
+// Where the recommendations of a video page are: the list next to (or, in a narrow window, under) the video, and the cards that the player
+// shows when the video ends. A playlist you play from sits in the same column but is yours, not a recommendation.
+const RELATED = '#related, ytd-watch-next-secondary-results-renderer, .ytp-endscreen-content, .ytp-ce-element, .ytp-fullscreen-grid';
+const PLAYLIST = 'ytd-playlist-panel-renderer';
+
+/** "related" for a card that YouTube recommends on a video page, "feed-card" for every other card (lists, search results, channel pages). */
+export function cardSurface(el) {
+  if (location.pathname !== '/watch') return 'feed-card';
+  if (el.closest(PLAYLIST)) return 'feed-card';
+  return el.closest(RELATED) ? 'related' : 'feed-card';
+}
+
 const TIME_UNITS = '(?:hours?|stunden?|heures?|horas?|ore|minutes?|minuten?|minutos?|minuti|seconds?|sekunden?|secondes?|segundos?|secondi)';
 const TAIL_DURATION = new RegExp(`\\s+\\d+\\s+${TIME_UNITS}(?:\\s*(?:,|and|und|et|y|e)?\\s*\\d+\\s+${TIME_UNITS})*\\s*$`, 'i');
 
@@ -81,6 +103,17 @@ function cleanLabel(label) {
 }
 
 /** Title and channel of a card, from attributes and text. Empty strings when not found. */
+/** What the card shows of YouTube's own music marks (core/musicmark.js says what they are): the thumbnail badges, and the small icons beside the channel name. */
+export function musicSignals(el) {
+  const badges = [...el.querySelectorAll('badge-shape')].map((b) => ({ text: b.textContent || '', hasIcon: !!b.querySelector('svg') }));
+  const icons = [...el.querySelectorAll('badge-shape[role="img"], .ytContentMetadataViewModelIcon')];
+  return {
+    badges,
+    labels: icons.map((i) => i.getAttribute('aria-label') || ''),
+    paths: icons.flatMap((i) => [...i.querySelectorAll('svg path')].map((p) => p.getAttribute('d') || '')),
+  };
+}
+
 export function extractMeta(card) {
   const el = card.el;
   let title = '';
@@ -103,5 +136,5 @@ export function extractMeta(card) {
     const t = (a.textContent || '').replace(/\s+/g, ' ').trim();
     if (t) { channel = t; break; }
   }
-  return { id: card.id, title, channel };
+  return { id: card.id, title, channel, music: isMusic(musicSignals(el)) };
 }

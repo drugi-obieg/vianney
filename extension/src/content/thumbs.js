@@ -57,7 +57,9 @@ export class ThumbnailGuard {
   }
 
   syncHold() {
-    document.documentElement.toggleAttribute('data-vianney-hold', this.holdOn());
+    const on = this.holdOn();
+    document.documentElement.toggleAttribute('data-vianney-hold', on);
+    if (!on) for (const el of this.cards) el.removeAttribute('data-vianney-pending');
   }
 
   /** Settings or availability changed: apply again from what is known. */
@@ -94,6 +96,7 @@ export class ThumbnailGuard {
       clearThumb(el);
       el.querySelectorAll(THUMB_IMG).forEach((img) => { delete img.dataset.vianneySeen; delete img.dataset.vianneySeenSrc; });
     }
+    for (const el of this.cards) el.removeAttribute('data-vianney-pending');
     this.cards.clear();
     this.known = new WeakMap();
     if (this.io) this.io.disconnect();
@@ -110,6 +113,8 @@ export class ThumbnailGuard {
         k = { id: card.id, state: 'new', queuedAt: 0, meta: extractMeta(card), verdict: null };
         this.known.set(card.el, k);
         this.cards.add(card.el);
+        // while the picture is unchecked the hover preview must not show the video either (see preview.js)
+        if (this.holdOn()) card.el.setAttribute('data-vianney-pending', '');
       }
       if (k.state === 'done') this.settle(card.el, k);
       if (k.state === 'new') {
@@ -194,6 +199,7 @@ export class ThumbnailGuard {
   release(el, k) {
     k.state = 'done';
     k.verdict = null;
+    el.removeAttribute('data-vianney-pending');
     clearThumb(el);
     markThumbsSeen(el);
   }
@@ -201,8 +207,14 @@ export class ThumbnailGuard {
   /** Apply a finished verdict to the card. */
   settle(el, k) {
     const v = k.verdict;
-    if (v && v.top && v.action) applyThumbAction(el, v.action, `Picture: ${v.top.title}`);
-    else { clearThumb(el); markThumbsSeen(el); }
+    el.removeAttribute('data-vianney-pending');
+    if (v && v.top && v.action) {
+      applyThumbAction(el, v.action, `Image: ${v.top.title}`, { revealed: !!k.revealed, onToggle: (shown) => { k.revealed = shown; } });
+    } else {
+      k.revealed = false;
+      clearThumb(el);
+      markThumbsSeen(el);
+    }
   }
 
   report(k, verdict) {
@@ -236,7 +248,12 @@ export class ThumbnailGuard {
       } else if (k.state === 'done') release = true;
       else if (k.state === 'queued' || k.state === 'judging') release = holdMs > 0 && now - k.queuedAt > holdMs;
       // 'waiting' (not near the screen yet) and 'new' stay hidden: nobody sees them
-      if (release) { img.dataset.vianneySeen = '1'; img.dataset.vianneySeenSrc = img.getAttribute('src') || ''; delete img.dataset.vianneyFirst; }
+      if (release) {
+        img.dataset.vianneySeen = '1';
+        img.dataset.vianneySeenSrc = img.getAttribute('src') || '';
+        delete img.dataset.vianneyFirst;
+        if (el && k) el.removeAttribute('data-vianney-pending'); // shown unchecked after the wait, so is the preview
+      }
     }
   }
 

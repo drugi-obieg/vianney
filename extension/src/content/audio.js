@@ -248,10 +248,10 @@ export class AudioGuard {
     if (pausers.length) {
       for (const r of pausers) this.ignored.add(r.ruleId); // "Watch anyway" means: do not ask again for this rule in this video
       const top = pausers[0];
-      this.warn(top, `The sound of this video matches a rule you set (${top.title}), in the part from ${when}. It was flagged at ${Math.round(top.p * 100)}% confidence; your threshold for this rule is ${Math.round(top.flagAt * 100)}%.`);
+      this.warn(top, `Audio flagged by “${top.title}” (${when}): ${Math.round(top.p * 100)}% confidence (threshold ${Math.round(top.flagAt * 100)}%).`);
     }
     const labels = flagged.filter((r) => r.action === 'label');
-    if (labels.length) showTag(`Sound flagged: ${labels[0].title} (${when})`);
+    if (labels.length) showTag(`Audio flagged: ${labels[0].title} (${when})`);
   }
 
   releaseMute() {

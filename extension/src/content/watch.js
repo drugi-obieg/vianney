@@ -89,7 +89,7 @@ function createOverlay({ title, reason, onWatch, onLeave }) {
       <div class="tag">Vianney Content Blocker</div>
       <h2></h2>
       <p class="why"></p>
-      <div class="row"><button class="primary leave">Leave this video</button><button class="watch">Watch anyway</button></div>
+      <div class="row"><button class="primary leave">Leave</button><button class="watch">Watch anyway</button></div>
     </div>`;
   root.querySelector('h2').textContent = title;
   root.querySelector('.why').textContent = reason;
@@ -207,7 +207,7 @@ export class WatchGuard {
     };
     this.overlay = createOverlay({
       title: top.title,
-      reason: reason || `This video matches a rule you set (${top.title}). It was flagged at ${Math.round(top.p * 100)}% confidence; your threshold for this rule is ${Math.round(top.flagAt * 100)}%.`,
+      reason: reason || `Flagged by “${top.title}” at ${Math.round(top.p * 100)}% confidence (threshold ${Math.round(top.flagAt * 100)}%).`,
       onWatch: () => { this.removeOverlay(); const v = getVideo(); if (v) v.play().catch(() => {}); },
       onLeave: () => { this.removeOverlay(); if (history.length > 1) history.back(); else location.href = 'https://www.youtube.com/'; },
     });
