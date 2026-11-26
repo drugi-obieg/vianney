@@ -3,6 +3,7 @@
 # Used by .github/workflows/deploy.yml. Every command can be run again and again: it creates what is missing and changes nothing else.
 #
 #   tools/cloudflare-pages.sh build     check the built site (_site): the download and its checksum agree, no file is above the limit of Cloudflare Pages
+#   tools/cloudflare-pages.sh token     read what the token will have to change (Pages, the zone, its DNS records) and name the permission that is missing, before anything is changed
 #   tools/cloudflare-pages.sh project   make sure the Pages project exists (and that its production branch is the one that is deployed)
 #   tools/cloudflare-pages.sh domains   make sure every domain is a custom domain of the project and has its CNAME record, then wait until Cloudflare says "active"
 #   tools/cloudflare-pages.sh check     compare the live site, on every domain and on the project's own address, with the build in _site
@@ -13,7 +14,7 @@
 #   CF_ZONE      the DNS zone of the domains, for example vianney.cc
 #   CF_DOMAINS   the custom domains, separated by spaces: the apex and www
 #   CF_BRANCH    the production branch of the project (default main): `wrangler pages deploy --branch=` must name it, or the deployment is only a preview
-#   CF_ZONE_ID   optional: the id of the zone, if the token may not read zones (Zone: Read)
+#   CF_ZONE_ID   optional: the id of the zone, if the token may not read zones (Zone > Zone > Read)
 #   CF_API       the address of the API (default https://api.cloudflare.com/client/v4); tests/cloudflare-pages.test.js points it at a stand-in on this computer
 #   CF_SCHEME    http or https (default https) for the checks of the live site, for the same reason
 #   CF_CHECK_HOSTS   optional: the hosts that `check` looks at, instead of the domains and the project's address (the tests use it)
@@ -93,6 +94,22 @@ build() {
   echo "the site: $count files, download $file ($bytes bytes, SHA-256 matches)"
 }
 
+# ---- token ------------------------------------------------------------------------------------------------------------------------------------------
+
+# A read of everything that the token will have to change, before anything is changed. A token with the wrong permissions is the likeliest mistake (DNS Settings and DNS Views,
+# which are for internal DNS, look like the DNS permission that is meant), and it should be named here, not found out after the site was uploaded.
+# A read cannot tell Edit from Read: a token that can only read is stopped by the first write, with the message of that step.
+token() {
+  need_cloudflare
+  call GET "/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects?per_page=1"
+  must "reading the Pages projects of the account (the token needs Account > Cloudflare Pages > Edit on this account, and CLOUDFLARE_ACCOUNT_ID must be the id of that account)"
+  local zone
+  zone="$(zone_id)"
+  call GET "/zones/$zone/dns_records?per_page=1"
+  must "reading the DNS records of $CF_ZONE (the token needs Zone > DNS > Edit on that zone: DNS Settings and DNS Views are for internal DNS and do not do it)"
+  echo "the token reaches the Pages projects of the account and the DNS records of $CF_ZONE"
+}
+
 # ---- project ----------------------------------------------------------------------------------------------------------------------------------------
 
 project() {
@@ -128,10 +145,10 @@ zone_id() {
   if [ -n "${CF_ZONE_ID:-}" ]; then echo "$CF_ZONE_ID"; return; fi
   need CF_ZONE
   call GET "/zones?name=$CF_ZONE"
-  must "looking up the zone $CF_ZONE (the token needs Zone: Read on it)"
+  must "looking up the zone $CF_ZONE (the token needs Zone > Zone > Read on that zone)"
   local id
   id="$(jq -r '.result[0].id // empty' "$BODY")"
-  [ -n "$id" ] || die "the token sees no zone named $CF_ZONE: the domain must be in this Cloudflare account, and the token needs Zone: Read on it"
+  [ -n "$id" ] || die "the token sees no zone named $CF_ZONE: the domain must be in this Cloudflare account, and the token needs Zone > Zone > Read on it"
   echo "zone $CF_ZONE: $(jq -r '.result[0].status' "$BODY")" >&2
   echo "$id"
 }
@@ -253,8 +270,9 @@ check() {
 
 case "${1:-}" in
   build) build ;;
+  token) token ;;
   project) project ;;
   domains) domains ;;
   check) check ;;
-  *) echo "usage: $0 build|project|domains|check" >&2; exit 2 ;;
+  *) echo "usage: $0 build|token|project|domains|check" >&2; exit 2 ;;
 esac

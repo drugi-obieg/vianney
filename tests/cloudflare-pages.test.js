@@ -25,7 +25,7 @@ const envelope = (result, extra = {}) => ({ success: true, errors: [], messages:
 const failure = (code, message) => ({ success: false, errors: [{ code, message }], messages: [], result: null });
 
 /** A stand-in for the parts of the Cloudflare API that the script uses. */
-function cloudflare({ project = null, records = [], zone = true, subdomain = 'vianney.pages.dev', activateAfter = 2, token = TOKEN } = {}) {
+function cloudflare({ project = null, records = [], zone = true, subdomain = 'vianney.pages.dev', activateAfter = 2, token = TOKEN, deny = [] } = {}) {
   const state = {
     project: project && { name: 'vianney', production_branch: 'main', subdomain, ...project },
     domains: [],
@@ -45,7 +45,11 @@ function cloudflare({ project = null, records = [], zone = true, subdomain = 'vi
       if (req.headers.authorization !== `Bearer ${token}`) return send(403, failure(10000, 'Authentication error'));
       const data = raw ? JSON.parse(raw) : {};
       const pages = `/accounts/${ACCOUNT}/pages/projects`;
+      // a token without a permission is refused the way Cloudflare refuses it
+      const area = path.startsWith(`/accounts/${ACCOUNT}/pages`) ? 'pages' : path === '/zones' ? 'zones' : path.startsWith(`/zones/${ZONE_ID}/dns_records`) ? 'dns' : '';
+      if (area && deny.includes(area)) return send(403, failure(9109, 'Unauthorized to access requested resource'));
       let m;
+      if (path === pages && req.method === 'GET') return send(200, envelope(state.project ? [state.project] : []));
       if (path === pages && req.method === 'POST') {
         if (!data.name || !data.production_branch) return send(400, failure(8000000, 'name and production_branch are required'));
         state.project = { name: data.name, production_branch: data.production_branch, subdomain };
@@ -116,6 +120,44 @@ function run(command, api, extra = {}) {
 
 const writes = (api) => api.state.log.filter((l) => !l.startsWith('GET '));
 const sha = (buf) => createHash('sha256').update(buf).digest('hex');
+
+test('token: a token that reaches Pages, the zone and its DNS records passes, and nothing is written', { skip }, async () => {
+  const api = await cloudflare();
+  try {
+    const r = await run('token', api);
+    assert.equal(r.code, 0, r.out);
+    assert.match(r.out, /the token reaches the Pages projects of the account and the DNS records of vianney\.cc/);
+    assert.deepEqual(writes(api), []);
+    assert.ok(!r.out.includes(TOKEN) && !r.out.includes(ACCOUNT_NAME));
+  } finally { api.close(); }
+});
+
+test('token: names the permission that is missing, before anything is changed', { skip }, async () => {
+  const cases = [
+    ['pages', /Account > Cloudflare Pages > Edit on this account, and CLOUDFLARE_ACCOUNT_ID must be the id of that account/],
+    ['zones', /Zone > Zone > Read on that zone/],
+    ['dns', /Zone > DNS > Edit on that zone: DNS Settings and DNS Views are for internal DNS/],
+  ];
+  for (const [area, message] of cases) {
+    const api = await cloudflare({ project: {}, deny: [area] });
+    try {
+      const r = await run('token', api);
+      assert.notEqual(r.code, 0, `${area}: stops`);
+      assert.match(r.out, message, area);
+      assert.match(r.out, /HTTP 403\): 9109: Unauthorized to access requested resource/, area);
+      assert.deepEqual(writes(api), [], `${area}: nothing was changed`);
+    } finally { api.close(); }
+  }
+});
+
+test('token: a zone id given in the environment is enough for the zone, and the DNS records are still read', { skip }, async () => {
+  const api = await cloudflare({ deny: ['zones'] });
+  try {
+    const r = await run('token', api, { CF_ZONE_ID: ZONE_ID });
+    assert.equal(r.code, 0, r.out);
+    assert.ok(api.state.log.includes(`GET /zones/${ZONE_ID}/dns_records`));
+  } finally { api.close(); }
+});
 
 test('project: creates the Pages project when there is none, and a second run changes nothing', { skip }, async () => {
   const api = await cloudflare();

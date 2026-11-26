@@ -73,6 +73,14 @@ jobs:
       - name: Check the build
         run: tools/cloudflare-pages.sh build
 
+      # A token with the wrong permissions is the likeliest mistake: this says so before anything is uploaded.
+      - name: Check what the token can reach
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
+        run: tools/cloudflare-pages.sh token
+
       - name: Make sure the Pages project exists
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

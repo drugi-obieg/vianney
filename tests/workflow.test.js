@@ -45,10 +45,10 @@ test('the two secrets are used by the steps that need them, and by no other', ()
   assert.ok(!head.includes('secrets.'), 'not in the environment of the whole workflow');
   assert.ok(!jobs.test.includes('secrets.'), 'the job that runs the repository\'s tests has no secret');
   assert.ok(!/^    env:/m.test(jobs.deploy), 'not in the environment of the whole job either');
-  // every step that has a secret is one of the four that talk to Cloudflare
+  // every step that has a secret is one of the five that talk to Cloudflare
   const steps = jobs.deploy.split(/\n      - name: /).slice(1);
   const withSecret = steps.filter((s) => s.includes('secrets.')).map((s) => s.split('\n')[0]);
-  assert.deepEqual(withSecret, ['Make sure the Pages project exists', 'Upload the site', 'Custom domains and DNS records', 'Check the live site']);
+  assert.deepEqual(withSecret, ['Check what the token can reach', 'Make sure the Pages project exists', 'Upload the site', 'Custom domains and DNS records', 'Check the live site']);
   assert.ok(!steps.find((s) => s.startsWith('Build the site')).includes('secrets.'), 'the build, which reads the repository\'s files, has none');
   assert.ok(!/echo\s.*\$\{\{\s*secrets/.test(code), 'and none is printed');
 });
@@ -77,7 +77,7 @@ test('the workflow, the address of the site and the manifest name the same domai
 test('the script has every command the workflow calls, and the build folder is not committed', () => {
   assert.ok(statSync(new URL('tools/cloudflare-pages.sh', root)).mode & 0o111, 'executable');
   const called = [...code.matchAll(/tools\/cloudflare-pages\.sh (\w+)/g)].map((m) => m[1]);
-  assert.deepEqual(called, ['build', 'project', 'domains', 'check']);
+  assert.deepEqual(called, ['build', 'token', 'project', 'domains', 'check']);
   for (const c of called) assert.match(script, new RegExp(`^  ${c}\\) ${c} ;;$`, 'm'), `the script has ${c}`);
   assert.match(read('.gitignore'), /^_site\/$/m);
   for (const dir of ['tools', 'tests', 'extension']) assert.match(config, new RegExp(`^  - ${dir}$`, 'm'), `${dir}/ is not part of the website`);
