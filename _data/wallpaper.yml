@@ -1,0 +1,5 @@
+# Months (1 to 12) in which the characters of the painting stand in front of the window by default (assets/months/stage.js). Chosen by the owner
+# on 2026-11-26 by looking at ?month=N&lift=overlap: January and February (with a better crop), June (only the woman on the left), July (only a
+# leg of the person on the right), September (only the group on the left, with a better crop), October (only a hand of the person on the right).
+# They stand in front only on a tablet and a desktop, never on a phone. Any page shows them with ?lift=overlap and any month with ?month=3 (or mar, march).
+lift_months: [1, 2, 6, 7, 9, 10]

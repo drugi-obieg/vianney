@@ -17,6 +17,11 @@ exclude:
   - package.json
   - dist
   - e2e-shots
+  - sermons.md
+  - plan.md
+  - rules.md
+  - assets/months/stage-test.html
+  - assets/months/stage-test.js
   - node_modules
 defaults:
   - scope:

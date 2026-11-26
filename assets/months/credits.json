@@ -1,0 +1,338 @@
+[
+  {
+    "month": 1,
+    "name_en": "January",
+    "name_de": "Januar",
+    "folio": "1v",
+    "commons_file_page": "https://commons.wikimedia.org/wiki/File:006_MS_65_F1_V.jpg",
+    "source_width": 1684,
+    "source_height": 2400,
+    "file": "01.avif",
+    "width": 1248,
+    "height": 780,
+    "crop_of_source": {
+      "x": 245,
+      "y": 1064,
+      "width": 1248,
+      "height": 780
+    },
+    "bytes": 139588,
+    "licence": "Public domain",
+    "artist_or_institution": "Limbourg brothers",
+    "credit_line": "Photo. R.M.N. / R.-G. Ojéda",
+    "miniature_inner_box_of_source": {
+      "x": 243,
+      "y": 634,
+      "width": 1252,
+      "height": 1401
+    }
+  },
+  {
+    "month": 2,
+    "name_en": "February",
+    "name_de": "Februar",
+    "folio": "2v",
+    "commons_file_page": "https://commons.wikimedia.org/wiki/File:008_MS_65_F2_V.jpg",
+    "source_width": 1684,
+    "source_height": 2400,
+    "file": "02.avif",
+    "width": 1104,
+    "height": 690,
+    "crop_of_source": {
+      "x": 338,
+      "y": 1096,
+      "width": 1104,
+      "height": 690
+    },
+    "bytes": 98513,
+    "licence": "Public domain",
+    "artist_or_institution": "Limbourg brothers",
+    "credit_line": "Photo. R.M.N. / R.-G. Ojéda",
+    "miniature_inner_box_of_source": {
+      "x": 333,
+      "y": 626,
+      "width": 1114,
+      "height": 1277
+    }
+  },
+  {
+    "month": 3,
+    "name_en": "March",
+    "name_de": "März",
+    "folio": "3v",
+    "commons_file_page": "https://commons.wikimedia.org/wiki/File:010_MS_65_F3_V.jpg",
+    "source_width": 1684,
+    "source_height": 2400,
+    "file": "03.avif",
+    "width": 1104,
+    "height": 690,
+    "crop_of_source": {
+      "x": 358,
+      "y": 1170,
+      "width": 1104,
+      "height": 690
+    },
+    "bytes": 91776,
+    "licence": "Public domain",
+    "artist_or_institution": "Limbourg brothers / Barthélemy d'Eyck",
+    "credit_line": "Photo. R.M.N. / R.-G. Ojéda",
+    "miniature_inner_box_of_source": {
+      "x": 354,
+      "y": 670,
+      "width": 1112,
+      "height": 1239
+    }
+  },
+  {
+    "month": 4,
+    "name_en": "April",
+    "name_de": "April",
+    "folio": "4v",
+    "commons_file_page": "https://commons.wikimedia.org/wiki/File:012_MS_65_F4_V.jpg",
+    "source_width": 1684,
+    "source_height": 2400,
+    "file": "04.avif",
+    "width": 1120,
+    "height": 700,
+    "crop_of_source": {
+      "x": 354,
+      "y": 1067,
+      "width": 1120,
+      "height": 700
+    },
+    "bytes": 94163,
+    "licence": "Public domain",
+    "artist_or_institution": "Limbourg brothers",
+    "credit_line": "Photo. R.M.N. / R.-G. Ojéda",
+    "miniature_inner_box_of_source": {
+      "x": 352,
+      "y": 667,
+      "width": 1124,
+      "height": 1238
+    }
+  },
+  {
+    "month": 5,
+    "name_en": "May",
+    "name_de": "Mai",
+    "folio": "5v",
+    "commons_file_page": "https://commons.wikimedia.org/wiki/File:014_MS_65_F5_V.jpg",
+    "source_width": 1684,
+    "source_height": 2400,
+    "file": "05.avif",
+    "width": 1120,
+    "height": 700,
+    "crop_of_source": {
+      "x": 300,
+      "y": 1013,
+      "width": 1120,
+      "height": 700
+    },
+    "bytes": 116870,
+    "licence": "Public domain",
+    "artist_or_institution": "Limbourg brothers",
+    "credit_line": "Photo. R.M.N. / R.-G. Ojéda",
+    "miniature_inner_box_of_source": {
+      "x": 298,
+      "y": 653,
+      "width": 1125,
+      "height": 1246
+    }
+  },
+  {
+    "month": 6,
+    "name_en": "June",
+    "name_de": "Juni",
+    "folio": "6v",
+    "commons_file_page": "https://commons.wikimedia.org/wiki/File:016_MS_65_F6_V.jpg",
+    "source_width": 1684,
+    "source_height": 2400,
+    "file": "06.avif",
+    "width": 1104,
+    "height": 690,
+    "crop_of_source": {
+      "x": 308,
+      "y": 1193,
+      "width": 1104,
+      "height": 690
+    },
+    "bytes": 92042,
+    "licence": "Public domain",
+    "artist_or_institution": "Limbourg brothers",
+    "credit_line": "Photo. R.M.N. / R.-G. Ojéda",
+    "miniature_inner_box_of_source": {
+      "x": 301,
+      "y": 633,
+      "width": 1119,
+      "height": 1281
+    }
+  },
+  {
+    "month": 7,
+    "name_en": "July",
+    "name_de": "Juli",
+    "folio": "7v",
+    "commons_file_page": "https://commons.wikimedia.org/wiki/File:018_MS_65_F7_V.jpg",
+    "source_width": 1684,
+    "source_height": 2400,
+    "file": "07.avif",
+    "width": 1104,
+    "height": 690,
+    "crop_of_source": {
+      "x": 306,
+      "y": 1182,
+      "width": 1104,
+      "height": 690
+    },
+    "bytes": 104278,
+    "licence": "Public domain",
+    "artist_or_institution": "Limbourg brothers / Jean Colombe",
+    "credit_line": "R.M.N. / R.-G. Ojéda",
+    "miniature_inner_box_of_source": {
+      "x": 303,
+      "y": 622,
+      "width": 1110,
+      "height": 1285
+    }
+  },
+  {
+    "month": 8,
+    "name_en": "August",
+    "name_de": "August",
+    "folio": "8v",
+    "commons_file_page": "https://commons.wikimedia.org/wiki/File:020_MS_65_F8_V.jpg",
+    "source_width": 1684,
+    "source_height": 2400,
+    "file": "08.avif",
+    "width": 1104,
+    "height": 690,
+    "crop_of_source": {
+      "x": 326,
+      "y": 1087,
+      "width": 1104,
+      "height": 690
+    },
+    "bytes": 98456,
+    "licence": "Public domain",
+    "artist_or_institution": "Limbourg brothers",
+    "credit_line": "Self-scanned",
+    "miniature_inner_box_of_source": {
+      "x": 320,
+      "y": 637,
+      "width": 1117,
+      "height": 1283
+    }
+  },
+  {
+    "month": 9,
+    "name_en": "September",
+    "name_de": "September",
+    "folio": "9v",
+    "commons_file_page": "https://commons.wikimedia.org/wiki/File:022_MS_65_F9_V.jpg",
+    "source_width": 1684,
+    "source_height": 2400,
+    "file": "09.avif",
+    "width": 1120,
+    "height": 700,
+    "crop_of_source": {
+      "x": 312,
+      "y": 1185,
+      "width": 1120,
+      "height": 700
+    },
+    "bytes": 113345,
+    "licence": "Public domain",
+    "artist_or_institution": "Limbourg brothers / Barthélemy d'Eyck",
+    "credit_line": "Photo. R.M.N. / R.-G. Ojéda",
+    "miniature_inner_box_of_source": {
+      "x": 310,
+      "y": 655,
+      "width": 1124,
+      "height": 1278
+    }
+  },
+  {
+    "month": 10,
+    "name_en": "October",
+    "name_de": "Oktober",
+    "folio": "10v",
+    "commons_file_page": "https://commons.wikimedia.org/wiki/File:024_MS_65_F10_V.jpg",
+    "source_width": 1684,
+    "source_height": 2400,
+    "file": "10.avif",
+    "width": 1088,
+    "height": 680,
+    "crop_of_source": {
+      "x": 352,
+      "y": 1221,
+      "width": 1088,
+      "height": 680
+    },
+    "bytes": 91068,
+    "licence": "Public domain",
+    "artist_or_institution": "Limbourg brothers",
+    "credit_line": "Self-scanned",
+    "miniature_inner_box_of_source": {
+      "x": 347,
+      "y": 631,
+      "width": 1098,
+      "height": 1284
+    }
+  },
+  {
+    "month": 11,
+    "name_en": "November",
+    "name_de": "November",
+    "folio": "11v",
+    "commons_file_page": "https://commons.wikimedia.org/wiki/File:026_MS_65_F11_V.jpg",
+    "source_width": 1684,
+    "source_height": 2400,
+    "file": "11.avif",
+    "width": 1088,
+    "height": 680,
+    "crop_of_source": {
+      "x": 352,
+      "y": 1236,
+      "width": 1088,
+      "height": 680
+    },
+    "bytes": 105406,
+    "licence": "Public domain",
+    "artist_or_institution": "Limbourg brothers",
+    "credit_line": "Self-scanned",
+    "miniature_inner_box_of_source": {
+      "x": 349,
+      "y": 636,
+      "width": 1095,
+      "height": 1314
+    }
+  },
+  {
+    "month": 12,
+    "name_en": "December",
+    "name_de": "Dezember",
+    "folio": "12v",
+    "commons_file_page": "https://commons.wikimedia.org/wiki/File:028_MS_65_F12_V.jpg",
+    "source_width": 1684,
+    "source_height": 2400,
+    "file": "12.avif",
+    "width": 1088,
+    "height": 680,
+    "crop_of_source": {
+      "x": 387,
+      "y": 1184,
+      "width": 1088,
+      "height": 680
+    },
+    "bytes": 88443,
+    "licence": "Public domain",
+    "artist_or_institution": "Limbourg brothers",
+    "credit_line": "Photo. R.M.N. / R.-G. Ojéda",
+    "miniature_inner_box_of_source": {
+      "x": 384,
+      "y": 664,
+      "width": 1094,
+      "height": 1275
+    }
+  }
+]

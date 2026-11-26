@@ -1,0 +1,5 @@
+# The extension has a fixed ID, because manifest.json carries a public "key" (the ID is derived from it: tools/extension-id.mjs prints it).
+# That makes links into the extension possible from the website: chrome-extension://<id>/src/options/options.html#log opens Activity.
+# options.html is web-accessible for the site's origin only (manifest.json). tests/site.test.js checks that this file and the manifest agree.
+id: ackkgbleehiajpmoocegfgkjdpbphmnd
+settings: src/options/options.html

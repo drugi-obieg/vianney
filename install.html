@@ -1,49 +1,23 @@
 ---
 layout: default
 title: Install
-description: How to install the Vianney Content Blocker test build in Chrome, Edge or Brave.
+description: Install Vianney Content Blocker in Chrome, Edge or Brave.
 ---
-<h1>Install the test build</h1>
+<div class="group">
+  <div class="row">
+    <span class="tile c-blue">{% include icon.html name="download" size=16 %}</span>
+    <div class="label"><span class="title">Version {{ site.data.release.version }}</span><span class="sub">{{ site.data.release.kilobytes }} KB</span></div>
+    <a class="btn primary" href="{{ '/downloads/' | append: site.data.release.latest | relative_url }}">Download</a>
+  </div>
+  <div class="row"><div class="label">Checksum</div><button class="btn small" type="button" data-copy="{{ site.data.release.sha256 }}">Copy SHA-256</button></div>
+</div>
 
-<p>Version {{ site.data.release.version }}, released {{ site.data.release.date }}, {{ site.data.release.kilobytes }} KB. This is a build for testing. It is meant for desktop Chrome, Edge and Brave, version 138 or newer. It is not in any browser store, so it is installed by hand, which takes about a minute.</p>
-
-<p><a class="btn primary" href="{{ '/downloads/' | append: site.data.release.latest | relative_url }}">Download version {{ site.data.release.version }} (zip)</a></p>
-<p class="note">SHA-256 of the zip: <code>{{ site.data.release.sha256 }}</code><br>To check it on a Mac or Linux machine, run <code>shasum -a 256 {{ site.data.release.latest }}</code> in the folder you downloaded it to.</p>
-
-<h2>Steps</h2>
-<p>First, open <code>chrome://extensions</code> (Brave: <code>brave://extensions</code>, Edge: <code>edge://extensions</code>) and switch on <strong>Developer mode</strong>. Then use either way:</p>
-<ol>
-  <li><strong>Drop the zip onto that page.</strong> Chrome unpacks it and loads the extension. The files are at the top level of the zip, which is what Chrome's zip installer needs.</li>
-  <li><strong>Or unzip it yourself and load the folder.</strong> Unzip the download into a folder of its own (a double click on a Mac or <em>Extract All</em> on Windows makes one; on Linux use <code>unzip -d vianney {{ site.data.release.latest }}</code>). Click <strong>Load unpacked</strong> and choose that folder, the one that contains <code>manifest.json</code>. Keep the folder where it is: the browser loads the extension from it, so moving or deleting it removes the extension.</li>
-</ol>
-<p>The settings page opens by itself. Pin the extension from the puzzle-piece menu if you want its icon in the toolbar.</p>
-<p class="note">If Chrome answers <em>Could not unzip extension for install</em>, you have the zip of version 0.2.0, which had an extra folder around the files and could not be dropped onto the page. Download the current zip, or unzip the old one and use <strong>Load unpacked</strong> on the folder inside it.</p>
-
-<h2>First things to try</h2>
-<ul>
-  <li>Search YouTube for something you expect a rule to catch. Matching cards disappear, the icon shows how many were hidden on this page, and the <strong>Log</strong> section of the settings explains each one.</li>
-  <li>Move a rule's slider. The page updates at once, in both directions.</li>
-  <li>Paste a title or a few subtitle lines into the <strong>Test box</strong> to see which rules react and how confident each one is.</li>
-  <li>Set the break reminder to 1 minute, play any video for that long, and look for the card in the list.</li>
-  <li>Experimental, and only if your Chrome offers the model with picture and sound input: the <strong>Pictures and sound</strong> section of the settings. It is off until you switch it on, and every part of it has its own switch, a slider per rule, and allow and block lists that always win.</li>
-</ul>
-
-<h2>What it does, and what it does not</h2>
-<ul>
-  <li>It runs only on <code>www.youtube.com</code>. The extension's details page in Chrome lists that site access, which is how it hides cards and reads subtitles.</li>
-  <li>Its only other permission is <code>storage</code>, for your settings and the log. It has no account, analytics or telemetry, and your settings and watch time stay in your browser; removing the extension deletes them. It makes no network requests of its own, with one exception: if you switch on the experimental picture check, its background worker fetches the thumbnail of each video from YouTube's image server (<code>i.ytimg.com</code>), the same pictures the page shows, to give them to Chrome's on-device model. Nothing is sent anywhere else.</li>
-  <li>Subtitles are read from YouTube's own player request, never fetched separately.</li>
-  <li>Chrome's built-in AI model is optional and off until you download it from the settings page. Without it, the rules work from their word lists. The picture and sound checks need the same model with picture and sound input, which many computers do not get.</li>
-</ul>
-
-<h2>Known limits of this build</h2>
-<ul>
-  <li>Subtitle filtering needs YouTube to give the player the caption text. In a test with an anonymous browser it did not, so this part has not been seen working on a real, trusted session. The settings page says what happened to the captions of the last video you watched.</li>
-  <li>The rules are drafts. The word lists and the percentages on the sliders are placeholders until they are measured on a labelled set of examples.</li>
-  <li>The picture and sound checks have only been run with a stand-in for Chrome's model, because the model could not run on the test machine. The whole path was seen working (thumbnails fetched, sound recorded from a playing video, hiding, blurring, muting, pausing, lists), but how well the real model recognises anything, and how fast it is, is not known yet. Expect false alarms and misses, and expect it to be slow. A sound check can only react after a few seconds of sound have played.</li>
-  <li>It was tested in Chrome 158. Edge and Brave are built on the same engine and should behave the same, but they have not been tried.</li>
-  <li>There are no automatic updates. To update, download the new zip, replace the folder, and press the reload arrow on the extension's card.</li>
-</ul>
-
-<h2>Source and problems</h2>
-<p>The source, the plan and the issue tracker are on <a href="https://github.com/drugi-obieg/vianney">GitHub</a>. The extension is plain JavaScript with no build step, so what you load is exactly what is in the <code>extension</code> folder of the repository.</p>
+<div class="group-title">Steps</div>
+<div class="group">
+  <div class="row top"><span class="num">1</span><div class="label"><span class="title">Open <a href="chrome://extensions" data-copy="chrome://extensions">chrome://extensions</a></span></div></div>
+  <div class="row top"><span class="num">2</span><div class="label"><span class="title">Switch on Developer mode</span></div></div>
+  <div class="row top"><span class="num">3</span><div class="label"><span class="title">Drop the zip onto the page</span></div></div>
+  <div class="row top"><span class="num">4</span><div class="label"><span class="title">Check <a href="chrome-extension://{{ site.data.extension.id }}/{{ site.data.extension.settings }}#log">Activity</a> after a day or so</span></div></div>
+  <div class="row top"><span class="num">5</span><div class="label"><span class="title"><a href="chrome-extension://{{ site.data.extension.id }}/{{ site.data.extension.settings }}">Tweak settings</a> and <a href="https://github.com/drugi-obieg/vianney/issues">report issues</a></span></div></div>
+</div>
+<p class="note">To update, remove the old version first.</p>

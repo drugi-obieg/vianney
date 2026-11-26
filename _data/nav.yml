@@ -1,0 +1,23 @@
+# The sidebar of the website, and for each page its heading, one line under the heading, and the icon tile.
+# Icons are named in _includes/icon.html; colours in assets/site.css (c-blue, c-indigo, ...).
+- url: /
+  title: Idea
+  icon: sparkles
+  color: pink
+- url: /features.html
+  title: Features
+  heading: Features
+  about: What it can hide.
+  icon: list-checks
+  color: green
+- url: /install.html
+  title: Install
+  heading: Install
+  about: For Chrome, Edge and Brave on desktop.
+  icon: download
+  color: blue
+- url: https://github.com/drugi-obieg/vianney
+  title: Source
+  icon: code-xml
+  color: grey
+  external: true

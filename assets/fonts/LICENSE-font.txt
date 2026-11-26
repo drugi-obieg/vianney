@@ -1,0 +1,14 @@
+Calmet UI (CalmetUI-Regular.ttf, CalmetUI-Italic.ttf), version 0.2
+
+The letters are traced from the scans of the 1732 print of Augustin Calmet's commentary on the Bible, with composed umlauts, a sharp s and
+metrics for use in an interface. The font is dedicated to the public domain by its author under CC0 1.0 Universal (the legal code is in
+CC0-1.0.txt next to this file): you may copy, change and distribute it, also commercially, without asking.
+
+This build has only the traced letters, digits and punctuation: Basic Latin without # $ % + / < = > @ [ \ ] ^ _ ` { | } ~, the German
+umlauts, sharp s, ae and oe ligatures, long s, dashes, quotation marks, the bullet and the ellipsis (the italic also has a-circumflex,
+e-acute, e-diaeresis, i-diaeresis and dotless i). Version 0.1 also had accents, symbols and spaces drawn after Source Serif 4 (Adobe,
+SIL OFL 1.1). None of that is in this file, so the OFL does not apply to it. A character that is not in the font is set by the next font of
+the CSS font stack.
+
+tools/make-font-cc0.py writes this build from the two unextended files of the font's own project.
+(The MIT licence of this repository covers the project's own code and text; this font has its own, CC0.)

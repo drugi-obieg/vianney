@@ -1,0 +1,456 @@
+{
+ "version": 1,
+ "aspect": {
+  "width": 16,
+  "height": 10
+ },
+ "about": "Month wallpapers cut from the calendar folios (1v-12v) of the Tres Riches Heures du duc de Berry, Chantilly, Musee Conde MS 65. Each month has one 16:10 background plate (the full width of the miniature inside its frame, a band of it, no parchment) and a few cut-out character layers detected with Apple Vision (VNGenerateForegroundInstanceMaskRequest / VNGeneratePersonInstanceMaskRequest). Layer x/y/width/height are pixels of the background plate; each layer sits exactly on top of the same pixels in the plate, so it can be lifted above page content with z-index without any visible change. focus is the point of the plate that stage.js keeps in view and decides how far the characters at the edges reach into a centred 800 px window. Sources and licence: see credits.json (public domain).",
+ "months": [
+  {
+   "month": 1,
+   "background": {
+    "file": "01.avif",
+    "width": 1248,
+    "height": 780,
+    "bytes": 139588
+   },
+   "color": "#80716d",
+   "focus": {
+    "x": 1.0,
+    "y": 1.0
+   },
+   "layers": [
+    {
+     "id": "servant-blue",
+     "label": "Servant in a blue robe",
+     "kind": "character",
+     "file": "layers/01-servant-blue.avif",
+     "x": 16,
+     "y": 203,
+     "width": 308,
+     "height": 577,
+     "lift": true,
+     "bytes": 32458,
+     "detection": {
+      "model": "VNGeneratePersonInstanceMaskRequest",
+      "instance": 3,
+      "window": null
+     }
+    },
+    {
+     "id": "boy-bending",
+     "label": "Boy bending at the table",
+     "kind": "character",
+     "file": "layers/01-boy-bending.avif",
+     "x": 1101,
+     "y": 623,
+     "width": 147,
+     "height": 157,
+     "lift": false,
+     "bytes": 5567,
+     "detection": {
+      "model": "VNGeneratePersonInstanceMaskRequest",
+      "instance": 4,
+      "window": "wR"
+     }
+    }
+   ]
+  },
+  {
+   "month": 2,
+   "background": {
+    "file": "02.avif",
+    "width": 1104,
+    "height": 690,
+    "bytes": 98513
+   },
+   "color": "#9c9185",
+   "focus": {
+    "x": 1.0,
+    "y": 0.5
+   },
+   "layers": [
+    {
+     "id": "woman-blue",
+     "label": "Woman in blue warming herself",
+     "kind": "character",
+     "file": "layers/02-woman-blue.avif",
+     "x": 109,
+     "y": 300,
+     "width": 240,
+     "height": 338,
+     "lift": true,
+     "bytes": 15964,
+     "detection": {
+      "model": "VNGeneratePersonInstanceMaskRequest",
+      "instance": 1,
+      "window": null
+     }
+    },
+    {
+     "id": "woman-muffled",
+     "label": "Muffled woman in the snow",
+     "kind": "character",
+     "file": "layers/02-woman-muffled.avif",
+     "x": 982,
+     "y": 204,
+     "width": 122,
+     "height": 246,
+     "lift": false,
+     "bytes": 7783,
+     "detection": {
+      "model": "VNGenerateForegroundInstanceMaskRequest",
+      "instance": 1,
+      "window": "wR"
+     }
+    }
+   ]
+  },
+  {
+   "month": 3,
+   "background": {
+    "file": "03.avif",
+    "width": 1104,
+    "height": 690,
+    "bytes": 91776
+   },
+   "color": "#87826d",
+   "focus": {
+    "x": 0.0,
+    "y": 0.5
+   },
+   "layers": [
+    {
+     "id": "ploughman",
+     "label": "Ploughman with the plough",
+     "kind": "character",
+     "file": "layers/03-ploughman.avif",
+     "x": 808,
+     "y": 333,
+     "width": 179,
+     "height": 328,
+     "lift": true,
+     "bytes": 13171,
+     "detection": {
+      "model": "VNGenerateForegroundInstanceMaskRequest",
+      "instance": 1,
+      "window": null
+     }
+    }
+   ]
+  },
+  {
+   "month": 4,
+   "background": {
+    "file": "04.avif",
+    "width": 1120,
+    "height": 700,
+    "bytes": 94163
+   },
+   "color": "#7a7772",
+   "focus": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "layers": [
+    {
+     "id": "lord-blue-robe",
+     "label": "Lord in a blue fleur-de-lis robe",
+     "kind": "character",
+     "file": "layers/04-lord-blue-robe.avif",
+     "x": 0,
+     "y": 23,
+     "width": 253,
+     "height": 677,
+     "lift": true,
+     "bytes": 33991,
+     "detection": {
+      "model": "VNGeneratePersonInstanceMaskRequest",
+      "instance": 1,
+      "window": "wL"
+     }
+    }
+   ]
+  },
+  {
+   "month": 5,
+   "background": {
+    "file": "05.avif",
+    "width": 1120,
+    "height": 700,
+    "bytes": 116870
+   },
+   "color": "#78776b",
+   "focus": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "layers": [
+    {
+     "id": "lady-lilac",
+     "label": "Lady in a lilac gown",
+     "kind": "character",
+     "file": "layers/05-lady-lilac.avif",
+     "x": 991,
+     "y": 29,
+     "width": 129,
+     "height": 343,
+     "lift": false,
+     "bytes": 11701,
+     "detection": {
+      "model": "VNGeneratePersonInstanceMaskRequest",
+      "instance": 3,
+      "window": "wR"
+     }
+    }
+   ]
+  },
+  {
+   "month": 6,
+   "background": {
+    "file": "06.avif",
+    "width": 1104,
+    "height": 690,
+    "bytes": 92042
+   },
+   "color": "#8c9677",
+   "focus": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "layers": [
+    {
+     "id": "woman-left",
+     "label": "Woman raking hay",
+     "kind": "character",
+     "file": "layers/06-woman-left.avif",
+     "x": 13,
+     "y": 236,
+     "width": 226,
+     "height": 454,
+     "lift": true,
+     "bytes": 18335,
+     "detection": {
+      "model": "VNGenerateForegroundInstanceMaskRequest",
+      "instance": 1,
+      "window": "wL"
+     }
+    }
+   ]
+  },
+  {
+   "month": 7,
+   "background": {
+    "file": "07.avif",
+    "width": 1104,
+    "height": 690,
+    "bytes": 104278
+   },
+   "color": "#898665",
+   "focus": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "layers": [
+    {
+     "id": "shearer",
+     "label": "Shepherd shearing a sheep",
+     "kind": "character",
+     "file": "layers/07-shearer.avif",
+     "x": 861,
+     "y": 239,
+     "width": 228,
+     "height": 293,
+     "lift": true,
+     "bytes": 14556,
+     "detection": {
+      "model": "VNGenerateForegroundInstanceMaskRequest",
+      "instance": 3,
+      "window": null
+     }
+    }
+   ]
+  },
+  {
+   "month": 8,
+   "background": {
+    "file": "08.avif",
+    "width": 1104,
+    "height": 690,
+    "bytes": 98456
+   },
+   "color": "#8a8679",
+   "focus": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "layers": [
+    {
+     "id": "lady-pink",
+     "label": "Lady in pink",
+     "kind": "character",
+     "file": "layers/08-lady-pink.avif",
+     "x": 0,
+     "y": 76,
+     "width": 135,
+     "height": 457,
+     "lift": false,
+     "bytes": 12851,
+     "detection": {
+      "model": "VNGeneratePersonInstanceMaskRequest",
+      "instance": 3,
+      "window": null
+     }
+    },
+    {
+     "id": "falconer",
+     "label": "Falconer",
+     "kind": "character",
+     "file": "layers/08-falconer.avif",
+     "x": 936,
+     "y": 293,
+     "width": 168,
+     "height": 268,
+     "lift": false,
+     "bytes": 10639,
+     "detection": {
+      "model": "VNGeneratePersonInstanceMaskRequest",
+      "instance": 2,
+      "window": "wR"
+     }
+    }
+   ]
+  },
+  {
+   "month": 9,
+   "background": {
+    "file": "09.avif",
+    "width": 1120,
+    "height": 700,
+    "bytes": 113345
+   },
+   "color": "#878772",
+   "focus": {
+    "x": 1.0,
+    "y": 1.0
+   },
+   "layers": [
+    {
+     "id": "pickers-left",
+     "label": "Grape pickers",
+     "kind": "character",
+     "file": "layers/09-pickers-left.avif",
+     "x": 1,
+     "y": 419,
+     "width": 446,
+     "height": 281,
+     "lift": true,
+     "bytes": 30201,
+     "detection": {
+      "model": "VNGenerateForegroundInstanceMaskRequest",
+      "instance": 3,
+      "window": null
+     }
+    },
+    {
+     "id": "oxen-right",
+     "label": "Ox-driver at the cart",
+     "kind": "character",
+     "file": "layers/09-oxen-right.avif",
+     "x": 947,
+     "y": 312,
+     "width": 173,
+     "height": 255,
+     "lift": false,
+     "bytes": 11043,
+     "detection": {
+      "model": "VNGenerateForegroundInstanceMaskRequest",
+      "instance": 1,
+      "window": "wR"
+     }
+    }
+   ]
+  },
+  {
+   "month": 10,
+   "background": {
+    "file": "10.avif",
+    "width": 1088,
+    "height": 680,
+    "bytes": 91068
+   },
+   "color": "#7c766a",
+   "focus": {
+    "x": 0.0,
+    "y": 0.5
+   },
+   "layers": [
+    {
+     "id": "sower",
+     "label": "Sower",
+     "kind": "character",
+     "file": "layers/10-sower.avif",
+     "x": 774,
+     "y": 189,
+     "width": 228,
+     "height": 460,
+     "lift": true,
+     "bytes": 19844,
+     "detection": {
+      "model": "VNGenerateForegroundInstanceMaskRequest",
+      "instance": 2,
+      "window": null
+     }
+    }
+   ]
+  },
+  {
+   "month": 11,
+   "background": {
+    "file": "11.avif",
+    "width": 1088,
+    "height": 680,
+    "bytes": 105406
+   },
+   "color": "#605143",
+   "focus": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "layers": []
+  },
+  {
+   "month": 12,
+   "background": {
+    "file": "12.avif",
+    "width": 1088,
+    "height": 680,
+    "bytes": 88443
+   },
+   "color": "#6a5a50",
+   "focus": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "layers": [
+    {
+     "id": "hunter-right",
+     "label": "Hunter with a horn (right)",
+     "kind": "character",
+     "file": "layers/12-hunter-right.avif",
+     "x": 939,
+     "y": 114,
+     "width": 149,
+     "height": 463,
+     "lift": false,
+     "bytes": 14713,
+     "detection": {
+      "model": "VNGeneratePersonInstanceMaskRequest",
+      "instance": 1,
+      "window": null
+     }
+    }
+   ]
+  }
+ ]
+}
