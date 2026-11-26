@@ -1,0 +1,33 @@
+# Modernism, the doctrine that Pius X condemned in Pascendi dominici gregis (1907): that dogma evolves and changes its meaning, that faith is a feeling that rises from within, that the Church must change with the times. Quoted in rules.md. A choice of the rule author (2026-11-26) that it looks for the doctrine in videos, and that these are the words for it; the wording of each cue is the list author's.
+# The words of Pascendi itself that are cues: "vital immanence", "religious sentiment", "evolution of dogma", "the Christ of history and the Christ of faith", "agnosticism", "democratic forms". The Catholic idea of the development of doctrine (Newman, Vincent of Lerins) is not a cue.
+# 0.95 = the doctrine stated flat ("dogma evolves", "the Church must change its teaching"). Guarded: a title with "modernism", "Pascendi", "Pius X", "condemned", "heresy", "errors", "tradition", "development" or "Newman" falls to the weight of the bare word and waits for the model (a Catholic warning against Modernism is not Modernism). A question ("Does doctrine evolve?") is not matched.
+# 0.75 = words that the doctrine and its critics both use (it waits for the on-device model, or for a lower slider). 0.50 = the name, which Catholic critics, art history and literature use. 0.15 = ambiguous. The authors and titles of the Index are in index_modernists.
+0.95 | /(?<!\b(?:does|do|did|can|could|should|may|will|how|why|when|if|whether) )\b(?:dogma|dogmas|doctrine|doctrines) (?:evolves?|evolved|keeps evolving|must evolve|should evolve)\b(?<!\b(?:modernis\w*|pascendi|lamentabili|pius x|pius 10|condemn\w*|heres\w*|errors?|warn\w*|beware|danger\w*|apostasy|syllabus|tradition\w*|development|newman|anti ?modernis\w*|neo ?modernis\w*)\b.*)(?!.*\b(?:modernis\w*|pascendi|lamentabili|pius x|pius 10|condemn\w*|heres\w*|errors?|warn\w*|beware|danger\w*|apostasy|syllabus|tradition\w*|development|newman|anti ?modernis\w*|neo ?modernis\w*)\b)/
+0.95 | /\b(?:evolution|evolving) of (?:dogma|dogmas|doctrine|doctrines)\b(?<!\b(?:modernis\w*|pascendi|lamentabili|pius x|pius 10|condemn\w*|heres\w*|errors?|warn\w*|beware|danger\w*|apostasy|syllabus|tradition\w*|development|newman|anti ?modernis\w*|neo ?modernis\w*)\b.*)(?!.*\b(?:modernis\w*|pascendi|lamentabili|pius x|pius 10|condemn\w*|heres\w*|errors?|warn\w*|beware|danger\w*|apostasy|syllabus|tradition\w*|development|newman|anti ?modernis\w*|neo ?modernis\w*)\b)/
+0.95 | /\bchurch (?:must|needs to|has to|should) (?:change|evolve|move|keep up|catch up) with the times\b(?<!\b(?:modernis\w*|pascendi|lamentabili|pius x|pius 10|condemn\w*|heres\w*|errors?|warn\w*|beware|danger\w*|apostasy|syllabus|tradition\w*|development|newman|anti ?modernis\w*|neo ?modernis\w*)\b.*)(?!.*\b(?:modernis\w*|pascendi|lamentabili|pius x|pius 10|condemn\w*|heres\w*|errors?|warn\w*|beware|danger\w*|apostasy|syllabus|tradition\w*|development|newman|anti ?modernis\w*|neo ?modernis\w*)\b)/
+0.95 | /\bchurch (?:must|needs to|has to|should) (?:change|update|revise|rewrite|drop|abandon) (?:its|her|the) (?:teachings?|doctrines?|dogmas?|position)\b(?<!\b(?:modernis\w*|pascendi|lamentabili|pius x|pius 10|condemn\w*|heres\w*|errors?|warn\w*|beware|danger\w*|apostasy|syllabus|tradition\w*|development|newman|anti ?modernis\w*|neo ?modernis\w*)\b.*)(?!.*\b(?:modernis\w*|pascendi|lamentabili|pius x|pius 10|condemn\w*|heres\w*|errors?|warn\w*|beware|danger\w*|apostasy|syllabus|tradition\w*|development|newman|anti ?modernis\w*|neo ?modernis\w*)\b)/
+0.75 | /(?:(?<!\b(?:does|do|did|can|could|should|may|will|how|why|when|if|whether) )\b(?:dogma|dogmas|doctrine|doctrines) (?:evolves?|evolved|keeps evolving|must evolve|should evolve)\b|\b(?:evolution|evolving) of (?:dogma|dogmas|doctrine|doctrines)\b|\bchurch (?:must|needs to|has to|should) (?:change|evolve|move|keep up|catch up) with the times\b|\bchurch (?:must|needs to|has to|should) (?:change|update|revise|rewrite|drop|abandon) (?:its|her|the) (?:teachings?|doctrines?|dogmas?|position)\b)/
+0.75 | /\bchurch (?:must|needs to|has to|should) (?:adapt|change|evolve) to (?:the modern world|modern times|today'?s world|the 21st century)\b/
+0.75 | vital immanence
+0.75 | christ of faith
+0.75 | jesus of history
+0.75 | catholic modernis*
+0.75 | modernist crisis
+0.75 | neo modernis*
+0.75 | neomodernis*
+0.75 | liberal catholicism
+0.75 | liberal catholic*
+0.75 | non dogmatic christianity
+0.75 | /\bdemocrati[sz]e the church\b/
+0.75 | /\bdogmas? (?:is|are) (?:not|no longer) (?:fixed|final|absolute|unchangeable|immutable)\b/
+0.75 | /\bdogmas? (?:is|are) (?:only |just |merely )?(?:a |an )?(?:symbols?|human constructs?|human inventions?|human interpretations?)\b/
+0.75 | /\bfaith is (?:only |just |merely )?(?:a )?(?:feeling|experience|sentiment)\b/
+0.50 | modernism*
+0.50 | modernist*
+0.50 | religious sentiment
+0.50 | historical jesus
+0.50 | higher criticism
+0.50 | biblical criticism
+0.50 | progressive catholic*
+0.15 | agnosticism
+0.15 | religious experience

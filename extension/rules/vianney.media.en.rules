@@ -24,6 +24,11 @@
 
 rule explicit_images
   title: Nudity and pornography in a thumbnail
+  name: Nudity in thumbnails
+  plain: Flags thumbnails that show nudity or a sexual act. Needs the on-device model with image input.
+  group: pictures
+  example: a thumbnail showing a naked person
+  spared: a thumbnail of a family at the beach in ordinary swimwear
   source: Sur l'Impureté; Sur la Pénitence (the eyes)
   where: thumbnail
   ask noul: Does this picture show a naked person, exposed breasts or genitals, or a sexual act, whether in a photograph, a drawing or a computer-made image?
@@ -34,6 +39,11 @@ rule explicit_images
 
 rule immodest_images
   title: Immodest pictures
+  name: Revealing images
+  plain: Flags thumbnails whose main attraction is underwear, lingerie or a suggestive pose.
+  group: pictures
+  example: a thumbnail of a model in lingerie
+  spared: a thumbnail of a choir in robes
   source: Sur l'Impureté
   where: thumbnail
   ask noul: Is the main attraction of this picture a person in underwear, lingerie or very revealing clothing, or in a sexually suggestive pose?
@@ -43,6 +53,11 @@ rule immodest_images
 
 rule violent_images
   title: Gore and cruelty in a thumbnail
+  name: Gore in thumbnails
+  plain: Flags thumbnails that show wounds, blood or cruelty.
+  group: pictures
+  example: a thumbnail with blood and a wounded body
+  spared: a thumbnail of a doctor in a hospital
   source: Sur la Pénitence (the eyes)
   where: thumbnail
   ask noul: Does this picture show a wounded or dead body, blood, or an act of cruelty?
@@ -57,6 +72,11 @@ rule violent_images
 
 rule audio_explicit
   title: Sexual sounds or explicit sexual talk
+  name: Sexual audio
+  plain: Flags audio with sexual sounds or explicit sexual talk. Needs the on-device model with audio input.
+  group: sound
+  example: a clip with moaning or explicit talk about sex
+  spared: a clip of a choir singing
   source: Sur l'Impureté; Sur la Pénitence (the ears)
   where: audio
   ask noul: Does this audio contain sexual sounds, such as moaning, or explicit talk about sex?
@@ -67,6 +87,11 @@ rule audio_explicit
 
 rule audio_coarse
   title: Coarse or obscene language in the sound
+  name: Vulgar words in audio
+  plain: Flags audio with vulgar or obscene words. Needs the on-device model with audio input.
+  group: sound
+  example: a speaker who swears in every sentence
+  spared: a lecture on the history of English
   source: Sur la Pénitence (the ears)
   where: audio
   ask noul: Does a speaker or singer in this audio use vulgar, obscene or profane words?
@@ -76,6 +101,11 @@ rule audio_coarse
 
 rule audio_lords_name
   title: The Lord's name used as an exclamation or a curse (sound)
+  name: God's name as a curse (audio)
+  plain: Flags audio where someone uses God's or Jesus' name as an exclamation. Needs the on-device model with audio input.
+  group: sound
+  example: a speaker who shouts "Jesus Christ!" in anger
+  spared: a priest saying the Our Father
   source: Sur le deuxième Commandement
   where: audio
   ask noul: Does a speaker use the name of God, Jesus or Christ as an exclamation or a curse, and not in prayer, worship or religious teaching?

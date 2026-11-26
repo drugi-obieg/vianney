@@ -1,0 +1,36 @@
+# Sects and new religious movements. A choice of the rule author (2026-11-26), see rules.md. Names of groups as they name themselves; no derogatory names, no names of persons.
+# 0.95 = a place of worship, an address or a meeting that only the group itself speaks of: content of that kind by itself.
+# 0.75 = the name of the group, which news, documentaries and Catholic replies also use (it waits for the on-device model, or for a lower slider).
+# 0.50 = a broader word; 0.15 = ambiguous.
+0.95 | kingdom hall*
+0.95 | jw org
+0.95 | /\bjehovah'?s witnesses? (?:convention|conventions|meeting|meetings)\b/
+0.95 | /\b(?:mormon|latter day saints?|lds) (?:general conference|testimony|sacrament meeting)\b/
+0.75 | watchtower society
+0.75 | mormon*
+0.75 | latter day saint*
+0.75 | book of mormon
+0.75 | jehovah's witness*
+0.75 | jehovahs witness*
+0.75 | jehovah witness*
+0.75 | scientolog*
+0.75 | dianetics
+0.75 | christian science
+0.75 | christian scientist*
+0.75 | seventh day adventis*
+0.75 | unification church
+0.75 | unitarian*
+0.75 | christadelphian*
+0.75 | rosicrucian*
+0.75 | theosoph*
+0.75 | anthroposoph*
+0.75 | baha'i
+0.75 | bahai
+0.75 | new religious movement*
+0.75 | iglesia ni cristo
+0.75 | international church of christ
+0.75 | new apostolic church
+0.50 | adventist*
+0.50 | lds
+0.50 | watchtower
+0.15 | jehovah

@@ -1,0 +1,33 @@
+# Indifferentism: the claim that all religions are equally true, or that it does not matter which religion one follows.
+# A choice of the rule author (2026-11-26), see rules.md. The 0.95 entries match only the flat statement, so the question form ("Are all religions the same?")
+# and the denial ("not all religions are the same") are spared. 0.75 = a topic word that a Catholic reply also uses; 0.50 = broader; 0.15 = ambiguous.
+0.95 | /(?<!\bnot )\ball (?:the )?(?:religions|faiths) (?:are|were) (?:the same|equal|equally (?:true|valid|good|right)|one|true|valid)\b/
+0.95 | /\bevery religion is (?:true|valid|equal|the same|right|good)\b/
+0.95 | /\bno religion is (?:better|truer|superior|more true)\b/
+0.95 | /\bit (?:does not|doesn'?t) (?:really )?matter (?:what|which) (?:religion|faith|god|you believe|we believe|one believes)\b/
+0.95 | /\b(?:any|whatever) religion (?:will do|is fine|is good|is as good as any other)\b/
+0.75 | /\ball (?:religions|faiths|paths|roads|ways) (?:lead|point|go|climb) to (?:god|heaven|the same|one|truth|enlightenment)\b/
+0.75 | /\b(?:one god many paths|many paths to god|many ways to god|many roads to god|many paths one god)\b/
+0.75 | /\bthe same god (?:by|with|under) (?:different|many) names\b/
+0.75 | /\b(?:we all|all religions|everyone|all people) worships? the same god\b/
+0.75 | /\ball religions? (?:teach|say|preach) the same\b/
+0.75 | spiritual but not religious
+0.75 | religious pluralism
+0.75 | religious relativism
+0.75 | unitarian universalis*
+0.75 | /\b(?:choose|make|build|create|design|pick) your own religion\b/
+0.75 | /\breligion (?:does not|doesn'?t|really doesn'?t) matter\b/
+0.50 | interfaith
+0.50 | inter faith
+0.50 | interreligious
+0.50 | inter religious
+0.50 | multifaith
+0.50 | multi faith
+0.50 | all religions
+0.50 | universalism
+0.50 | perennial philosophy
+0.50 | comparative religion*
+0.15 | coexist
+0.15 | world religions
+0.15 | relativism
+0.15 | pluralism

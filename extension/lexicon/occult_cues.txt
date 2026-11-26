@@ -1,0 +1,48 @@
+# Witchcraft, magic and the occult, and New Age practice. A choice of the rule author (2026-11-26), see rules.md. Tarot, horoscopes and psychics are in divination_cues.
+# 0.95 = a practice offered or taught ("crystal healing for beginners", "love spells that work"): content of that kind by itself.
+# 0.75 = the name of a practice or a term that fantasy fiction, games, history and Catholic warnings also use (it waits for the on-device model, or for a lower slider).
+# 0.50 = broader; 0.15 = ambiguous. No names of persons, no derogatory names.
+0.95 | /\b(?:crystal healing|reiki|astral projection|energy healing|pranic healing) (?:for beginners|session|sessions|healing|tutorial|class|course|attunement|meditation|music|technique|techniques|guide|master)\b/
+0.95 | pranic healing
+0.95 | healing crystals
+0.95 | /\bcrystal (?:grid|grids|energy|therapy|ritual|rituals)\b/
+0.95 | magick
+0.95 | starseed*
+0.95 | lightworker*
+0.95 | /\b(?:full|new) moon (?:ritual|rituals|spell|spells|manifestation)\b/
+0.95 | /\b(?:love|money|banishing|binding|revenge) spells? (?:that work|for beginners|tutorial|casting|ritual)\b/
+0.95 | /\b(?:wiccan|wicca|witchcraft) (?:spell|spells|coven|for beginners)\b/
+0.75 | /\b(?:love|money|banishing|binding|revenge) spells?\b/
+0.75 | reiki
+0.75 | crystal healing
+0.75 | astral projection
+0.75 | astral travel
+0.75 | witchcraft
+0.75 | wicca*
+0.75 | spell casting
+0.75 | spellcasting
+0.75 | /\bcast(?:ing|s)? (?:a )?spells?\b/
+0.75 | satanis*
+0.75 | satanic*
+0.75 | /\bsummon\w* (?:a |the )?(?:demons?|spirits?|devil)\b/
+0.75 | /\bhow to (?:conjure|invoke|call) (?:a |the )?(?:demon|demons|spirit|spirits|devil|satan)\b/
+0.75 | devil worship*
+0.75 | church of satan
+0.75 | law of attraction
+0.75 | energy healing
+0.75 | energy healer*
+0.75 | /\baura (?:reading|readings|cleansing|healing)\b/
+0.75 | new age
+0.75 | occult*
+0.75 | black magic
+0.75 | /\bmanifest(?:ing)? (?:your|abundance|money|love|wealth|success|desires|dreams)\b/
+0.50 | manifesting
+0.50 | spirit guide*
+0.50 | paganism
+0.50 | third eye
+0.50 | shadow work
+0.50 | sorcery
+0.50 | smudging
+0.15 | /\bwitch(?:es)?\b/
+0.15 | crystals
+0.15 | manifestation*

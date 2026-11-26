@@ -1,0 +1,38 @@
+# Naturalism and rationalism: the claim that nature or matter is all there is, or that science rules out God, miracles or the soul.
+# A choice of the rule author (2026-11-26), see rules.md. 0.95 = a flat claim; 0.75 = a topic word that a Catholic reply or a philosophy talk also uses;
+# 0.50 = a broader word; 0.15 = an ambiguous bare word. No names of persons, no derogatory names.
+0.95 | /\bthere is no (?:such thing as )?(?:the )?(?:supernatural|soul|afterlife|spirit world)\b/
+0.95 | /\b(?:the )?(?:supernatural|soul|spirit world) (?:does not|doesn'?t) exist\b/
+0.95 | /\b(?:the )?soul is (?:a|an) (?:myth|illusion|fiction|fairy ?tale)\b/
+0.95 | /\b(?:nature|matter|the universe|the physical world|physical reality) is (?:all|everything) (?:there is|that exists)\b/
+0.95 | /\bnothing (?:exists )?(?:but|except|beyond) (?:matter|nature|the physical|the material)\b/
+0.95 | /\bmiracles (?:are|is) (?:impossible|a myth|myths|fake|fiction|nonsense|not real)\b/
+0.95 | /\bmiracles (?:do not|don'?t|never) (?:happen|exist|occur)\b/
+0.95 | /(?<!\b(?:has|have|had|did|can|could) )\bscience (?:has )?(?:disproved|disproves|disproven|refuted|refutes|debunked|debunks) (?:god|religion|the soul|miracles|the bible|faith)\b/
+0.95 | /\bjesus (?:never existed|did not exist|didn'?t exist|is a myth|was a myth)\b/
+0.95 | /\bthe resurrection (?:is|was) (?:a )?(?:myth|legend|hoax|fiction|fake|fairy ?tale)\b/
+0.75 | scientism
+0.75 | secular humanis*
+0.75 | methodological naturalism
+0.75 | philosophical naturalism
+0.75 | metaphysical naturalism
+0.75 | scientific materialism
+0.75 | naturalistic worldview
+0.75 | no supernatural
+0.75 | /\bscience (?:vs|versus|v|or) (?:god|religion|faith)\b/
+0.75 | /\bdisprov(?:e|es|ed|ing) (?:god|miracles|the soul|the resurrection)\b/
+0.75 | /\bmiracles (?:debunked|disproved|explained away)\b/
+0.75 | /\b(?:debunking|debunked|debunks) miracles\b/
+0.50 | humanis*
+0.50 | naturalism
+0.50 | materialis*
+0.50 | physicalism
+0.50 | rationalism
+0.50 | rationalist*
+0.50 | freethought
+0.50 | freethinker*
+0.50 | free thinker*
+0.50 | god of the gaps
+0.15 | skeptic*
+0.15 | sceptic*
+0.15 | secular*

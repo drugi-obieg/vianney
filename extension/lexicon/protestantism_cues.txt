@@ -1,0 +1,49 @@
+# Protestant and evangelical teaching and worship, pastors and televangelists. The Curé's aside in Sur la colère names the Protestants among those who leave the Catholic religion for a false one;
+# the words are a choice of the rule author (2026-11-26, widened the same day), see rules.md.
+# 0.95 = a pastor or a reverend named as such, a sermon, a service, a revival or an altar call, a call to accept Christ as one's saviour: content of that kind by itself.
+#   "pastor" and "reverend" are the rule author's decision (a Catholic priest is called Father). Spared on purpose: "parish pastor", "Catholic pastor", the Latin documents ("Pastor aeternus"), "Pastor" in Spanish dog-breed names, and the Catholic styles "Most Reverend", "Reverend Mother", "Reverend Father".
+#   Not a cue: the abbreviation "Rev." (it cannot be told from "rev up", "rev counter", "Rev. Fr." or a Bible reference once the text is lower-cased and the full stops are gone).
+# 0.75 = a denomination or doctrine word that Catholic replies, history and news also use (it waits for the on-device model, or for a lower slider).
+# 0.50 = a broader word; 0.15 = an ambiguous bare word. No names of persons (no reformers, no pastors, no preachers), no derogatory words.
+0.95 | /(?<!\b(?:parish|catholic|monsignor) )\bpastors?\b(?! (?:aeternus|bonus|angelicus|animarum|of souls|aleman|belga|australiano|vasco|catalan)\b)/
+0.95 | /(?<!\b(?:most|right|very) )\breverend\b(?! (?:mother|father|fr|sister|monsignor|canon|dom|abbot|abbess|archbishop|bishop|cardinal|priest|brother|prior|prioress|mgr|msgr)\b)/
+0.95 | /\b(?:(?<!john the )baptist|pentecostal|lutheran|methodist|presbyterian|calvinist|reformed|megachurch|mega church|nondenominational|non denominational) (?:sermon|sermons|preaching|worship|revival|praise)\b/
+0.95 | altar call*
+0.95 | /\baccept(?:ing)? (?:jesus|christ|jesus christ) as (?:your|my) (?:personal )?(?:lord and )?(?:savior|saviour|lord)\b/
+0.95 | /(?<!\b(?:eucharistic|catholic) )\b(?:tent revivals?|revival services?|healing crusades?|miracle (?:service|services|crusade|crusades))\b/
+0.95 | /(?<!\bthe )\bprophetic word (?:for|about)\b/
+0.95 | /\b(?:prosperity|word of faith|health and wealth) (?:preacher|preachers|preaching|sermon|sermons)\b/
+0.75 | protestant*
+0.75 | lutheran*
+0.75 | calvinis*
+0.75 | evangelical*
+0.75 | pentecostal*
+0.75 | methodis*
+0.75 | presbyterian*
+0.75 | anglican*
+0.75 | /(?<!\bjohn the )\bbaptists?\b/
+0.75 | /\b(?:televangelist|tele evangelist|tv evangelist)\w*/
+0.75 | /\bmega ?church\w*/
+0.75 | /\b(?:prosperity gospel|word of faith|name it and claim it|seed faith)\b/
+0.75 | /\bhealth and wealth (?:gospel|movement|teaching|teachings|ministry|preacher|preachers)\b/
+0.75 | /\bprophetic (?:word|ministry)\b/
+0.75 | /\b(?:speaking in tongues|slain in the spirit)\b/
+0.75 | /\b(?:praise and worship|worship (?:team|night|nights|session|sessions|leader|leaders|band))\b/
+0.75 | god told me
+0.75 | /\bnon ?denominational\b/
+0.75 | bible believing
+0.75 | born again
+0.75 | /\b(?:gospel|street|hellfire) preach(?:er|ers|ing)\b/
+0.75 | /\bsinner'?s prayer\b/
+0.75 | /\b(?:sola (?:scriptura|fide|gratia)|faith alone|bible only|bible alone)\b/
+0.75 | /\b(?:the reformation|reformation day|reformed theology)\b/
+0.75 | once saved always saved
+0.75 | rev dr
+0.50 | /\bpersonal relationship with (?:jesus|christ)\b/
+0.50 | /\banoint(?:ing|ed)\b(?! (?:of|oil|oils)\b)/
+0.50 | /\b(?:rapture|eternal security|sunday sermon)\b/
+0.50 | reformation
+0.15 | reformed
+0.15 | /\b(?:church service|bible study|sunday school)\b/
+0.15 | /\bapostles?\b/
+0.15 | health and wealth

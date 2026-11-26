@@ -1,0 +1,30 @@
+# Content that attacks the Catholic Church, the pope or Catholic teaching as false or evil. A choice of the rule author (2026-11-26), see rules.md.
+# 0.95 = an explicit charge ("the pope is the antichrist", "the Catholic Church is a cult"): content of that kind by itself.
+# 0.75 = a phrase that attackers use but that news, Catholic replies and church history also quote (it waits for the on-device model, or for a lower slider).
+# 0.50 = broader (news and history); 0.15 = ambiguous. Never a bare word such as "pope", "priest" or "Vatican". No names of persons, no derogatory names for Catholics.
+0.95 | /\b(?:the )?(?:catholic church|roman catholic church|catholicism|the papacy|the vatican) (?:is|are) (?:an? )?(?:evil|a cult|a false church|false|satanic|demonic|a lie|a scam|a fraud|pagan|idolatrous)\b/
+0.95 | /\b(?:the )?(?:pope|papacy|vatican|catholic church|rome) (?:is|are) (?:the )?(?:antichrist|anti christ|beast|false prophet)\b/
+0.95 | /\b(?:the )?(?:catholic church|rome|the papacy|the pope|the vatican) (?:is|as) the whore of babylon\b/
+0.95 | papal lies
+0.95 | /\blies of (?:the )?(?:catholic church|catholicism|rome|the vatican|the papacy)\b/
+0.75 | whore of babylon
+0.75 | /\bcatholic (?:idolatry|false doctrines?|deceptions?)\b/
+0.75 | /\bexposing (?:the )?(?:catholic church|catholicism|the vatican|the papacy|rome)\b/
+0.75 | /\b(?:catholic church|catholicism|vatican|papacy) exposed\b/
+0.75 | /\bwhy i (?:left|quit|am leaving|stopped being|stopped believing in) (?:the )?(?:roman )?(?:catholic church|catholicism|catholic faith)\b/
+0.75 | ex catholic*
+0.75 | anti catholic*
+0.75 | vatican cover up
+0.75 | vatican coverup
+0.75 | /\bcatholics worship (?:mary|statues|idols|saints|the pope)\b/
+0.75 | /\bcatholics (?:are not|aren'?t) (?:really |true )?christians?\b/
+0.75 | /\b(?:catholic church|vatican|papacy) (?:is|are) (?:corrupt|hypocritical|a business|a mafia)\b/
+0.75 | mary worship
+0.75 | mariolatry
+0.75 | false church
+0.50 | former catholic*
+0.50 | /\bleaving (?:the )?(?:roman )?(?:catholic church|catholicism)\b/
+0.50 | /\b(?:catholic church|vatican) (?:abuse|scandals?|crisis|secrets|wealth)\b/
+0.50 | church cover up
+0.50 | against the catholic church
+0.15 | antichrist

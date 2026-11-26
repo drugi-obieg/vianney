@@ -1,0 +1,23 @@
+# Allan Kardec and the periodicals and books of Spiritism on the Index (the names of a doctrine: the model decides, as in the rule on Spiritism). The entries are names and titles of the Index of Forbidden Books (the edition of 1948 and the decrees to 1961), read from docs/en/holy-office/forbidden.md; they are not invented.
+# The category is a choice of the rule author: the Index is alphabetical and has no categories. Each group below is introduced by the author's heading exactly as the Index prints it ("# @ ..."); tests/index-names.test.js checks every entry against that author's block.
+# Ground: canon 1399, class 7 (books that teach or recommend superstition, fortune-telling, divination, magic, the calling up of spirits and the like). See research/index-of-forbidden-books.md and rules.md.
+# The rule looks for videos ABOUT these authors and their works (an analysis, a summary, a reading, an adaptation, a biography, a debate), whatever the video says of them.
+# 0.95 = the full name or a title that only this author wrote; 0.75 = a bare surname that a place, a school or a pet may also bear (it waits for the on-device model); 0.50 = a broader or ambiguous bare word.
+# A name at 0.95 is a pattern that stands down to the plain 0.75 line under it (the model decides) when a word of a street, a school, a hotel, a station or the like stands next to it (Rue Voltaire, Hotel Victor Hugo): the guard is looked at only after the name has matched.
+# No title is translated: a title appears only as the Index prints it. A name or a title that is also a place, a cathedral or an everyday word is not a cue (see rules.md).
+# @ Denizart-Rivail, Hippolyte-Léon
+0.75 | allan kardec*
+0.75 | kardec*
+0.75 | denizart rivail*
+0.75 | le livre des esprits
+0.75 | le livre des mediums
+0.75 | le spiritisme a sa plus simple expression
+# @ Guldenstubbe, Louis de
+0.75 | guldenstubbe*
+# @ Cahagnet, Louis-Alphonse
+0.75 | louis alphonse cahagnet*
+0.75 | cahagnet*
+# @ (without the author’s name)
+0.75 | revue spirite
+0.75 | revue spiritualiste
+0.75 | le magnetiseur spiritualiste

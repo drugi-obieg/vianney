@@ -1,0 +1,40 @@
+# Lives of Jesus and critical readings of the Gospels by authors on the Index, and the authors who deny that Jesus existed. The entries are names and titles of the Index of Forbidden Books (the edition of 1948 and the decrees to 1961), read from docs/en/holy-office/forbidden.md; they are not invented.
+# The category is a choice of the rule author: the Index is alphabetical and has no categories. Each group below is introduced by the author's heading exactly as the Index prints it ("# @ ..."); tests/index-names.test.js checks every entry against that author's block.
+# Ground: canon 1399, classes 2, 3 and 6 (books that defend heresy or try to undermine the foundations of religion; books that of set purpose attack religion; books that attack a Catholic dogma). See research/index-of-forbidden-books.md and rules.md.
+# The rule looks for videos ABOUT these authors and their works (an analysis, a summary, a reading, an adaptation, a biography, a debate), whatever the video says of them.
+# 0.95 = the full name or a title that only this author wrote; 0.75 = a bare surname that a place, a school or a pet may also bear (it waits for the on-device model); 0.50 = a broader or ambiguous bare word.
+# A name at 0.95 is a pattern that stands down to the plain 0.75 line under it (the model decides) when a word of a street, a school, a hotel, a station or the like stands next to it (Rue Voltaire, Hotel Victor Hugo): the guard is looked at only after the name has matched.
+# No title is translated: a title appears only as the Index prints it. A name or a title that is also a place, a cathedral or an everyday word is not a cue (see rules.md).
+# @ Renan, Ernest
+0.95 | /\bernest renan(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) ernest renan(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | ernest renan*
+0.95 | renan* vie de jesus
+0.75 | renan
+0.75 | renan's
+0.50 | vie de jesus
+# @ Strauss, David Friedrich
+0.95 | /\bdavid friedrich strauss(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) david friedrich strauss(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | david friedrich strauss*
+0.95 | strauss* das leben jesu
+0.75 | david strauss*
+0.50 | das leben jesu
+# @ Steinmann, Jean
+0.95 | steinmann* la vie de jesus
+0.75 | jean steinmann*
+# @ Kazantzakis, Nikos
+0.75 | nikos kazantzakis*
+0.75 | kazantzakis*
+0.75 | die letzte versuchung
+# @ Guignebert, Charles
+0.95 | /\bcharles guignebert(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) charles guignebert(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | charles guignebert*
+0.75 | guignebert*
+# @ Couchoud, Paul-Louis
+0.95 | /\bpaul louis couchoud(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) paul louis couchoud(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | paul louis couchoud*
+0.75 | couchoud*
+# @ Jacolliot, Louis
+0.95 | /\blouis jacolliot(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) louis jacolliot(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | louis jacolliot*
+0.95 | la bible dans l'inde
+0.75 | jacolliot*

@@ -1,0 +1,40 @@
+# Jewish religious teaching, study and worship: Torah and Talmud study, a rabbi's lecture or sermon, a synagogue service, observance taught as practice. A choice of the rule author (2026-11-26), see rules.md.
+# The words of the religion itself and nothing else: no word for a people, a nation, a state or politics (the bare word "Jewish" is not a cue), no names of persons, no derogatory or conspiratorial term.
+# 0.95 = content of that kind by itself. The entries that a Catholic talk could also hold are guarded: a title that says "Old Testament", "Last Supper", "Jewish roots", "Holy Week", "Catholic" or "Mass" falls to 0.75 and waits for the on-device model.
+# 0.75 = the name of the religion or a term that Catholic talks, history and news also use (it waits for the model, or for a lower slider); 0.50 = broader; 0.15 = ambiguous.
+0.95 | /\b(?:torah (?:portion|portions|study|class|lecture|lesson|lessons|commentary)|talmud (?:study|class|lecture|lesson|lessons|page)|mishnah (?:study|class)|tanakh (?:study|class))\b(?<!\b(?:old testament|new testament|last supper|jewish roots|roots of the mass|jesus the jew|holy week|catholic|catholics|catholicism|eucharist|the mass)\b.*)(?!.*\b(?:old testament|new testament|last supper|jewish roots|roots of the mass|jesus the jew|holy week|catholic|catholics|catholicism|eucharist|the mass)\b)/
+0.95 | /\brabbi (?:explains|teaches|answers|lecture|lectures|sermon|shiur|class|talk)\b(?<!\b(?:old testament|new testament|last supper|jewish roots|roots of the mass|jesus the jew|holy week|catholic|catholics|catholicism|eucharist|the mass)\b.*)(?!.*\b(?:old testament|new testament|last supper|jewish roots|roots of the mass|jesus the jew|holy week|catholic|catholics|catholicism|eucharist|the mass)\b)/
+0.95 | /\b(?:(?:shabbat|shabbos) (?:service|services|prayers|davening|liturgy)|synagogue (?:service|services|sermon|prayers)|jewish (?:worship|prayer) services?)\b(?<!\b(?:old testament|new testament|last supper|jewish roots|roots of the mass|jesus the jew|holy week|catholic|catholics|catholicism|eucharist|the mass)\b.*)(?!.*\b(?:old testament|new testament|last supper|jewish roots|roots of the mass|jesus the jew|holy week|catholic|catholics|catholicism|eucharist|the mass)\b)/
+0.95 | /\b(?:rosh hashanah|rosh hashana|yom kippur|sukkot|simchat torah|shavuot|purim|hanukkah|chanukah|passover|pesach) (?:service|services|sermon|sermons|prayers|davening|liturgy)\b(?<!\b(?:old testament|new testament|last supper|jewish roots|roots of the mass|jesus the jew|holy week|catholic|catholics|catholicism|eucharist|the mass)\b.*)(?!.*\b(?:old testament|new testament|last supper|jewish roots|roots of the mass|jesus the jew|holy week|catholic|catholics|catholicism|eucharist|the mass)\b)/
+0.95 | /\b(?:kabbalah|kabbalistic|zohar|chabad|chassidus|chasidus|hasidic|yeshiva) (?:course|courses|class|classes|lecture|lectures|study|teachings|lesson|lessons|talk|talks|shiur|farbrengen)\b(?<!\b(?:old testament|new testament|last supper|jewish roots|roots of the mass|jesus the jew|holy week|catholic|catholics|catholicism|eucharist|the mass)\b.*)(?!.*\b(?:old testament|new testament|last supper|jewish roots|roots of the mass|jesus the jew|holy week|catholic|catholics|catholicism|eucharist|the mass)\b)/
+0.95 | daf yomi
+0.95 | /\bshiur(?:im)?\b/
+0.95 | farbrengen
+0.95 | /\b(?:parsha|parshat|parashat|parashah)\b/
+0.95 | /\b(?:chassidus|chassidut|chasidus|chasidut)\b/
+0.95 | kabbalat shabbat
+0.75 | judaism
+0.75 | torah
+0.75 | talmud*
+0.75 | /\brabbis?\b/
+0.75 | rabbinic*
+0.75 | yeshiva*
+0.75 | /\b(?:kabbalah|kabbala|qabalah|kabbalistic)\b/
+0.75 | chabad
+0.75 | /\b(?:hasidic|hasidism|chassidic|chasidic|chassidism)\b/
+0.75 | /\b(?:mishnah|mishna|gemara)\b/
+0.75 | /\b(?:halacha|halachah|halachic|halakha|halakhah|halakhic)\b/
+0.75 | /\b(?:tanakh|tanach)\b/
+0.75 | siddur
+0.75 | /\bjewish (?:prayer|prayers|worship|law|liturgy|mysticism|theology|scripture|scriptures|holiday|holidays|festival|festivals|ritual|rituals|sermon|sermons|study|learning)\b/
+0.75 | passover seder
+0.50 | synagogue*
+0.50 | /\b(?:passover|pesach)\b/
+0.50 | /\b(?:hanukkah|chanukah)\b/
+0.50 | /\b(?:rosh hashanah|rosh hashana|yom kippur|sukkot|simchat torah|shavuot|purim)\b/
+0.50 | /\b(?:shabbat|shabbos)\b/
+0.50 | seder
+0.50 | /\b(?:(?:bar|bat) mitzvah|mitzvah|mitzvot)\b/
+0.50 | /\b(?:tefillin|tallit|tallis|mezuzah|shofar|kiddush|havdalah|mikvah|mikveh|kippah|yarmulke)\b/
+0.50 | minyan
+0.15 | kosher

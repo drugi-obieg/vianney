@@ -1,0 +1,76 @@
+# Channel names that say the channel is Catholic. A rule about an error (Freemasonry, Communism, Modernism, Spiritism, other religions, ...) names this list with
+# `spare channel: catholic_channels`: when the CHANNEL of a card hits it, a strong word-list hit of that rule is lowered to just under the flag level, so that the on-device
+# model decides (and, with no model, nothing is flagged). The owner's reading (2026-11-26): "if the Channel name is Catholic-related ('Apostolic', 'apostolado', 'Ascent of
+# Mount Carmel') but the content is about the topic that is usually in the 'against' rule: strong indicator that this is a warning-type video, not a video spreading bad
+# content". A CHOICE of the rule author: the list is not from a source; the words are those that a channel names itself with. Only the channel is looked at, never the
+# title: "Apostolic" in a title can be a Pentecostal church. Channels can also be put on the Allow list of the settings (Allow & Block), which passes them without any check.
+# The weights do not matter here (a hit is a hit); accents are not written, the text is read without them.
+# Kinds of words: the faith ("catholic", "apostolic"), an order or a devotion ("carmel", "rosary", "dominican"), the Church's own places and offices ("vatican", "parish",
+# "diocese", "seminary", "monastery"), the traditional Mass, and the same words in Portuguese, Spanish, Italian and French, where Catholic channels are many.
+# Left out on purpose, because a name or a word of another kind has them too: saint, santo, sao (Sword Art Online), monk, abbey, priest (Judas Priest), padre, marian, mariana,
+# rosario, fatima, lourdes, guadalupe (first names).
+0.95 | catholic*
+0.95 | catolic*
+0.95 | cattolic*
+0.95 | catholique*
+0.95 | apostolic*
+0.95 | apostolad*
+0.95 | apostolate*
+0.95 | carmel*
+0.95 | carmelit*
+0.95 | carmelo
+0.95 | dominican*
+0.95 | franciscan*
+0.95 | jesuit*
+0.95 | benedictin*
+0.95 | cistercian*
+0.95 | carthusian*
+0.95 | redemptorist*
+0.95 | capuchin*
+0.95 | opus dei
+0.95 | legion of mary
+0.95 | knights of columbus
+0.95 | rosary
+0.95 | our lady
+0.95 | nossa senhora
+0.95 | nuestra senora
+0.95 | immaculate*
+0.95 | sacred heart
+0.95 | sagrado coracao
+0.95 | sagrado corazon
+0.95 | divine mercy
+0.95 | eucharist*
+0.95 | eucaristia
+0.95 | holy mass
+0.95 | santa missa
+0.95 | latin mass
+0.95 | tridentine
+0.95 | traditional mass
+0.95 | sspx
+0.95 | fsspx
+0.95 | sspv
+0.95 | sedevacan*
+0.95 | vatican*
+0.95 | ewtn
+0.95 | church militant
+0.95 | christ the king
+0.95 | cristo rei
+0.95 | cristo rey
+0.95 | aquinas
+0.95 | thomis*
+0.95 | monastery
+0.95 | monasterio
+0.95 | mosteiro
+0.95 | abadia
+0.95 | parish*
+0.95 | paroquia
+0.95 | parroquia
+0.95 | diocese*
+0.95 | diocesis
+0.95 | seminary
+0.95 | seminario
+0.95 | convent
+0.95 | sacerdot*
+0.95 | igreja catolica
+0.95 | iglesia catolica
+0.95 | chiesa cattolica

@@ -1,0 +1,27 @@
+# Spiritism and the calling up of the dead: the doctrine of Allan Kardec, spiritist and spiritualist meetings, mediumship, contact with the dead. Canon 1399, 7 forbids books that teach or recommend "the calling up of spirits and the like"; the Catechism of St. Pius X says of "speaking or writing tables" and of consulting "the souls of the dead by means of spiritism": "All the practices of spiritism are unlawful" (quoted in rules.md). That the rule looks for them in videos, and the cues, are a choice of the rule author (2026-11-26).
+# Not repeated here: seances, Ouija, psychics and spirit mediums (divination_cues) and spirit guides (occult_cues). The authors and titles of the Index are in index_spiritists.
+# 0.95 = a spiritist or spiritualist centre, church or meeting, or a lesson in speaking with the dead. Guarded: a title that names the Church, a priest, Catholics, a warning or a condemnation, or that is plainly fiction (a film, a game, a novel, horror), falls to the weight of the bare word and waits for the model.
+# 0.75 = the name of the doctrine and the words of the practice, which warnings and histories also use (it waits for the on-device model, or for a lower slider). 0.50 = broader. 0.15 = ambiguous.
+0.95 | /\bspiritist (?:center|centre|centers|centres|society|societies|church|doctrine|movement|meeting|meetings|study group)\b(?<!\b(?:catholic|catholics|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|encyclical|christian|christians|condemn\w*|forbid\w*|excommunicat\w*|warn\w*|beware|danger\w*|heresy|evil|satanic|demonic|diabolic\w*|exorcis\w*|fiction|novel|movie|film|game|horror)\b.*)(?!.*\b(?:catholic|catholics|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|encyclical|christian|christians|condemn\w*|forbid\w*|excommunicat\w*|warn\w*|beware|danger\w*|heresy|evil|satanic|demonic|diabolic\w*|exorcis\w*|fiction|novel|movie|film|game|horror)\b)/
+0.95 | /\bspiritualist (?:church|churches|meeting|meetings|service|services|camp|medium|mediums)\b(?<!\b(?:catholic|catholics|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|encyclical|christian|christians|condemn\w*|forbid\w*|excommunicat\w*|warn\w*|beware|danger\w*|heresy|evil|satanic|demonic|diabolic\w*|exorcis\w*|fiction|novel|movie|film|game|horror)\b.*)(?!.*\b(?:catholic|catholics|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|encyclical|christian|christians|condemn\w*|forbid\w*|excommunicat\w*|warn\w*|beware|danger\w*|heresy|evil|satanic|demonic|diabolic\w*|exorcis\w*|fiction|novel|movie|film|game|horror)\b)/
+0.95 | /\b(?:learn|how) to (?:communicate|talk|speak) (?:with|to) (?:the dead|spirits|the departed|your (?:dead|departed|late) \w+)\b(?<!\b(?:catholic|catholics|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|encyclical|christian|christians|condemn\w*|forbid\w*|excommunicat\w*|warn\w*|beware|danger\w*|heresy|evil|satanic|demonic|diabolic\w*|exorcis\w*|fiction|novel|movie|film|game|horror)\b.*)(?!.*\b(?:catholic|catholics|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|encyclical|christian|christians|condemn\w*|forbid\w*|excommunicat\w*|warn\w*|beware|danger\w*|heresy|evil|satanic|demonic|diabolic\w*|exorcis\w*|fiction|novel|movie|film|game|horror)\b)/
+0.75 | /(?:\bspiritist (?:center|centre|centers|centres|society|societies|church|doctrine|movement|meeting|meetings|study group)\b|\bspiritualist (?:church|churches|meeting|meetings|service|services|camp|medium|mediums)\b|\b(?:learn|how) to (?:communicate|talk|speak) (?:with|to) (?:the dead|spirits|the departed|your (?:dead|departed|late) \w+)\b)/
+0.75 | spiritism*
+0.75 | spiritist*
+0.75 | mediumship*
+0.75 | mediumistic*
+0.75 | spirit communication
+0.75 | spirit contact
+0.75 | table turning
+0.75 | table tipping
+0.75 | speaking tables
+0.75 | planchette
+0.75 | /\b(?:communicat\w*|talk\w*|speak\w*|speech|consult\w*) (?:with|to) (?:the dead|the departed|dead (?:loved ones|relatives|people)|spirits)\b/
+0.75 | /\b(?:contact|contacting|contacts|consult|consulting) (?:the dead|the departed|spirits|dead loved ones)\b/
+0.75 | /\b(?:call\w* up|conjur\w*|evok\w*|invok\w*) (?:the )?(?:dead|spirits|departed)\b/
+0.50 | spiritualism*
+0.50 | spiritualist*
+0.50 | spirit world
+0.50 | automatic writing
+0.50 | necromancy
+0.15 | necromancer*

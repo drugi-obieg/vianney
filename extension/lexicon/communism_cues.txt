@@ -1,0 +1,56 @@
+# Communism and socialism: content that teaches, praises or promotes them. The condemnations are the Church's (Syllabus of Errors, section IV; Quod apostolici muneris; Quadragesimo anno 120; Divini Redemptoris 58; Catechism 2425: quoted in rules.md). That a rule looks for them in videos, and every cue below, is a choice of the rule author (2026-11-26).
+# 0.95 = a slogan or a flat statement of the doctrine itself ("workers of the world unite", "why communism works"). Guarded: a title that names the Church, a pope, Catholics, martyrs, persecution, victims or a condemnation falls to the weight of the bare word and waits for the model (a Catholic warning, a history of the persecution, Fatima's "errors of Russia" is not propaganda).
+# 0.75 = a word of the doctrine that teaching and warning both use (it waits for the on-device model, or for a lower slider). 0.50 = the name of the thing, which news and history use too. 0.15 = ambiguous. Cold War history, documentaries and the martyrs under Communism never reach 0.95.
+# Names: only Marx and Engels, the authors of the doctrine ("Das Kapital", "The Communist Manifesto"), and the forms of the doctrine that bear a man's name (Leninism, Maoism, Trotskyism, Stalinism). No cue is a derogatory word, and no private person is named. The socialists whom the Index names are in index_socialists.
+0.95 | /\bworkers of the world unite\b(?<!\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b.*)(?!.*\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b)/
+0.95 | /\bproletarians? of all (?:countries|lands) unite\b(?<!\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b.*)(?!.*\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b)/
+0.95 | /\blong live (?:communism|socialism|marxism|the communist party|the revolution)\b(?<!\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b.*)(?!.*\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b)/
+0.95 | /\b(?:communism|socialism|marxism) (?:works|will win|can work|is the answer|is the solution|is the future|is inevitable|is right)\b(?<!\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b.*)(?!.*\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b)/
+0.95 | /\bwhy (?:communism|socialism|marxism) (?:works|is right|is good|is better|will win|is the answer|is the future)\b(?<!\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b.*)(?!.*\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b)/
+0.95 | /\bthe case for (?:communism|socialism|marxism)\b(?<!\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b.*)(?!.*\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b)/
+0.95 | /\b(?:in )?defen[cs]e of (?:communism|socialism|marxism)\b(?<!\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b.*)(?!.*\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b)/
+0.95 | /\bwhy i(?: am|'m) a (?:communist|marxist|socialist)\b(?<!\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b.*)(?!.*\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b)/
+0.95 | /\b(?:join|joining|become|becoming) (?:a |the )?(?:communist party|communists?|marxists?)\b(?<!\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b.*)(?!.*\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b)/
+0.95 | /\bseize the means of production\b(?<!\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b.*)(?!.*\b(?:catholic|catholics|church|churches|pope|popes|papal|vatican|priest|priests|bishop|bishops|cardinal|cardinals|encyclical|christian|christians|fatima|martyr\w*|persecut\w*|condemn\w*|forbid\w*|warn\w*|beware|danger\w*|errors?|heresy|atheistic|gulag|victims?|crimes?|genocide|holodomor|anti ?communis\w*|fall of communism|collapse|failed|failure)\b)/
+0.75 | /(?:\bworkers of the world unite\b|\bproletarians? of all (?:countries|lands) unite\b|\blong live (?:communism|socialism|marxism|the communist party|the revolution)\b|\b(?:communism|socialism|marxism) (?:works|will win|can work|is the answer|is the solution|is the future|is inevitable|is right)\b|\bwhy (?:communism|socialism|marxism) (?:works|is right|is good|is better|will win|is the answer|is the future)\b|\bthe case for (?:communism|socialism|marxism)\b|\b(?:in )?defen[cs]e of (?:communism|socialism|marxism)\b|\bwhy i(?: am|'m) a (?:communist|marxist|socialist)\b|\b(?:join|joining|become|becoming) (?:a |the )?(?:communist party|communists?|marxists?)\b|\bseize the means of production\b)/
+0.75 | marxism*
+0.75 | marxist*
+0.75 | leninism
+0.75 | leninist*
+0.75 | maoism
+0.75 | maoist*
+0.75 | trotskyism
+0.75 | dialectical materialism
+0.75 | historical materialism
+0.75 | class struggle
+0.75 | class war
+0.75 | classless society
+0.75 | dictatorship of the proletariat
+0.75 | communist manifesto
+0.75 | das kapital
+0.75 | scientific socialism
+0.75 | democratic socialis*
+0.75 | socialist revolution
+0.75 | communist revolution
+0.75 | proletarian revolution
+0.75 | revolutionary socialism
+0.75 | abolition of private property
+0.75 | abolish private property
+0.75 | christian socialism
+0.75 | religious socialism
+0.75 | catholic socialism
+0.75 | karl marx
+0.50 | communism
+0.50 | communist*
+0.50 | socialism
+0.50 | socialist*
+0.50 | communist party
+0.50 | bolshevism
+0.50 | bolshevik*
+0.50 | stalinism
+0.50 | proletariat
+0.50 | bourgeoisie
+0.50 | means of production
+0.50 | friedrich engels
+0.15 | comrade*
+0.15 | soviet*

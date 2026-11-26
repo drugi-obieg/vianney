@@ -1,0 +1,56 @@
+# Words of a title that is about the LIFE or the history of a person, not about his books. A rule about books (the six rules on authors of the Index) names this list with
+# `spare words: life_words`: when the text of a card hits it, a strong hit of the rule (the full name of the author) is lowered to just under the flag level, so that the on-device
+# model decides (and, with no model, nothing is flagged). The owner's words (2026-11-26): "it's about the life of the person David Hume (historical), not 'opera omnia' (his works),
+# that's the difficulty". The Index forbade BOOKS; a biography of Hume, or a Catholic talk on how his thought passed to Newman, is not his book.
+# A CHOICE of the rule author: the words are not from a source; edit the list to suit. "Life" alone is NOT a word of this list: Renan's and Strauss's books are called "Life of Jesus".
+# Only words of a person's life and of his influence: biography, birth and death, exile, "influence on". NOT "history of" or "historical": Draper's book is called "History of the Conflict between Religion and Science" (tests/channel-guard.test.js checks that no title of the Index lists is hit by this list). The weights do not matter (a hit is a hit); accents are not written.
+0.95 | biography
+0.95 | biographies
+0.95 | biographical
+0.95 | biopic
+0.95 | autobiography
+0.95 | memoir*
+0.95 | his life
+0.95 | her life
+0.95 | his early life
+0.95 | early life
+0.95 | later life
+0.95 | late life
+0.95 | life story
+0.95 | life and times
+0.95 | his years
+0.95 | early years
+0.95 | last years
+0.95 | final years
+0.95 | childhood
+0.95 | was born
+0.95 | born in
+0.95 | birth of
+0.95 | birthplace
+0.95 | died
+0.95 | death of
+0.95 | funeral
+0.95 | grave
+0.95 | tomb
+0.95 | exile
+0.95 | exiled
+0.95 | imprisoned
+0.95 | arrested
+0.95 | friendship with
+0.95 | friend of
+0.95 | influence on
+0.95 | influence upon
+0.95 | influenced
+0.95 | influences
+0.95 | influence of
+0.95 | legacy
+0.95 | who was
+0.95 | who is
+0.95 | the man behind
+0.95 | the man and
+0.95 | portrait of
+0.95 | portraits
+0.95 | house of
+0.95 | home of
+0.95 | museum
+0.95 | statue

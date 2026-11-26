@@ -1,0 +1,48 @@
+# Buddhist, Hindu, Sikh, Taoist and similar teaching and practice. A choice of the rule author (2026-11-26), see rules.md.
+# 0.95 = a chant, a hymn, a retreat, a talk or a scripture reading: content of that kind by itself.
+# 0.75 = a name of a religion or a term that news, history, travel and Catholic replies also use (it waits for the on-device model, or for a lower slider).
+# 0.50 = a broader word; 0.15 = a bare everyday word ("karma", "zen", "guru", "yoga") that only a very low slider should act on. No names of persons, no derogatory names.
+0.95 | /\b(?:om mani padme hum|om namah shivaya|gayatri mantra|hanuman chalisa|maha mantra|hare krishna (?:mantra|kirtan|chant|chanting|bhajan))\b/
+0.95 | /\b(?:waheguru|gurbani)\b/
+0.95 | bhajan*
+0.95 | vipassana
+0.95 | /\b(?:dharma|dhamma) talks?\b/
+0.95 | /\bbuddhist (?:meditation|chanting|chant|sutra|sutras|mantra|mantras)\b/
+0.95 | /\b(?:hindu|vedic) (?:mantra|mantras|chanting|puja|bhajan|bhajans|devotional)\b/
+0.95 | /\bbhagavad gita (?:recitation|lecture|discourse|chanting|class|chapter)\b/
+0.95 | /\bchakras? (?:balancing|healing|meditation|alignment|cleansing|opening|activation)\b/
+0.95 | /\bkundalini (?:yoga|awakening|meditation)\b/
+0.75 | buddhis*
+0.75 | hare krishna
+0.75 | transcendental meditation
+0.75 | guru granth sahib
+0.75 | /\b(?:lotus|heart|diamond) sutra\b/
+0.75 | hinduis*
+0.75 | /\bhindus?\b/
+0.75 | sikh*
+0.75 | gurdwara*
+0.75 | /\b(?:tao|dao)is(?:m|ts?)\b/
+0.75 | tao te ching
+0.75 | /\b(?:dharma|dhamma)\b/
+0.75 | bhagavad*
+0.75 | upanishad*
+0.75 | /\b(?:vedas?|vedic|vedanta)\b/
+0.75 | kundalini*
+0.75 | bodhisattva*
+0.75 | meditation retreat*
+0.75 | ashram*
+0.75 | jainis*
+0.75 | shinto*
+0.75 | kirtan*
+0.75 | /\bzen (?:master|masters|monk|monks|koan|koans|meditation|teaching|teachings|temple)\b/
+0.50 | buddha*
+0.50 | chakra*
+0.50 | mantra*
+0.50 | nirvana
+0.50 | reincarnat*
+0.50 | krishna
+0.15 | zen
+0.15 | guru
+0.15 | karma
+0.15 | enlightenment
+0.15 | yoga

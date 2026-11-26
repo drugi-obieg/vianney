@@ -4,14 +4,17 @@ language: en
 note: Draft starter pack from the project; the questions, word lists and lexicon weights are drafts that the rule author should correct, and the weights are placeholder tiers (0.95, 0.75, 0.50, 0.15) to be calibrated later on a labelled set.
 
 # DEFAULT SENSITIVITY POLICY. For rules whose cue words also occur in reverent or educational speech
-# (the Lord's name, oaths, blasphemy, renunciation, curses, calumny) the default "flag at" is above the 0.75
-# tier: from word lists alone only the unambiguous 0.95-tier cues flag, and the 0.75 tier waits for the
+# (the Lord's name, oaths, blasphemy, renunciation, curses, calumny, and the rules on belief, the Church and the occult)
+# the default "flag at" is above the 0.75 tier: from word lists alone only the unambiguous 0.95-tier cues flag, and the 0.75 tier waits for the
 # on-device AI or for you to move the slider down. Wrongly hiding a sermon costs more than missing a cue.
 
-# Every rule below is traced to verbatim passages of the Curé d'Ars, quoted with their sources on the rules page
-# of the project site (rules.md in the repository).
-# Ten rules are enabled by default (the tongue, detraction and calumny, impure words and sights).
-# The other twenty are broad or over-flagging and ship disabled: see "Notes on defaults" on that page.
+# Thirty-one of the forty text rules are traced to verbatim passages of the Curé d'Ars, quoted with their sources on the
+# rules page of the project site (rules.md in the repository). The other nine (naturalism, indifferentism, islam, judaism,
+# eastern_religions, sects, freemasonry, anti_catholic, occult) are the choice of the rule author, 2026-11-26: their source line
+# says so, and rules.md names the Church text each one follows.
+# Twenty-one text rules are enabled by default: ten on the tongue, detraction and calumny, impure words and sights, and eleven on
+# unbelief, other religions, attacks on the Church and the occult (the rule author calls these the most important part).
+# The other nineteen are broad or over-flagging and ship disabled: see "Notes on defaults" on that page.
 
 # ---------------------------------------------------------------
 # The tongue: the six categories of the second Commandment
@@ -19,8 +22,17 @@ note: Draft starter pack from the project; the questions, word lists and lexicon
 
 rule lords_name
   title: Taking the Lord's name in vain
+  name: God's name in vain
+  plain: Flags God's, Jesus' or Christ's name used as an exclamation.
+  group: speech
+  example: OMG this is insane, I can't even
+  example: Jesus Christ, what the fuck was that
+  example: God damn it, I hate this game
+  spared: O Lord, hear my prayer
+  spared: Jesus Christ is Lord: a homily for Sunday
+  spared: Jesus Christ: His Life, His Passion, His Triumph #1 @ Apostolado Glórias de Maria
   source: Sur le deuxième Commandement
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: lords_name_strong, lords_name_bare
   ask noul: Is the name of God, Jesus or Christ used here as an exclamation or a curse, and not in prayer, worship, quotation or talk about religion?
   gate: lexicon
@@ -30,8 +42,16 @@ rule lords_name
 
 rule oaths
   title: Oaths, calling God to witness
+  name: Swearing by God
+  plain: Flags swearing by God or something sacred to back up a claim.
+  group: speech
+  example: I swear to God I didn't do it (storytime)
+  example: So help me God, I never said that
+  example: Swear to Jesus I saw it: my ghost story
+  spared: The oath of office, explained
+  spared: Why do witnesses swear an oath in court?
   source: Sur le deuxième Commandement
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: oath_cues
   ask noul: Does the speaker swear by God or by something sacred to vouch for a claim or promise (for example 'I swear to God', 'so help me God'), and not as a formal oath in court, a wedding vow or a prayer?
   gate: lexicon
@@ -41,8 +61,15 @@ rule oaths
 
 rule blasphemy
   title: Blasphemy
+  name: Insulting God or the saints
+  plain: Flags insults against God, Jesus, Mary or the saints.
+  group: speech
+  example: God is a liar and I hate him
+  example: God is an idiot: my honest rant
+  example: I hate God and every fucking saint
+  spared: Why does God allow suffering? A talk
   source: Sur le deuxième Commandement
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: blasphemy_terms
   ask noul: Is God, Jesus, the Virgin Mary or a saint insulted or mocked here (for example called cruel, unjust or powerless), and not just quoted, discussed or prayed to?
   gate: lexicon
@@ -52,8 +79,15 @@ rule blasphemy
 
 rule renunciation
   title: Renouncing God in anger
+  name: Raging against God
+  plain: Flags rage at God or turning away from Him in anger.
+  group: speech
+  example: God hates me, I'm done with this life
+  example: Screw God, he never listened (my breakdown)
+  example: To hell with God, I quit
+  spared: Why I left the Church: a calm conversation
   source: Sur le deuxième Commandement
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: renunciation_cues
   ask noul: Does the speaker rage against God or disown Him in anger over a loss or misfortune (for example 'God has abandoned me', 'to hell with God'), and not calmly explain why he does not believe?
   gate: lexicon
@@ -63,8 +97,15 @@ rule renunciation
 
 rule curses_imprecations
   title: Curses and imprecations
+  name: Wishing damnation or harm
+  plain: Flags wishes of damnation, harm or death on someone.
+  group: speech
+  example: Go to hell, you piece of shit
+  example: Damn you! Rot in hell
+  example: Burn in hell, you liar
+  spared: The Hell of Dante: a lecture
   source: Sur le deuxième Commandement
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: curses_imprecations
   ask noul: Does the speaker, in anger or despair, call down harm, damnation or death on a person, an animal, a thing or himself (for example 'damn you', 'I hope you die', 'may I be struck dead if I lie'), and not in a joke, a story or a quoted lyric?
   gate: lexicon
@@ -74,8 +115,15 @@ rule curses_imprecations
 
 rule coarse_words
   title: Coarse words
+  name: Vulgar language
+  plain: Flags vulgar or obscene words.
+  group: speech
+  example: What the fuck is going on with this game
+  example: Complete bullshit response from the CEO
+  example: He called her a bitch live on stream
+  spared: Don't talk crap about my cooking
   source: Sur la Pénitence
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: coarse_words
   ask noul: Is a vulgar or obscene word used here crudely, and not as a medical or educational term, a place name or a quotation under discussion?
   gate: lexicon
@@ -89,8 +137,15 @@ rule coarse_words
 
 rule insults
   title: Insults
+  name: Name-calling
+  plain: Flags insults aimed at a person.
+  group: speech
+  example: You stupid idiot, learn to drive
+  example: He's a complete asshole: storytime
+  example: Shut up, you pathetic loser
+  spared: My friend the idiot: a comedy sketch
   source: Sur le deuxième Commandement
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: insult_cues
   ask noul: Is a person being called insulting names here (for example 'thief', 'scoundrel', 'idiot') as an attack, and not as friendly teasing or a quotation?
   gate: lexicon
@@ -100,14 +155,44 @@ rule insults
 
 rule mockery_of_faith
   title: Mocking religion and holy things
+  name: Mocking religion
+  plain: Flags mockery of religion, believers or holy things.
+  group: anticatholic
+  example: Roasting Christians and their sky daddy
+  example: Religion is a scam, change my mind
+  example: Making fun of the Pope: a roast
+  spared: Religion and science: a respectful debate
   source: Sur les ennemis de notre salut
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: mockery_of_faith_cues
   ask noul: Does this make fun of religion, prayer, believers, sacred things or clergy, rather than discuss them seriously?
   gate: lexicon
+  spare channel: catholic_channels
   flag at: 0.75
   action: feed-card=dim, watch-meta=label, subtitles=skip-segment
   enabled: false
+
+# The rule author's choice, 2026-11-26 (no sermon is quoted for it; see rules.md). It looks at lists, recommended videos and the video page.
+rule anti_catholic
+  title: Anti-Catholicism
+  name: Attacks on the Catholic Church
+  plain: Flags content that attacks the Catholic Church, the pope or Catholic teaching as false or evil.
+  group: anticatholic
+  example: The Catholic Church is false: here is the proof
+  example: Papal lies: what Rome never told you
+  example: Exposing the Catholic Church: the truth about Rome
+  spared: Seven myths about the Catholic Church, answered by a historian
+  spared: Anti-Catholic bigotry in America: a history
+  spared: The Anti-Catholic Agenda of Parish Hymns @ Apostolado Glórias de Maria
+  source: Choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: anti_catholic_cues
+  ask noul: Does this attack the Catholic Church, the pope or Catholic teaching as false, evil or a fraud, and not report a real scandal, discuss the Church's history fairly or defend the Church?
+  gate: lexicon
+  spare channel: catholic_channels
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
 
 # ---------------------------------------------------------------
 # Detraction: Sur la Médisance and Sur le jugement téméraire
@@ -115,20 +200,35 @@ rule mockery_of_faith
 
 rule gossip
   title: Detraction and gossip
+  name: Gossip about real people
+  plain: Flags videos that spread the private faults of a named person.
+  group: people
+  example: Spill the tea: what she did behind his back
+  example: Celebrity gossip: the real reason they split
+  example: He cheated on her? The leaked texts, exposed
+  spared: A biography of St. Francis of Assisi
   source: Sur la Médisance
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: gossip_cues
   ask score: How much of this talks about the private faults or misdeeds of a named real person, living or dead?
     levels: none, mild, heavy
   gate: lexicon
   flag at: heavy
+  band: 0.5       # its cues weigh 0.75 at most; with "heavy" (1.0) as the level, the default band would never ask the model
   action: feed-card=hide, watch-meta=warn-overlay, subtitles=skip-segment
   enabled: true
 
 rule calumny
   title: Calumny
+  name: False accusations
+  plain: Flags videos that accuse a named person of something without proof.
+  group: people
+  example: The slander campaign against her, exposed
+  example: Falsely accused: the smear that ruined him
+  example: Falsely accused of fraud: my side of the story
+  spared: Defamation law explained for students
   source: Sur la Médisance
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: calumny_cues
   ask noul: Does this accuse a named real person of a crime or a serious fault as if it were certain, without giving any source or proof?
   gate: lexicon
@@ -138,8 +238,15 @@ rule calumny
 
 rule rash_judgment
   title: Rash judgment
+  name: Guessing someone's guilt
+  plain: Flags guesses about someone's guilt or motives from thin evidence.
+  group: people
+  example: Body language expert: is she lying?
+  example: Body language expert reads his apology video
+  example: Did he do it? Body language expert breaks it down
+  spared: Body language in public speaking: five tips
   source: Sur le jugement téméraire
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: rash_judgment_cues
   ask noul: Does this suggest that a named real person is guilty, lying or acting from bad motives on thin evidence (guesswork, rumour, 'body language')?
   gate: lexicon
@@ -149,8 +256,15 @@ rule rash_judgment
 
 rule tale_bearing
   title: Tale-bearing
+  name: Passing on what was said
+  plain: Flags videos that pass on what someone said about somebody else.
+  group: people
+  example: What she said about you behind your back
+  example: What he said about me: the leaked audio
+  example: Reacting to what they said about me (diss track)
+  spared: What Scripture says about forgiveness
   source: Sur la Médisance
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: tale_bearing_cues
   ask noul: Does this pass on what one person said or did against another (for example 'what X said about you', leaked messages, talk behind someone's back)?
   gate: lexicon
@@ -160,8 +274,15 @@ rule tale_bearing
 
 rule curiosity
   title: Curiosity about other people's affairs
+  name: Nosiness about private lives
+  plain: Flags videos made to make you curious about someone's private life.
+  group: people
+  example: Inside her mansion: her private life exposed
+  example: His love life: what really happened
+  example: The truth about her personal life
+  spared: Behind the scenes of the Vatican Museums
   source: Sur la Pénitence
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: curiosity_cues
   ask noul: Is this title or description written to make us curious about someone's private affairs (what he said or did, what goes on inside his home or life)?
   gate: lexicon
@@ -175,8 +296,15 @@ rule curiosity
 
 rule impure_words
   title: Impure words and songs
+  name: Lewd jokes and lyrics
+  plain: Flags lewd jokes, innuendo and explicit lyrics.
+  group: purity
+  example: Dirty jokes and raunchy innuendo: the comedy special
+  example: NSFW: explicit lyrics, uncensored
+  example: Dirty talk and sex jokes: 18+ comedy special
+  spared: Sex education for parents: a doctor explains
   source: Sur la pureté
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: impurity_cues
   ask noul: Is this lewd talk or lewd song lyrics (sexual innuendo, sex jokes, explicit lyrics), and not sex education, medical information or news?
   gate: lexicon
@@ -186,8 +314,15 @@ rule impure_words
 
 rule impure_sights
   title: Impure sights
+  name: Nudity and erotic scenes
+  plain: Flags titles about nudity, lingerie or erotic scenes.
+  group: purity
+  example: OnlyFans girl goes topless on stream
+  example: Lingerie haul and thirst trap compilation
+  example: Nude scenes in movies, ranked (uncensored)
+  spared: The Sistine Chapel ceiling: a guided tour
   source: Sur l'Impureté
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: sexual_imagery_cues
   ask noul: Does this title or description offer nude or sexually suggestive images or scenes (for example nudity, lingerie, a 'thirst trap', an erotic dance), and not art history, medicine or news?
   gate: lexicon
@@ -197,8 +332,15 @@ rule impure_sights
 
 rule immodest_dress
   title: Immodest dress
+  name: Revealing clothes
+  plain: Flags titles about revealing or skimpy outfits.
+  group: purity
+  example: Skimpy outfits: bikini try on haul
+  example: Braless in public? Plunging neckline looks
+  example: Barely there club outfits: lingerie haul
+  spared: Modest fashion lookbook
   source: Sur l'Impureté
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: immodest_dress_cues
   ask noul: Is revealing or very tight clothing the attraction of this item (for example a swimwear or lingerie try-on, 'see-through', 'barely there')?
   gate: lexicon
@@ -208,8 +350,15 @@ rule immodest_dress
 
 rule familiar_company
   title: Too-familiar company between the sexes
+  name: Dating and flirting shows
+  plain: Flags dating shows and flirting content.
+  group: purity
+  example: Love Island: situationship drama (full episode)
+  example: How to pick up girls: pickup artist exposed
+  example: Friends with benefits? My dating show story
+  spared: Preparing for marriage: a talk for engaged couples
   source: Sur l'Impureté
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: courtship_cues
   ask noul: Does this present flirting, dating or casual hookups as entertainment or advice (a dating show, pick-up tips, 'situationship' drama)?
   gate: lexicon
@@ -219,8 +368,15 @@ rule familiar_company
 
 rule bad_books
   title: Bad books
+  name: Lewd or anti-religious books
+  plain: Flags videos that promote lewd or anti-religious books.
+  group: purity
+  example: Steamy romance and smut: my spicy book haul
+  example: Dark romance erotica reading list
+  example: Fifty Shades of Grey: full book review
+  spared: Book review: The Imitation of Christ
   source: Sur la Pénitence
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: bad_books_cues
   ask noul: Is this a reading, review or promotion of a book whose selling point is lewdness or contempt for religion (erotica, 'spicy' romance, anti-religious polemic)?
   gate: lexicon
@@ -234,8 +390,15 @@ rule bad_books
 
 rule dances
   title: Balls and dances
+  name: Dance parties
+  plain: Flags dance parties, club dancing and dance trends.
+  group: leisure
+  example: Twerk battle at the nightclub (wild dance party)
+  example: Dance challenge trend: tiktok dance of the week
+  example: Girls' night out: club dancing and twerking
+  spared: Folk dances of the Tyrol: a documentary
   source: Sur l'Impureté
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: dance_cues
   ask noul: Is this a dance party, ball or club night, or a viral dance video made for fun?
   gate: lexicon
@@ -245,8 +408,15 @@ rule dances
 
 rule spectacles
   title: Stage shows and comedies
+  name: Theatre and comedy shows
+  plain: Flags theatre, comedy shows and stage entertainment.
+  group: leisure
+  example: Broadway comedy show highlights
+  example: Stand-up special: the best roast set
+  example: West End stage play: opening night
+  spared: Cathedral choir concert, Vespers
   source: Sur la Contrition
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: spectacle_cues
   ask noul: Is this a staged show for amusement (a theatre play, comedy show, musical or circus act)?
   gate: lexicon
@@ -256,8 +426,15 @@ rule spectacles
 
 rule cruel_spectacles
   title: Cruel spectacles
+  name: Violence as entertainment
+  plain: Flags fights, gore and violence shown as entertainment.
+  group: leisure
+  example: Death match: fight to the death compilation
+  example: Brutal knockout compilation, gory
+  example: Real street fight, died on camera (graphic footage)
+  spared: Boxing lessons for beginners
   source: Sur le Monde
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: violence_spectacle_cues
   ask noul: Does this show or advertise people being killed, maimed or beaten for entertainment (death matches, gore, real-fight compilations)?
   gate: lexicon
@@ -267,8 +444,15 @@ rule cruel_spectacles
 
 rule gambling
   title: Games played for money
+  name: Gambling
+  plain: Flags gambling, casino and betting content.
+  group: leisure
+  example: Online casino: my biggest slot machine win
+  example: Sports betting tips and parlay picks for the weekend
+  example: Blackjack and roulette: I lost my rent
+  spared: Pascal's wager explained
   source: Sur les ennemis de notre salut
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: gambling_cues
   ask noul: Is this about gambling or betting for money (casino, poker, slots, sports betting, lottery), including tips or promotion?
   gate: lexicon
@@ -278,8 +462,15 @@ rule gambling
 
 rule drunkenness
   title: Drunkenness and the tavern
+  name: Heavy drinking
+  plain: Flags drinking games, binge drinking and getting drunk.
+  group: leisure
+  example: Drinking games and binge drinking night
+  example: We got so drunk: pub crawl vlog (hangover day)
+  example: Wasted at the club: drunk karaoke
+  spared: Wine at Mass: why we use it
   source: Sur l'Ivrognerie
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: drunkenness_cues
   ask noul: Does this show or promote heavy drinking or getting drunk (drinking games, binge drinking, bar crawls)?
   gate: lexicon
@@ -289,8 +480,15 @@ rule drunkenness
 
 rule gluttony
   title: Gluttony
+  name: Eating challenges
+  plain: Flags extreme eating challenges and mukbang.
+  group: leisure
+  example: Mukbang: eating challenge with 10,000 calories
+  example: 24-hour eating challenge: all you can eat buffet
+  example: Hot dog eating contest: world record
+  spared: Fasting during Lent: practical tips
   source: Sur la Pénitence
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: gluttony_cues
   ask noul: Does this show or promote eating far beyond need (eating challenges, mukbang, giant-portion contests)?
   gate: lexicon
@@ -304,8 +502,15 @@ rule gluttony
 
 rule anger
   title: Anger
+  name: Rage and meltdowns
+  plain: Flags angry outbursts and meltdowns shown for entertainment.
+  group: leisure
+  example: Road rage meltdown caught on camera
+  example: Gamer rage quit: he loses his temper and screams
+  example: Temper tantrum in the airport: unhinged Karen
+  spared: Anger and patience: a homily
   source: Sur la colère
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: anger_cues
   ask noul: Does this feature a person in a violent fit of rage (screaming, raging, meltdown), and not a calm protest or a staged scene?
   gate: lexicon
@@ -315,8 +520,15 @@ rule anger
 
 rule revenge
   title: Revenge
+  name: Revenge stories
+  plain: Flags stories and videos about getting revenge.
+  group: leisure
+  example: Petty revenge stories that went too far
+  example: Taking revenge on my cheating ex (sweet revenge)
+  example: Payback time: I got back at my bully
+  spared: Forgive your enemies: a sermon on revenge
   source: Sur la Satisfaction
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: revenge_cues
   ask noul: Does this present taking revenge as satisfying, or urge someone to get even (revenge stories, 'petty revenge', 'make them pay')?
   gate: lexicon
@@ -326,8 +538,15 @@ rule revenge
 
 rule pranks
   title: Lies told to trick or amuse
+  name: Pranks and hoaxes
+  plain: Flags pranks, hoaxes and hidden-camera tricks.
+  group: leisure
+  example: Extreme prank on my sister (she cried)
+  example: Pranked my whole family: hidden camera
+  example: Fake death prank gone wrong
+  spared: The history of April Fools' Day
   source: Sur le Mensonge
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: prank_cues
   ask noul: Is this a prank, hoax or trick in which someone is deceived for laughs?
   gate: lexicon
@@ -337,8 +556,15 @@ rule pranks
 
 rule malicious_pleasure
   title: Malicious pleasure in another's misfortune
+  name: Enjoying others' misfortune
+  plain: Flags videos that cheer on someone else's downfall.
+  group: leisure
+  example: Instant karma: he got what he deserved
+  example: Schadenfreude compilation: public meltdown, instant karma
+  example: She got what she deserved: caught in the act
+  spared: Karma in Buddhism: a lecture
   source: Sur l'Envie
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: malicious_pleasure_cues
   ask noul: Is this made to be enjoyed as someone else's misfortune or humiliation (fails, 'karma', 'gets what he deserves')?
   gate: lexicon
@@ -348,26 +574,470 @@ rule malicious_pleasure
 
 rule divination
   title: Consulting diviners
+  name: Fortune telling
+  plain: Flags tarot, horoscopes, psychics and other fortune telling.
+  group: anticatholic
+  example: Tarot reading for your week: pick a card
+  example: Your horoscope for December: Mercury retrograde
+  example: Psychic medium reading: angel numbers
+  spared: Stargazing: the winter constellations
+  spared: Ouija Boards @ Ascent of Mount Carmel
   source: Sur la Satisfaction
-  where: feed-card, watch-meta
+  where: feed-card, related, watch-meta
   lexicon: divination_cues
   ask noul: Does this offer or advertise fortune-telling or divination for guidance (tarot, horoscopes, psychics, mediums)?
   gate: lexicon
+  spare channel: catholic_channels
   flag at: 0.75
   action: feed-card=blank, watch-meta=label
   enabled: false
 
+# The rule author's choice, 2026-11-26 (no sermon is quoted for it; see rules.md). It looks at lists, recommended videos and the video page.
+rule occult
+  title: Witchcraft, magic and the occult
+  name: Occult and New Age
+  plain: Flags witchcraft, spells, satanism, crystal healing, the law of attraction and other New Age practice.
+  group: anticatholic
+  example: Crystal healing for beginners: reiki and chakra cleansing
+  example: Witchcraft for beginners: love spells and a full moon ritual
+  example: Law of attraction: how I manifested my dream life
+  spared: D&D spellcasting for new players: a beginner's guide
+  spared: Catholic exorcism: a priest explains the Church's rite
+  spared: NEW AGE AND PERENNIALISM - THE OUROBOROS OF MODERN HISTORY @ Apostolado Glórias de Maria
+  spared: Gradualism and Demonic Possession @ Ascent of Mount Carmel
+  source: Choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: occult_cues
+  ask noul: Does this teach or promote witchcraft, spells, satanism, crystal or energy healing, the law of attraction or another New Age or occult practice as real, and not fantasy fiction, a game, a history lecture or a Catholic warning against it?
+  gate: lexicon
+  spare channel: catholic_channels
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
 # ---------------------------------------------------------------
-# Faith: Sur la religion
+# Unbelief and other religions (group "belief", the first group of the settings page).
+# Atheism keeps its sermon (Sur la religion) and protestantism rests on one aside of the Curé (Sur la colère); the other rules
+# are the choice of the rule author, 2026-11-26, and rules.md names the Church text each one follows. Every rule here looks at
+# lists, recommended videos and the video page; atheism also at comments and subtitles. No word list names a person, and none
+# uses a derogatory name for a religion or a group.
 # ---------------------------------------------------------------
 
 rule denial_of_god
   title: Denying that there is a God
+  name: Atheism
+  plain: Flags atheism and claims that there is no God.
+  group: belief
+  example: There is no God: the proof
+  example: God does not exist, and here is why
+  example: Atheist debunks religion: God is a myth
+  spared: Does God exist? Five ways of St. Thomas Aquinas
+  spared: A priest answers the new atheism: a lecture
+  spared: Atheism is a Stupid Religion @ Ascent of Mount Carmel
+  spared: The Glacier Priest on Atheism @ Ascent of Mount Carmel
   source: Sur la religion
-  where: feed-card, watch-meta, subtitles
+  where: feed-card, related, comment, watch-meta, subtitles
   lexicon: denial_of_god_cues
-  ask noul: Does this state flatly that there is no God, and not just discuss atheism or the question of God's existence?
+  ask noul: Does this say that there is no God, or argue for atheism (for example 'why I am an atheist'), and not just discuss atheism, report on it or answer it from a believer's side?
   gate: lexicon
+  spare channel: catholic_channels
   flag at: 0.80
-  action: feed-card=blank, watch-meta=label, subtitles=skip-segment
+  action: feed-card=blank, watch-meta=warn-overlay, subtitles=skip-segment
+  enabled: true
+
+rule naturalism
+  title: Naturalism and rationalism
+  name: Naturalism
+  plain: Flags claims that nature is all there is, or that science rules out God, miracles or the soul.
+  group: belief
+  example: Why miracles are impossible: a scientist explains
+  example: Science disproves God: the evidence
+  example: Secular humanism: living a good life without religion
+  spared: A Catholic physicist on the Big Bang and creation
+  spared: Faith and reason: why the Church loves science
+  spared: Materialism @ Ascent of Mount Carmel
+  spared: Humanistic Personalism and the Inversion of the Common Good #03 @ Apostolado Glórias de Maria
+  source: Choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: naturalism_cues
+  ask noul: Does this argue that nature or matter is all there is, or that science rules out God, miracles or the soul, rather than explain science neutrally or answer such claims from a believer's side?
+  gate: lexicon
+  spare channel: catholic_channels
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+rule indifferentism
+  title: Indifferentism
+  name: All religions are equal
+  plain: Flags the claim that all religions are equally true, or that it does not matter which religion you follow.
+  group: belief
+  example: All religions are the same: change my mind
+  example: It doesn't matter what religion you follow, just be kind
+  example: Spiritual but not religious: why I stopped going to church
+  spared: Are all religions the same? A Catholic answer
+  spared: Why Christ is the only way: a homily
+  source: Choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: indifferentism_cues
+  ask noul: Does this say that all religions are equally true or equally good ways to God, or that it does not matter which religion a person follows, and not just describe or compare religions or answer that claim?
+  gate: lexicon
+  spare channel: catholic_channels
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+rule protestantism
+  title: Protestant and evangelical teaching
+  name: Protestantism
+  plain: Flags Protestant and evangelical teaching, pastors and televangelists.
+  group: belief
+  example: Pastor's Sunday message: five steps to your breakthrough
+  example: Tent revival: healing and a prophetic word for America
+  example: Worship night live: praise and worship with the whole church
+  spared: St. John the Baptist, forerunner of the Lord: a homily
+  spared: Why Protestants become Catholic: a convert's story
+  spared: Protestantism: Origins and Impacts - EP 1 @ Apostolado Glórias de Maria
+  spared: Changing Validity of Protestant Baptisms @ Ascent of Mount Carmel
+  spared: The New American Bible is a Bad Protestant Bible - Part Thirteen @ Ascent of Mount Carmel
+  source: Sur la colère
+  where: feed-card, related, watch-meta
+  lexicon: protestantism_cues
+  ask noul: Is this Protestant or evangelical religious content (a pastor's sermon or message, a worship service, prosperity or prophecy preaching, evangelical teaching, an argument against Catholic doctrine), and not a Catholic talk about Protestants or neutral history?
+  gate: lexicon
+  spare channel: catholic_channels
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+rule islam
+  title: Islamic teaching and worship
+  name: Islam
+  plain: Flags Islamic lectures, sermons, Quran recitation and calls to convert to Islam.
+  group: belief
+  example: Quran recitation: Surah Al-Mulk, a beautiful voice
+  example: How to convert to Islam: a dawah talk
+  example: Why Islam? The Prophet Muhammad and the hadith explained
+  spared: Ramadan begins: millions of Muslims start the fast
+  spared: The Great Mosque of Cordoba: a history
+  spared: Questions Novus Ordo Catholics Can't Answer: Koran Kissing @ Ascent of Mount Carmel
+  source: Choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: islam_cues
+  ask noul: Is this Islamic religious content (Quran recitation, an Islamic lecture or sermon, a call to convert), and not news, history or a Catholic or scholarly discussion of Islam?
+  gate: lexicon
+  spare channel: catholic_channels
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+rule judaism
+  title: Jewish religious teaching and worship
+  name: Judaism
+  plain: Flags Jewish religious teaching, study and worship.
+  group: belief
+  example: Torah portion of the week: a short lecture
+  example: Shabbat service live from the synagogue
+  example: Learn to light the Hanukkah candles: blessings with a rabbi
+  spared: Jesus the Jew: what the Gospels tell us about his Jewish roots
+  spared: The Last Supper was a Passover meal: a Catholic talk on the Old Testament
+  spared: Presentation of the book "The Synagogue and the Catholic Church" @ Apostolado Glórias de Maria
+  spared: Tikkun Olam in the Mishnah and in the Aleinu - 1 @ Apostolado Glórias de Maria
+  spared: Evolutionism and Kabbalah @ Apostolado Glórias de Maria
+  source: Choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: judaism_cues
+  ask noul: Is this Jewish religious content (Torah or Talmud study, a rabbi's lecture or sermon, a synagogue service), and not history, news or a Catholic talk about the Old Testament or the Jewish roots of Christianity?
+  gate: lexicon
+  spare channel: catholic_channels
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+rule eastern_religions
+  title: Buddhism, Hinduism and other Eastern religions
+  name: Eastern religions
+  plain: Flags Buddhist, Hindu, Sikh and Taoist teaching, chanting and meditation retreats.
+  group: belief
+  example: Om Mani Padme Hum: 108 times, Tibetan chant
+  example: Vipassana retreat: ten days of silent meditation
+  example: Buddhism explained: the four noble truths and the dharma
+  spared: Zen 5 CPU review: benchmarks and temperatures
+  spared: Why Catholics should be careful with Eastern meditation: a priest explains
+  source: Choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: eastern_religions_cues
+  ask noul: Is this Buddhist, Hindu, Sikh, Taoist or similar religious teaching or practice (a talk, chanting, a mantra, a meditation retreat), and not news, history, travel or a Catholic discussion of those religions?
+  gate: lexicon
+  spare channel: catholic_channels
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+rule sects
+  title: Sects and new religious movements
+  name: Sects
+  plain: Flags teaching and promotion by Mormons, Jehovah's Witnesses, Scientology and similar groups.
+  group: belief
+  example: Inside a Kingdom Hall meeting: what Jehovah's Witnesses believe
+  example: Mormon testimony: why I know the Book of Mormon is true
+  example: Seventh-day Adventist Sabbath school: the truth about the Sabbath
+  spared: How to answer Jehovah's Witnesses at your door: a Catholic guide
+  spared: Salt Lake City travel guide: temple square and the mountains
+  source: Choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: sects_cues
+  ask noul: Is this teaching, worship or promotion by a sect or new religious movement (for example Mormons, Jehovah's Witnesses, Scientology), and not news, a documentary about it or a Catholic reply to it?
+  gate: lexicon
+  spare channel: catholic_channels
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+rule freemasonry
+  title: Freemasonry and secret societies
+  name: Freemasonry
+  plain: Flags Freemasonry shown as good: its lodges, rites and teaching, and invitations to join. Not Catholic warnings.
+  group: anticatholic
+  example: Masonic lodge initiation: what happens in the first degree
+  example: Scottish Rite degrees: the ritual explained
+  example: Why you should join the Freemasons: the benefits of being a Mason
+  example: Masonic charity: how the lodge helps your community
+  example: What is Freemasonry? A lodge member explains
+  spared: Why a Catholic cannot join the Masonic lodge: the 1983 declaration
+  spared: A priest warns Catholics about the dangers of Freemasonry
+  spared: Freemasonry and the Church: a history of the condemnations
+  spared: Pope Leo XIII on Freemasonry: Humanum genus
+  spared: Stone masonry: how to build a dry stone wall
+  spared: Questions Novus Ordo Catholics Can't Answer - WHY Can't Catholics be Masons @ Ascent of Mount Carmel
+  source: Canon 1399, 8 (the Index of Forbidden Books); Leo XIII, Humanum genus (1884); CDF Declaration of 26 November 1983. Applying them to videos is a choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: freemasonry_cues
+  ask noul: Does this present Freemasonry as good, harmless or true (its lodges, rites, degrees, symbols or teaching, praise of it, or an invitation to join), and not warn against it from a Catholic viewpoint, report the Church's condemnation, tell its history neutrally or concern stone masonry?
+  gate: lexicon
+  confirm: model
+  spare channel: catholic_channels
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+# ---------------------------------------------------------------
+# Anti-Catholicism, part two (group "anticatholic"; 2026-11-26). Freemasonry moved here from "belief": an ideology and a society, not a religion.
+# The ideologies and errors that the Church condemned by name (Freemasonry, Communism and socialism, Modernism, Spiritism) are on by default. Each flags what
+# PRESENTS, TEACHES, PROMOTES or DEFENDS the thing and spares what warns against it from the Catholic side (a talk, an encyclical, a refutation, a history of the
+# persecution); canon 1399 forbids books that defend errors condemned by the Holy See and books that present the Masonic sects as useful and harmless, not books against them.
+# The books of the Index of Forbidden Books come "by category". The categories are the rule author's own: the Index is alphabetical and has none. A book rule flags a
+# video ABOUT those authors or their works (an analysis, a summary, a reading, an adaptation, a biography, a debate), whatever it says of them: "videos discussing
+# these kinds of banned book authors", the rule author, 2026-11-26. The categories that attack the faith directly are on; the broad literary and philosophical
+# ones (philosophers, historians, novelists) ship off. Every name and title in their word lists is in docs/en/holy-office/forbidden.md (tests/index-names.test.js).
+# ---------------------------------------------------------------
+
+rule communism
+  title: Socialism and Communism
+  name: Communism and socialism
+  plain: Flags content that teaches or praises Communism, Marxism or socialism. Not Catholic warnings against them.
+  group: anticatholic
+  example: Why communism works: the case for a classless society
+  example: Marxism-Leninism explained: the dictatorship of the proletariat
+  example: Workers of the world, unite! Join the Communist Party
+  spared: Fatima and the errors of Russia: a Catholic talk
+  spared: Divini Redemptoris: the Church on atheistic communism
+  spared: Priests and nuns who suffered under communism: a documentary
+  spared: The Cold War explained: the Soviet Union from 1945 to 1991
+  spared: Leninism and Bolshevism @ Apostolic Majesty
+  spared: Top Reasons to Oppose Communism @ Ascent of Mount Carmel
+  spared: 1. Communist Infiltration of the Catholic Church - Bella Dodd @ Ascent of Mount Carmel
+  source: Holy Office decree of 1 July 1949 (AAS 41, p. 334); Syllabus of Errors, section IV (1864); Leo XIII, Quod apostolici muneris (1878); Pius XI, Divini Redemptoris 58 (1937); Catechism 2425. Applying them to videos is a choice of the rule author
+  where: feed-card, related, comment, watch-meta
+  lexicon: communism_cues, index_socialists
+  ask noul: Does this teach, praise or promote Communism, Marxism or socialism (the class struggle, the dictatorship of the proletariat, the Party or the Soviet state) as good or true, and not warn against it from a Catholic viewpoint, tell its history, document its crimes or honour its victims?
+  gate: lexicon
+  confirm: model
+  spare channel: catholic_channels
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+rule modernism
+  title: Modernism, the synthesis of all heresies
+  name: Modernism
+  plain: Flags the Modernist errors that Pius X condemned, such as that dogma evolves. Not Catholic warnings against them.
+  group: anticatholic
+  example: Dogma evolves: why the Church must change with the times
+  example: The Church must change its teaching on contraception
+  example: Vital immanence and religious experience: a modern theology
+  spared: Pascendi dominici gregis: Pius X on the errors of Modernism
+  spared: Newman and the development of doctrine: a Catholic lecture
+  spared: Does doctrine evolve? A priest explains
+  spared: An Ode to Modernism @ Ascent of Mount Carmel
+  spared: Liberals, Modernists, and the Gospel for the Fourth Sunday of Lent @ Ascent of Mount Carmel
+  spared: New Course: From the Synagogue to Modernism @ Apostolado Glórias de Maria
+  source: Pius X, Pascendi dominici gregis (1907); canon 1399, 6. Applying them to videos is a choice of the rule author
+  where: feed-card, related, comment, watch-meta
+  lexicon: modernism_cues
+  ask noul: Does this teach or defend the errors that Pius X condemned as Modernism (that dogma evolves and changes its meaning, that faith is only a feeling, that the Church must change its teaching with the times), and not explain or warn against them from a Catholic viewpoint, or discuss the genuine development of doctrine?
+  gate: lexicon
+  confirm: model
+  spare channel: catholic_channels
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+rule spiritism
+  title: Spiritism and the calling up of spirits
+  name: Spiritism
+  plain: Flags Spiritism, mediums and talking with the dead. Not Catholic warnings against them.
+  group: anticatholic
+  example: Allan Kardec and the Spirits' Book: an introduction to Spiritism
+  example: Spiritism explained: what Spiritists believe about the afterlife
+  example: How to communicate with the dead: a mediumship class
+  spared: Is Spiritism compatible with the Catholic faith? A priest answers
+  spared: The Fox sisters and the rise of Spiritualism: a history
+  spared: The haunted house: a ghost story (horror film)
+  spared: Ouija Boards @ Ascent of Mount Carmel
+  source: Holy Office, De spiritismo, 24 April 1917 (AAS 9, p. 268); Catechism of St. Pius X (First Commandment); canon 1399, 7; the Index (Kardec, 1864). Applying them to videos is a choice of the rule author
+  where: feed-card, related, comment, watch-meta
+  lexicon: spiritism_cues, index_spiritists
+  ask noul: Does this teach, practise or promote Spiritism, mediumship or contact with the dead as real or good, and not warn against it from a Catholic viewpoint, tell its history or tell a ghost story as fiction?
+  gate: lexicon
+  confirm: model
+  spare channel: catholic_channels
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+rule index_freethinkers
+  title: Books that attack religion or insult the clergy
+  name: Anti-religious writers
+  plain: Flags videos about the books and ideas of writers who attacked religion and the clergy and whose books were put on the Index. Not their lives.
+  group: anticatholic
+  example: Voltaire's Candide: summary and analysis
+  example: Baron d'Holbach and the System of Nature: a lecture
+  example: Jules Michelet on the priest and the Jesuits: a reading
+  spared: Voltaire the French bulldog: our puppy's first week
+  spared: Rue Voltaire: a walk through the 11th arrondissement of Paris
+  spared: The life of Voltaire: a short biography
+  spared: Jules Michelet was born in Paris: his early life
+  source: Index of Forbidden Books (1948 and the decrees to 1961), canon 1399, 3 and 6. The categories are a choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: index_freethinkers
+  ask noul: Is this video about the books or ideas of writers who attacked religion and the clergy and were put on the Index of Forbidden Books (for example Voltaire, d'Holbach, Michelet or Draper): a reading, a summary, an analysis or an explanation of what they wrote, and not about the life of the person or the history of his time, nor about a place, a school, a street or something else of the same name?
+  gate: lexicon
+  confirm: model
+  spare words: life_words
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+rule index_jesus_critics
+  title: Rationalist lives of Jesus
+  name: Critical lives of Jesus
+  plain: Flags videos about rationalist lives of Jesus and the books of their authors, such as Renan and Strauss. Not the life of the author.
+  group: anticatholic
+  example: Ernest Renan's Life of Jesus: a summary
+  example: David Friedrich Strauss and the myth of the Gospels
+  example: Kazantzakis and the Last Temptation of Christ: the novel behind the film
+  spared: Renan vs Neymar: football highlights of the week
+  spared: Strauss: Also sprach Zarathustra with the Vienna Philharmonic
+  spared: Ernest Renan: his life, from the seminary to the Collège de France
+  source: Index of Forbidden Books (1948 and the decrees to 1961), canon 1399, 2, 3 and 6. The categories are a choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: index_jesus_critics
+  ask noul: Is this video about a rationalist or critical life of Jesus that the Index named (for example by Renan, Strauss, Steinmann or Kazantzakis): its text, its argument or its story, and not about the life of its author or the history of his time, nor about something else of the same name?
+  gate: lexicon
+  confirm: model
+  spare words: life_words
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+rule index_modernists
+  title: Authors and books of the Modernist movement
+  name: Modernists on the Index
+  plain: Flags videos about the books and ideas of the authors of the Modernist movement whom the Index named, such as Loisy and Fogazzaro. Not their lives.
+  group: anticatholic
+  example: Alfred Loisy and the Gospel and the Church: a modernist priest
+  example: Fogazzaro's The Saint: the novel the Church forbade
+  example: George Tyrrell's modernist theology: a lecture on his books
+  spared: Pascendi dominici gregis: Pius X on the errors of Modernism
+  spared: The Murri people of Queensland: history and culture
+  spared: Alfred Loisy: his life and his excommunication
+  source: Index of Forbidden Books (1948 and the decrees to 1961), canon 1399, 2 and 6. The categories are a choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: index_modernists
+  ask noul: Is this video about the books or ideas of an author of the Modernist movement whom the Index of Forbidden Books named (for example Loisy, Murri, Buonaiuti, Fogazzaro or Tyrrell), and not about the life of the person or the history of the crisis, nor about a place, a person of the same name or an unrelated work?
+  gate: lexicon
+  confirm: model
+  spare words: life_words
+  flag at: 0.80
+  action: feed-card=blank, watch-meta=warn-overlay
+  enabled: true
+
+rule index_philosophers
+  title: Philosophers who undermine the foundations of religion
+  name: Philosophers on the Index
+  plain: Flags videos about the ideas and books of philosophers whom the Index named, such as Kant, Hume and Spinoza. Not their lives.
+  group: anticatholic
+  example: Immanuel Kant explained in ten minutes
+  example: Spinoza's Ethics: a beginner's guide
+  example: Hume on miracles: a lecture
+  spared: Calvin and Hobbes: the best strips of the year
+  spared: Hume Highway road trip: Sydney to Melbourne
+  spared: David Hume's Influence on John Henry Newman @ Ascent of Mount Carmel
+  spared: The life of David Hume: a short biography
+  source: Index of Forbidden Books (1948 and the decrees to 1961), canon 1399, 2 and 3. The categories are a choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: index_philosophers
+  ask noul: Is this video about the ideas or books of a philosopher whom the Index of Forbidden Books named (for example Kant, Hume, Spinoza, Locke, Rousseau or Sartre): a reading, an explanation, an analysis or a debate of what he wrote, and not about the life of the person or the history of his influence on others, nor about a place, a school, a street or something else of the same name?
+  gate: lexicon
+  confirm: model
+  spare words: life_words
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label
+  enabled: false
+
+rule index_historians
+  title: Historians whose books were forbidden
+  name: Historians on the Index
+  plain: Flags videos about the history books of historians whom the Index named, such as Gibbon and Ranke. Not their lives.
+  group: anticatholic
+  example: Edward Gibbon and the fall of Rome: a lecture
+  example: Gibbon's Decline and Fall: the audiobook
+  example: Leopold von Ranke and the history of the popes
+  spared: The decline and fall of the Roman Empire: a documentary
+  spared: Gibbons at the zoo: how the apes swing
+  spared: Edward Gibbon: his life, from Magdalen College to Lausanne
+  source: Index of Forbidden Books (1948 and the decrees to 1961), canon 1399, 2, 3 and 6. The categories are a choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: index_historians
+  ask noul: Is this video about the history books of a historian whom the Index of Forbidden Books named (for example Gibbon or Ranke), or about the history as he tells it, and not about the life of the historian, nor about a place, a school, an animal or something else of the same name?
+  gate: lexicon
+  confirm: model
+  spare words: life_words
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label
+  enabled: false
+
+rule index_novelists
+  title: Novels forbidden by name
+  name: Novelists on the Index
+  plain: Flags videos about the novels, plays and poems of writers whom the Index named, such as Hugo, Balzac and Flaubert, and their adaptations. Not their lives.
+  group: anticatholic
+  example: Victor Hugo's Les Misérables: the full audiobook
+  example: Madame Bovary: summary and analysis
+  example: Honoré de Balzac and the human comedy
+  spared: Notre-Dame de Paris: the fire and the rebuilding of the cathedral
+  spared: George Sanders: the actor's best roles
+  spared: Zola Budd: the runner's story
+  spared: Victor Hugo in exile on Guernsey: his years in the Channel Islands
+  spared: Honoré de Balzac was born in Tours: his early life
+  source: Index of Forbidden Books (1948 and the decrees to 1961), canon 1399, 3 and 9. The categories are a choice of the rule author
+  where: feed-card, related, watch-meta
+  lexicon: index_novelists
+  ask noul: Is this video about the novels, plays or poems of a writer whom the Index of Forbidden Books named (for example Hugo, Balzac, Flaubert, Zola, Gide or Sartre), or about adaptations of them, and not about the life of the writer, nor about a place, a street, a school or something else of the same name?
+  gate: lexicon
+  confirm: model
+  spare words: life_words
+  flag at: 0.80
+  action: feed-card=dim, watch-meta=label
   enabled: false

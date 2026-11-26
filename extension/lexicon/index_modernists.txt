@@ -1,0 +1,55 @@
+# The authors and titles of the Modernist movement on the Index. The entries are names and titles of the Index of Forbidden Books (the edition of 1948 and the decrees to 1961), read from docs/en/holy-office/forbidden.md; they are not invented.
+# The category is a choice of the rule author: the Index is alphabetical and has no categories. Each group below is introduced by the author's heading exactly as the Index prints it ("# @ ..."); tests/index-names.test.js checks every entry against that author's block.
+# Ground: canon 1399, classes 2 and 6 (books that defend heresy; books that defend errors condemned by the Holy See); the Index itself names modernism in several titles. See research/index-of-forbidden-books.md and rules.md.
+# The rule looks for videos ABOUT these authors and their works (an analysis, a summary, a reading, an adaptation, a biography, a debate), whatever the video says of them.
+# 0.95 = the full name or a title that only this author wrote; 0.75 = a bare surname that a place, a school or a pet may also bear (it waits for the on-device model); 0.50 = a broader or ambiguous bare word.
+# A name at 0.95 is a pattern that stands down to the plain 0.75 line under it (the model decides) when a word of a street, a school, a hotel, a station or the like stands next to it (Rue Voltaire, Hotel Victor Hugo): the guard is looked at only after the name has matched.
+# No title is translated: a title appears only as the Index prints it. A name or a title that is also a place, a cathedral or an everyday word is not a cue (see rules.md).
+# @ Loisy, Alfred
+0.95 | /\balfred loisy(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) alfred loisy(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | alfred loisy*
+0.95 | loisy* l'evangile et l'eglise
+0.75 | loisy
+0.75 | loisy's
+0.50 | l'evangile et l'eglise
+# @ Le Roy, Edouard
+0.95 | /\bedouard le roy(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) edouard le roy(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | edouard le roy*
+0.75 | dogme et critique
+# @ Murri, Romolo
+0.95 | /\bromolo murri(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) romolo murri(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | romolo murri*
+0.50 | murri
+0.50 | murri's
+# @ Buonaiuti, Ernesto
+0.95 | /\bernesto buonaiuti(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) ernesto buonaiuti(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | ernesto buonaiuti*
+0.95 | /\bbuonaiuti(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) buonaiuti(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | buonaiuti*
+# @ Laberthonnière, Lucien
+0.95 | /\blucien laberthonniere(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) lucien laberthonniere(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | lucien laberthonniere*
+0.95 | /\blaberthonniere(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) laberthonniere(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | laberthonniere*
+# @ Fogazzaro, Antonio
+0.95 | /\bantonio fogazzaro(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) antonio fogazzaro(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | antonio fogazzaro*
+0.95 | /\bfogazzaro(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) fogazzaro(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | fogazzaro*
+# @ Turmel, Joseph
+0.95 | /\bjoseph turmel(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) joseph turmel(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | joseph turmel*
+0.75 | turmel*
+# @ Houtin, Albert
+0.95 | /\balbert houtin(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) albert houtin(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | albert houtin*
+0.95 | /\bhoutin(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) houtin(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | houtin*
+# @ Petre, Maude D
+0.95 | /\bmaude petre(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) maude petre(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | maude petre*
+0.95 | /\bgeorge tyrrell(?:'s)?\b(?<!\b(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus) george tyrrell(?:'s)?)(?!(?:'s)?\s(?:rue|avenue|place|boulevard|lycee|college|school|hotel|metro|station|street|square|cafe|restaurant|airport|university|museum|musee|maison|house|bridge|road|plaza|campus)\b)/
+0.75 | george tyrrell*
+0.50 | tyrrell*
+# @ (without the author’s name)
+0.95 | il programma dei modernisti

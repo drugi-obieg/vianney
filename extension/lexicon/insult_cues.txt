@@ -1,4 +1,8 @@
 0.75 | /\byou('?re| are)? (an? )?(idiot|moron|imbecile|fool|loser|clown|scoundrel|rascal|crook|thief|liar|swine|pig|disgrace|waste of space)\b/
+# third person and with an intensifier, as people really write it
+0.75 | /\b(a|an|the) (complete|total|absolute|utter|stupid|pathetic|worthless|f\w*ing) (idiot|moron|imbecile|loser|clown|scumbag|jerk|fool|twat|asshole|dickhead|dumbass)s?\b/
+0.75 | /\byou (stupid|dumb|pathetic|worthless|f\w*ing) (idiot|moron|loser|clown|fool|jerk|bitch|bastard|asshole)\b/
+0.75 | /\b(piece|pieces) of (trash|garbage|scum|filth)\b/
 0.50 | you idiot
 0.50 | you fool
 0.50 | you liar

@@ -1,0 +1,47 @@
+# Islamic religious content. A choice of the rule author (2026-11-26), see rules.md. Neutral, descriptive vocabulary only.
+# 0.95 = a recitation, a lecture, a sermon or a call to convert: content of that kind by itself.
+# 0.75 = a term that news, history and Catholic replies also use (it waits for the on-device model, or for a lower slider).
+# 0.50 = a broader word; 0.15 = ambiguous. No names of persons (the bare name Muhammad is left out on purpose), no derogatory names.
+0.95 | /\b(?:quran|koran|qur'?an) recitations?\b/
+0.95 | /\brecitation of (?:the )?(?:holy )?(?:quran|koran|qur'?an)\b/
+0.95 | /\btafs(?:i|ee)r\b/
+0.95 | /\bkhutb(?:ah|a)\b/
+0.95 | dawah
+0.95 | da'wah
+0.95 | /\bislamic (?:lecture|lectures|sermon|sermons|reminder|reminders|lesson|lessons|talk|talks|class|classes|course)\b/
+0.95 | /\bhow to (?:convert|revert) to islam\b/
+0.95 | /\bwhy (?:you should|i) (?:convert|converted|revert|reverted) to islam\b/
+0.95 | /\bramadan (?:reminder|reminders|lecture|lectures|sermon|series|dua|duas)\b/
+0.95 | taraweeh
+0.95 | /\bayat(?: al| ul|ul) kursi\b/
+0.75 | quran*
+0.75 | koran*
+0.75 | qur'an*
+0.75 | hadith*
+0.75 | sunnah
+0.75 | /\bsharia(?:h)?\b/
+0.75 | allah
+0.75 | allahu akbar
+0.75 | imam*
+0.75 | hajj
+0.75 | umrah
+0.75 | kaaba
+0.75 | surah
+0.75 | nasheed*
+0.75 | adhan
+0.75 | prophet muhammad
+0.75 | peace be upon him
+0.75 | pbuh
+0.75 | why islam
+0.75 | /\b(?:convert|converts|converting|converted|revert|reverts|reverting|reverted) to islam\b/
+0.75 | islamic studies
+0.75 | /\bislam (?:vs|versus|and|or) (?:christianity|catholicism|the bible)\b/
+0.50 | islam
+0.50 | islamic
+0.50 | muslim*
+0.50 | mosque*
+0.50 | masjid*
+0.50 | ramadan
+0.50 | sufi*
+0.50 | bismillah
+0.15 | /\b(?:halal|inshallah)\b/
