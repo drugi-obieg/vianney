@@ -10,8 +10,8 @@ export const DEFAULTS = Object.freeze({
   snoozeMinutes: 15,       // "Remind me later"
   period: 'session',       // 'session' | 'day'
   sessionGapMinutes: 30,   // M: a pause this long starts a new session
-  showCard: true,
-  showBanner: true,
+  showCard: true,          // the reminder may appear as a video in the lists ("In video lists")
+  showComment: true,       // ... and as a comment under a video ("In comments"); both are drawn like the real thing, see content/breakcard.js
 });
 
 /** Local calendar day key, e.g. "2026-11-25". */
