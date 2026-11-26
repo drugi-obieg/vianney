@@ -51,7 +51,7 @@
     },
     {
       "resources": ["src/options/options.html"],
-      "matches": ["https://vianney.cc/*"]
+      "matches": ["https://vianney.cc/*", "https://www.vianney.cc/*"]
     }
   ]
 }

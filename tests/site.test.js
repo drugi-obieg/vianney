@@ -164,7 +164,7 @@ test('the links into the extension use its pinned ID, and only the real site may
   const open = manifest.web_accessible_resources.filter((r) => r.resources.includes('src/options/options.html'));
   assert.equal(open.length, 1);
   assert.deepEqual(open[0].resources, ['src/options/options.html'], 'only the settings page is open to web pages');
-  assert.deepEqual(open[0].matches, ['https://vianney.cc/*'], 'and only to the real site');
+  assert.deepEqual(open[0].matches, ['https://vianney.cc/*', 'https://www.vianney.cc/*'], 'and only to the real site, on its two names');
 });
 
 test('the Features page: the options of every feature are HTML of the real settings page, the preview is a picture of YouTube (or HTML of the settings page), or a rule in its own format', () => {

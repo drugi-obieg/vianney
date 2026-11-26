@@ -2,7 +2,7 @@ title: Vianney Content Blocker
 description: A local, rule-based content filter for YouTube, in the spirit of the Curé d'Ars on guarding the eyes and ears.
 lang: en
 url: "https://vianney.cc"
-baseurl: "/vianney"
+baseurl: ""
 markdown: kramdown
 kramdown:
   input: GFM
