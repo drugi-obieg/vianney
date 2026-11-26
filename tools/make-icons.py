@@ -1,45 +1,39 @@
-"""Generate the extension icons (a cream cross on a burgundy disc) with the standard library only.
-Run: python3 tools/make-icons.py   (writes extension/icons/icon{16,32,48,128}.png)"""
-import struct, zlib, os
+"""Render the icons from the bust in assets/vianney-bust.png (needs ImageMagick: `magick`).
 
-BURGUNDY = (122, 31, 43, 255)
-CREAM = (244, 230, 227, 255)
-CLEAR = (0, 0, 0, 0)
+The bust is a black-and-white cut of the well-known portrait of St. Jean-Marie Vianney (public domain, via Wikimedia
+Commons: https://commons.wikimedia.org/wiki/File:Jean-Marie_Vianney.png). The outline of head and shoulders was traced by hand
+(assets/vianney-bust-outline.png is that outline alone, as a plain silhouette); inside it the picture is cut to two tones, so that
+the dark stole, the eyes and the smile stay. White on a black rounded square, in the way macOS draws its app icons.
 
+Run: python3 tools/make-icons.py
+Writes extension/icons/icon{16,32,48,128}.png and assets/{icon-512,apple-touch-icon,favicon-32}.png
+"""
+import subprocess
+from pathlib import Path
 
-def png(size):
-    rows = []
-    c = (size - 1) / 2
-    r = size / 2 - 0.5
-    arm = size * 0.09          # half thickness of the cross bars
-    long_up, long_down = size * 0.30, size * 0.30
-    for y in range(size):
-        row = bytearray([0])   # filter type 0
-        for x in range(size):
-            dx, dy = x - c, y - c
-            inside = dx * dx + dy * dy <= r * r
-            px = CLEAR
-            if inside:
-                px = BURGUNDY
-                vertical = abs(dx) <= arm and -long_up <= dy <= long_down
-                # the horizontal bar sits a little above the middle, like a Latin cross
-                horizontal = abs(dy + size * 0.07) <= arm and abs(dx) <= size * 0.20
-                if vertical or horizontal:
-                    px = CREAM
-            row.extend(px)
-        rows.append(bytes(row))
-    raw = b''.join(rows)
-
-    def chunk(tag, data):
-        body = tag + data
-        return struct.pack('>I', len(data)) + body + struct.pack('>I', zlib.crc32(body) & 0xffffffff)
-
-    return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', size, size, 8, 6, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw, 9)) + chunk(b'IEND', b'')
+ROOT = Path(__file__).resolve().parent.parent
+BUST = ROOT / 'assets' / 'vianney-bust.png'     # 500 x 739, white figure on black
 
 
-out = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'extension', 'icons')
-os.makedirs(out, exist_ok=True)
-for s in (16, 32, 48, 128):
-    with open(os.path.join(out, f'icon{s}.png'), 'wb') as f:
-        f.write(png(s))
-print('icons written to', os.path.normpath(out))
+def render(size: int, out: Path, scale: float = 1.0, top: float = 0.085, radius: float = 0.225) -> None:   # scale > 1: the shoulders run off the sides
+    w = round(size * scale)
+    r = size * radius
+    cmd = [
+        'magick', '-size', f'{size}x{size}', 'xc:black',
+        '(', str(BUST), '-colorspace', 'Gray', '-filter', 'Lanczos', '-resize', f'{w}x', ')',
+        '-gravity', 'north', '-geometry', f'+0+{round(size * top)}', '-compose', 'Lighten', '-composite', '-crop', f'{size}x{size}+0+0', '+repage',
+        '-alpha', 'set',
+        '(', '-size', f'{size}x{size}', 'xc:none', '-fill', 'white', '-draw', f'roundrectangle 0,0 {size - 1},{size - 1} {r},{r}', ')',
+        '-compose', 'DstIn', '-composite',
+        '-define', 'png:compression-level=9', str(out),
+    ]
+    subprocess.run(cmd, check=True)
+
+
+if __name__ == '__main__':
+    for s in (16, 32, 48, 128):
+        render(s, ROOT / 'extension' / 'icons' / f'icon{s}.png')
+    render(512, ROOT / 'assets' / 'icon-512.png')
+    render(180, ROOT / 'assets' / 'apple-touch-icon.png')
+    render(32, ROOT / 'assets' / 'favicon-32.png')
+    print('icons written')
