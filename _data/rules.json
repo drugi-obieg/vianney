@@ -1,0 +1,27 @@
+{
+  "count": 55,
+  "text": 49,
+  "media": 6,
+  "enabled": 31,
+  "card": {
+    "id": "divination",
+    "lines": [
+      [
+        "lexicon",
+        "divination_cues"
+      ],
+      [
+        "spared",
+        "Stargazing: the winter constellations"
+      ],
+      [
+        "flag at",
+        "0.75"
+      ],
+      [
+        "action",
+        "feed-card=blank, watch-meta=label"
+      ]
+    ]
+  }
+}

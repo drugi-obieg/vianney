@@ -1,0 +1,74 @@
+# What the extension does, block by block. On the Features page each block has its heading and, under it, the options on the left (`opts`: pieces of the
+# real settings page as HTML, copied by tools/make-feature-options.py into _data/options.json, one under the other) and a preview on the right (`view`: how it
+# looks on YouTube AFTER a filter has worked, never before: nothing flagged is on the site; pictures made by tools/make-feature-scenes.py from the real
+# extension on a real YouTube page; or, for the sensitivity, the answer of the Test rules page, which is HTML like the options). The first `view` is on the right;
+# a second one goes on the left under the options, so that the left column is about as high as the right one and no room is left empty. `waterfall: true` lets the
+# groups and the rule card fall into two columns as they fit (the Rules block). The top of the boxes of both sides are level (see .drop in site.css). `rule: true` puts one real rule in its own format into the view (_data/rules.json, from tools/make-site-data.mjs).
+# %n stands for the number of rules (Liquid cannot take braces inside a tag). The home page lists only the short `home` text of each, as a link to its
+# place on the Features page. It sits under "What it does", so every `home` text is a verb phrase that finishes "It ..." (Hides ..., Applies ..., Lets you ...).
+- id: hide
+  title: Hide
+  sub: Flagged videos, comments and recommendations, before you see them
+  home: Hides flagged videos and comments
+  icon: eye-off
+  color: red
+  opts: [scope]
+  view: [related-dim, comment-blur]
+- id: rules
+  title: Rules
+  sub: "%n rules, in plain text"
+  home: Applies text-based configurable rules
+  icon: file-text
+  color: indigo
+  opts: [purity, swearing, people, belief, anticatholic, leisure]
+  waterfall: true
+  rule: true
+- id: sensitivity
+  title: Sensitivity
+  sub: Every rule has its own sensitivity
+  home: Lets you set each rule's sensitivity
+  icon: sliders-horizontal
+  color: blue
+  opts: [sensitivity]
+  view: [test-result]
+- id: subtitles
+  title: Subtitles
+  sub: Mute or skip flagged words
+  home: Mutes flagged words
+  icon: ear
+  color: orange
+  opts: [subtitles]
+  view: [subtitles-mask]
+- id: clean-up
+  title: Clean up
+  sub: Shorts, Games, Movies & TV and more
+  home: Removes Shorts, Games, Movies & TV
+  icon: eraser
+  color: red
+  opts: [cleanup]
+  view: [cleanup-sidebar]
+- id: break-reminder
+  title: Break reminder
+  sub: A video or comment that tells you to rest
+  home: Reminds you to take a break
+  icon: coffee
+  color: green
+  opts: [break]
+  view: [break-card, break-comment]
+- id: images-audio
+  title: Images & Audio
+  sub: Thumbnails and audio
+  home: Checks thumbnails and sound
+  experimental: true
+  icon: image
+  color: pink
+  opts: [media]
+  view: [media-tiles]
+- id: on-device-ai
+  title: On-device AI
+  sub: Nothing leaves your computer
+  home: Judges with a local AI model
+  icon: lock
+  color: grey
+  opts: [private]
+  view: [models]

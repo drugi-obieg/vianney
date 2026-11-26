@@ -1,0 +1,39 @@
+---
+layout: default
+title: Features
+description: What Vianney can hide.
+options_css: true
+---
+{%- for f in site.data.features %}
+{%- assign left = f.opts | size %}
+{%- assign nview = f.view | size %}
+{%- if nview > 1 %}{% assign extra = nview | minus: 1 %}{% assign left = left | plus: extra %}{% endif %}
+{%- assign drop = '' %}
+{%- assign first_slug = f.opts | first %}
+{%- assign first = site.data.options[first_slug] %}
+{%- assign head = first.html | slice: 0, 80 %}
+{%- if head contains 'class="group-title"' %}{% assign drop = ' drop' %}{% endif %}
+<section class="feature" id="{{ f.id }}">
+  <div class="feature-head">
+    <span class="tile c-{{ f.color }}">{% include icon.html name=f.icon size=16 %}</span>
+    <div><h2>{{ f.title }}{% if f.experimental %} <span class="pill exp">Experimental</span>{% endif %}</h2><p>{{ f.sub | replace: '%n', site.data.rules.count }}</p></div>
+  </div>
+  <div class="feature-body{% if f.waterfall %} waterfall{% endif %}">
+    {%- if f.rule %}
+    <figure class="xopt rule-card"><div class="rule-group"><div class="group-title">One rule, as written</div><pre><code><span class="head"><span class="k">rule</span> <span class="id">{{ site.data.rules.card.id }}</span></span>
+{%- for line in site.data.rules.card.lines %}<span class="k">{{ line[0] }}:</span><span class="v">{{ line[1] }}</span>{% endfor -%}
+</code></pre></div></figure>
+    {%- endif %}
+    {%- for slug in f.opts %}
+    {% include feature-item.html slug=slug side="left" %}
+    {%- endfor %}
+    {%- for slug in f.view %}
+    {%- if forloop.first %}
+    {% include feature-item.html slug=slug side="right" span=left drop=drop %}
+    {%- else %}
+    {% include feature-item.html slug=slug side="left" %}
+    {%- endif %}
+    {%- endfor %}
+  </div>
+</section>
+{%- endfor %}

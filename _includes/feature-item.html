@@ -1,0 +1,13 @@
+{%- comment -%}
+  One item of a feature block on the Features page. Parameters: slug, side (left or right), span (how many rows on the left the right item stands beside), drop (" drop" when
+  the left side begins with a heading: the item is lowered by the height of the heading, so that the tops of the boxes are level).
+  A slug that _data/options.json knows is HTML (a piece of the real settings page, tools/make-feature-options.py); any other is a picture of a real YouTube page
+  made after a filter has worked (tools/make-feature-scenes.py).
+{%- endcomment -%}
+{%- assign o = site.data.options[include.slug] -%}
+{%- if o -%}
+<figure class="xopt {{ include.side }}{{ include.drop }}"{% if include.side == 'right' %} style="--span: {{ include.span }}"{% endif %} role="img" aria-label="{{ o.alt | escape }}">{{ o.html }}</figure>
+{%- else -%}
+{%- assign shot = site.data.shots[include.slug] -%}
+<figure class="shot scene {{ include.side }}{{ include.drop }}"{% if include.side == 'right' %} style="--span: {{ include.span }}"{% endif %}><picture><source media="(prefers-color-scheme: dark)" srcset="{{ '/assets/features/' | append: include.slug | append: '-dark.webp' | relative_url }}" width="{{ shot.dark.width | default: shot.width }}" height="{{ shot.dark.height | default: shot.height }}"><img src="{{ '/assets/features/' | append: include.slug | append: '-light.webp' | relative_url }}" width="{{ shot.width }}" height="{{ shot.height }}" style="max-width: {{ shot.width }}px" alt="{{ shot.alt | escape }}" loading="lazy"></picture></figure>
+{%- endif -%}

@@ -1,0 +1,37 @@
+{
+  "break-card": {
+    "width": 358,
+    "height": 525,
+    "alt": "The list of recommended videos next to a video. The second one is the break reminder, drawn as a video: the portrait of Saint Jean-Marie Vianney as picture and channel, a clickbait title that makes fun of clickbait, and \"Watching for 1 hour 7 minutes\" where the views would be."
+  },
+  "break-comment": {
+    "width": 360,
+    "height": 334,
+    "alt": "Under a video, between two comments, a comment from \"Vianney\" with his portrait as the picture: how long you have been watching, and that this is a good moment to take a break."
+  },
+  "cleanup-sidebar": {
+    "width": 240,
+    "height": 374,
+    "alt": "The sidebar of YouTube with Clean up on: Home, Subscriptions, You and History. Shorts, the Explore section and More from YouTube are gone."
+  },
+  "comment-blur": {
+    "width": 360,
+    "height": 294,
+    "alt": "Three comments under a video. The second, which takes the name of God as an exclamation, is blurred, with the reason and a Show button over it."
+  },
+  "media-tiles": {
+    "width": 358,
+    "height": 525,
+    "alt": "Recommended videos in which the picture was judged. One is a black tile and one is blurred, each with the rule that flagged it and a Show button. The titles stay."
+  },
+  "related-dim": {
+    "width": 358,
+    "height": 525,
+    "alt": "The list of recommended videos next to a video. Two are dimmed and labelled with the rule that flagged them: \"Occult and New Age\" and \"Fortune telling\"."
+  },
+  "subtitles-mask": {
+    "width": 360,
+    "height": 190,
+    "alt": "The bottom of a video with its caption. The words that a rule flagged are masked with blocks."
+  }
+}
