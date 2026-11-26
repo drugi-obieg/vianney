@@ -1,5 +1,6 @@
 {
   "manifest_version": 3,
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0SfM0EFoQRofuQDYKXM+auDzsBWQ2dFWbqpr1tm9qAXmH1LipaQQEUMRPgpXcrhWUvqRysILpC8pJACuJI7P6dt5Lkcq2w7C0kuZtFzpTk4V4QG/VNKQP5v6UEXkTD71K9iDxfi/gLFtRPZu1+dvilwuBwuZhmUDw3NpXL8cuxeenZfTUbGTqwn0tlyNFbG6U9VR3zb9yuu5LBBzOovGU0yUWqstXPmokDRWUPkG7Yafc64/sVv1jW2en4zyW250YGhBM7K0eODtG/ZihRjwIOPNYeRZn6UYutjYNM2h5YTEpPJd5elYbXR4OlZqfGGZOiOCEZFqRM6mKtQMyf875wIDAQAB",
   "name": "Vianney Content Blocker",
   "version": "0.2.1",
   "description": "Hides YouTube content you decided against, using rules you write in plain text. Everything runs on your machine.",
@@ -19,7 +20,11 @@
     "service_worker": "src/background/service-worker.js",
     "type": "module"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "offscreen", "unlimitedStorage"],
+  "optional_host_permissions": ["https://huggingface.co/*", "https://*.hf.co/*"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],
@@ -31,12 +36,22 @@
       "matches": ["https://www.youtube.com/*"],
       "js": ["src/content/loader.js"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "css": ["src/content/cleanup.css"],
+      "js": ["src/content/early.js"],
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     {
       "resources": ["src/core/*.js", "src/content/*.js", "src/shared/*.js", "rules/*", "lexicon/*"],
       "matches": ["https://www.youtube.com/*"]
+    },
+    {
+      "resources": ["src/options/options.html"],
+      "matches": ["https://vianney.cc/*"]
     }
   ]
 }

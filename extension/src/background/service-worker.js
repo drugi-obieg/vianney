@@ -6,6 +6,9 @@ import { addPlayback, snooze, dismiss, freshState } from '../core/breaktimer.js'
 import { hashText } from '../core/text.js';
 import { loadSettings } from '../shared/config.js';
 import * as ai from '../ai/prompt-backend.js';
+import * as kev from '../ai/kev-backend.js';
+import { askLayered } from '../core/layered.js';
+import { backendSetting, buildLayers, statusFor, answerFor, fromExtensionPage } from '../ai/ai-router.js';
 
 // Serialise every read-modify-write on storage so that parallel tabs cannot overwrite each other.
 let chain = Promise.resolve();
@@ -31,6 +34,7 @@ async function appendLog(entry) {
   return { ok: true, size: log.length };
 }
 
+let kevAnnounced = false;   // the end of a download is announced to the tabs once
 let availabilityCache = { at: 0, value: 'unknown' };
 async function aiAvailability(force = false) {
   if (!force && Date.now() - availabilityCache.at < 30000) return availabilityCache.value;
@@ -173,14 +177,71 @@ async function handle(msg, sender) {
         return { ok: true };
       });
 
-    case 'ai-status':
-      return { availability: await aiAvailability(!!msg.force), host: 'service-worker' };
+    case 'ai-status': {
+      // which models can answer: Kev-0.6B (local, first) and Chrome's own model (second look); see ai/ai-router.js
+      const settings = await loadSettings();
+      const backend = backendSetting(settings);
+      const kevState = backend === 'prompt' ? { ready: false, state: 'off' } : await kev.readiness(!!msg.force);
+      const promptAvailability = backend === 'kev' ? 'unavailable' : await aiAvailability(!!msg.force);
+      return statusFor({ settings, kev: kevState, promptAvailability });
+    }
 
     case 'ai-ask': {
       const settings = await loadSettings();
       if (!settings.ai.enabled) return { p: null, error: 'disabled' };
-      if ((await aiAvailability()) !== 'available') return { p: null, error: 'unavailable' };
-      return msg.kind === 'score' ? ai.askScore(msg.question, msg.levels, msg.text) : ai.askNoul(msg.question, msg.text);
+      const backend = backendSetting(settings);
+      const kevState = backend === 'prompt' ? { ready: false } : await kev.readiness();
+      const promptAvailability = backend === 'kev' ? 'unavailable' : await aiAvailability();
+      const question = String(msg.question || '');
+      const text = String(msg.text || '');
+      const score = msg.kind === 'score';
+      const layers = buildLayers({
+        backend,
+        kev: { ready: kevState.ready, ask: () => (score ? kev.askScore(question, msg.levels, text) : kev.askNoul(question, text)) },
+        prompt: { available: promptAvailability === 'available', ask: () => (score ? ai.askScore(question, msg.levels, text) : ai.askNoul(question, text)) },
+      });
+      return answerFor(await askLayered(layers));
+    }
+
+    // ---- the local model: only pages of this extension may look at it, start, stop or delete a download (never a content script on a web page)
+    case 'kev-status':
+    case 'kev-download':
+    case 'kev-pause':
+    case 'kev-cancel':
+    case 'kev-delete':
+    case 'kev-progress':
+    case 'kev-idle': {
+      if (!fromExtensionPage(sender, chrome.runtime.getURL(''), chrome.runtime.id)) return { ok: false, error: 'not allowed' };
+      if (msg.type === 'kev-status') return kev.status(msg.preferSet === 'q4f16' ? 'q4f16' : 'q4');
+      if (msg.type === 'kev-download') {
+        // the test build (debug on) may name a local server instead of Hugging Face; the files are checked against pinned hashes either way
+        const settings = await loadSettings();
+        const base = settings.debug && /^http:\/\/(127\.0\.0\.1|localhost):\d+\//.test(String(msg.base || '')) ? String(msg.base) : null;
+        return kev.download(msg.set, base);
+      }
+      if (msg.type === 'kev-pause') return kev.pause();
+      if (msg.type === 'kev-cancel') return kev.cancel();
+      if (msg.type === 'kev-delete') { const r = await kev.remove(); await chrome.storage.local.set({ kevEpoch: Date.now() }); return r; }
+      if (msg.type === 'kev-progress') {
+        kev.forget();
+        if (msg.job && msg.job.finished && !kevAnnounced) { kevAnnounced = true; await chrome.storage.local.set({ kevEpoch: Date.now() }); }   // tabs look at the models again at once
+        if (msg.job && msg.job.phase === 'downloading') kevAnnounced = false;
+        return { ok: true };
+      }
+      // 'kev-idle': the model has been unused for a while; close its page, unless a download needs it
+      const st = await kev.status();
+      if (!st.job || st.job.phase === 'idle') await kev.closeDocument();
+      return { ok: true };
+    }
+
+    case 'debug-reset-ai': { // for the browser tests, when the debug switch is on: forget the model sessions, so a new stand-in is used
+      const settings = await loadSettings();
+      if (!settings.debug) return { error: 'debug only' };
+      ai.resetSession();
+      await kev.resetSession();
+      mediaAvailCache = { at: 0, value: null };
+      availabilityCache = { at: 0, value: 'unknown' };
+      return { ok: true };
     }
 
     case 'media-status':
