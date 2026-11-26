@@ -4,169 +4,213 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vianney Content Blocker: settings</title>
+<link rel="icon" type="image/png" href="../../icons/icon32.png">
 <link rel="stylesheet" href="options.css">
 </head>
 <body>
-<header class="top">
-  <div>
-    <h1>Vianney Content Blocker</h1>
-    <p class="lede">Rules you write, applied on your machine. Nothing leaves your browser.</p>
-  </div>
-  <label class="switch"><input type="checkbox" id="enabled"> <span>On</span></label>
-</header>
+<div class="app">
 
-<nav class="tabs" aria-label="Sections">
-  <a href="#rules">Rules</a>
-  <a href="#break">Break reminder</a>
-  <a href="#subtitles">Subtitles</a>
-  <a href="#ai">On-device AI</a>
-  <a href="#media">Pictures and sound</a>
-  <a href="#log">Log</a>
-  <a href="#test">Test box</a>
-</nav>
+  <aside class="sidebar"><div class="sidebar-inner">
+    <div class="search"><span data-icon="search" data-size="14"></span><input id="search" type="search" placeholder="Search" autocomplete="off" aria-label="Search settings"></div>
+    <div class="status-card">
+      <img class="app-icon" src="../../icons/icon128.png" alt="" width="36" height="36">
+      <div class="status-text"><strong>Vianney</strong><span id="status-sub"></span></div>
+      <label class="switch" title="Turn Vianney on or off"><input type="checkbox" id="enabled" aria-label="Enable Vianney"><span class="knob"></span></label>
+    </div>
+    <nav id="nav" aria-label="Sections"></nav>
+  </div></aside>
 
-<main>
-  <section id="rules">
-    <h2>Rules</h2>
-    <p class="note">Each rule says how confident it must be before it flags. Move the slider if a rule flags too much or too little. The percentages are placeholders: no labelled data has calibrated them yet.</p>
-    <div id="problems" class="problems" hidden></div>
-    <div id="rule-list"></div>
-    <details class="editor">
-      <summary>Edit the rule text</summary>
-      <p class="note">Rules are plain text. Questions and word lists are drafts; correct them to match what you want filtered.</p>
-      <textarea id="rules-text" spellcheck="false" rows="22"></textarea>
-      <div class="row">
-        <button id="rules-validate">Check</button>
-        <button id="rules-save" class="primary">Save rules</button>
-        <button id="rules-reset">Back to the shipped rules</button>
+  <main class="content">
+    <div class="toolbar">
+      <button class="nav-btn" id="back" aria-label="Back" disabled><span data-icon="chevron-left" data-size="18"></span></button>
+      <button class="nav-btn" id="forward" aria-label="Forward" disabled><span data-icon="chevron-right" data-size="18"></span></button>
+      <span id="toolbar-title" class="toolbar-title"></span>
+      <span id="toolbar-note" class="toolbar-note" role="status" aria-live="polite"></span>
+    </div>
+
+    <!-- ===================================================== Rules -->
+    <section class="pane" id="rules" data-title="Rules" data-icon="shield-check" data-color="indigo">
+      <div class="row-bar">
+        <div class="seg" id="rule-view" role="tablist" aria-label="View">
+          <button role="tab" data-view="compact" aria-selected="true">List</button>
+          <button role="tab" data-view="examples" aria-selected="false">Examples</button>
+        </div>
+        <span class="muted" id="rules-summary"></span>
       </div>
-      <div id="rules-messages" class="messages" aria-live="polite"></div>
-    </details>
-    <div id="lexicons" class="note"></div>
-  </section>
+      <div id="problems" class="problems" hidden></div>
+      <div id="rule-list"></div>
+      <details class="advanced">
+        <summary>Rule text <span data-help="Edit the rules as plain text. Word lists are separate files in the extension's lexicon folder."></span></summary>
+        <textarea id="rules-text" spellcheck="false" rows="18"></textarea>
+        <div class="btn-row">
+          <button id="rules-validate">Validate</button>
+          <button id="rules-save" class="primary">Save</button>
+          <button id="rules-reset">Reset to defaults</button>
+        </div>
+        <div id="rules-messages" class="messages" aria-live="polite"></div>
+        <div id="lexicons" class="muted"></div>
+      </details>
+    </section>
 
-  <section id="break">
-    <h2>Break reminder</h2>
-    <p class="note">After you have watched for a while, a card that looks like a recommendation tells you to take a break. Only time a video is actually playing counts, summed over all YouTube tabs, and it never leaves this machine.</p>
-    <div class="grid">
-      <label class="check"><input type="checkbox" id="brk-enabled"> Remind me</label>
-      <label>After <input type="number" id="brk-after" min="1" step="1"> minutes of watching</label>
-      <label>"Remind me later" waits <input type="number" id="brk-snooze" min="1" step="1"> minutes</label>
-      <label>Count by <select id="brk-period"><option value="session">session (a long pause starts a new one)</option><option value="day">calendar day</option></select></label>
-      <label>A session ends after a pause of <input type="number" id="brk-gap" min="1" step="1"> minutes</label>
-      <label class="check"><input type="checkbox" id="brk-card"> Show the card in lists</label>
-      <label class="check"><input type="checkbox" id="brk-banner"> Show a banner when no list is on the page</label>
-      <label class="wide">Message <input type="text" id="brk-message" placeholder="This is a good moment to take a break."></label>
-    </div>
-    <p id="brk-status" class="note"></p>
-    <div class="row"><button id="brk-test">Show a test reminder now</button><button id="brk-reset">Reset watch time</button></div>
-  </section>
+    <!-- ===================================================== One rule -->
+    <section class="pane" id="rule-detail" hidden></section>
 
-  <section id="subtitles">
-    <h2>Subtitles</h2>
-    <div class="grid">
-      <label class="check"><input type="checkbox" id="sub-feed"> Filter feed cards (title, channel)</label>
-      <label class="check"><input type="checkbox" id="sub-meta"> Check the video page (title, description, keywords)</label>
-      <label class="check"><input type="checkbox" id="sub-subs"> Check the subtitles while watching</label>
-      <label class="check"><input type="checkbox" id="sub-auto"> Turn captions on so the subtitles can be read</label>
-      <label class="check"><input type="checkbox" id="sub-mask"> Mask flagged words in the visible captions</label>
-      <label>Mute starts <input type="number" id="sub-pre" min="0" max="1" step="0.01"> s early</label>
-      <label>and ends <input type="number" id="sub-post" min="0" max="1" step="0.01"> s late</label>
-    </div>
-    <p class="note">Subtitles come from YouTube's own player request, so they are only available once captions are on and the player has loaded them.</p>
-    <p id="sub-diag" class="note"></p>
-  </section>
+    <!-- ===================================================== Break reminder -->
+    <section class="pane" id="break" data-title="Break reminder" data-icon="coffee" data-color="orange"
+             data-about="After a set watch time, a video among the videos, or a comment under a video, quietly suggests a break.">
+      <div class="group">
+        <div class="row"><div class="label">Reminders <span data-help="Counts playing time across all YouTube tabs. Stays on this computer."></span></div><div class="control"><label class="switch"><input type="checkbox" id="brk-enabled"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Remind after</div><div class="control"><input type="number" id="brk-after" min="1" step="1"> <span class="unit">minutes</span></div></div>
+        <div class="row"><div class="label">Snooze duration</div><div class="control"><input type="number" id="brk-snooze" min="1" step="1"> <span class="unit">minutes</span></div></div>
+        <div class="row"><div class="label">Count watch time</div><div class="control"><select id="brk-period"><option value="session">Per session</option><option value="day">Per day</option></select></div></div>
+        <div class="row"><div class="label">Session timeout <span data-help="A longer pause starts a new session and resets the count."></span></div><div class="control"><input type="number" id="brk-gap" min="1" step="1"> <span class="unit">minutes</span></div></div>
+      </div>
+      <div class="group">
+        <div class="row"><div class="label">In video lists <span data-help="The reminder appears as one video among the videos of a list, of a search, or of the recommendations next to a video. It looks like the others; only the picture of St. Jean-Marie Vianney gives it away."></span></div><div class="control"><label class="switch"><input type="checkbox" id="brk-card"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">In comments <span data-help="Under a video, the reminder appears as one comment among the comments, once they have loaded."></span></div><div class="control"><label class="switch"><input type="checkbox" id="brk-comment"><span class="knob"></span></label></div></div>
+        <div class="row stack"><div class="label">Message in the comment <span data-help="The sentence that follows “You’ve been watching for …” in the comment. Left empty, it says “This is a good moment to take a break.”"></span></div><input type="text" id="brk-message" placeholder="This is a good moment to take a break."></div>
+      </div>
+      <p id="brk-status" class="muted"></p>
+      <div class="btn-row"><button id="brk-test">Test reminder</button><button id="brk-reset">Reset watch time</button></div>
+    </section>
 
-  <section id="ai">
-    <h2>On-device AI</h2>
-    <p class="note">Optional. Chrome's built-in model can answer a rule's question when a word list alone cannot decide. Without it, the rules still work from their word lists.</p>
-    <p id="ai-status"></p>
-    <div class="row"><button id="ai-download" hidden>Download and enable the on-device model</button><label class="check"><input type="checkbox" id="ai-enabled"> Use it when available</label></div>
-    <progress id="ai-progress" max="1" value="0" hidden></progress>
-    <p class="note">Chrome asks for about 22 GB of free disk space for the model and removes it again when free space falls below 10 GB.</p>
-  </section>
+    <!-- ===================================================== Scope -->
+    <section class="pane" id="subtitles" data-title="Scope" data-icon="captions" data-color="teal" data-about="Choose what gets checked.">
+      <div class="group">
+        <div class="row"><div class="label">Lists and search results <span data-help="Flagged videos are hidden or dimmed before you see them."></span></div><div class="control"><label class="switch"><input type="checkbox" id="sub-feed"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Recommended videos <span data-help="Flagged videos are hidden or dimmed in the list next to the video you watch."></span></div><div class="control"><label class="switch"><input type="checkbox" id="sub-related"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Video page <span data-help="Checks the title and description of the video you open. A warning can pause it before it starts."></span></div><div class="control"><label class="switch"><input type="checkbox" id="sub-meta"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Comments <span data-help="Flagged comments are blurred. A Show button brings one back."></span></div><div class="control"><label class="switch"><input type="checkbox" id="sub-comments"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Subtitles <span data-help="Flagged words are muted and flagged passages can be skipped. Needs captions to be on and loaded."></span></div><div class="control"><label class="switch"><input type="checkbox" id="sub-subs"><span class="knob"></span></label></div></div>
+      </div>
+      <div class="group-title">Subtitle options</div>
+      <div class="group">
+        <div class="row"><div class="label">Auto-enable captions <span data-help="Turns captions on so their text can be checked."></span></div><div class="control"><label class="switch"><input type="checkbox" id="sub-auto"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Mask visible captions <span data-help="Replaces flagged words in the captions on screen."></span></div><div class="control"><label class="switch"><input type="checkbox" id="sub-mask"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Mute before match <span data-help="Starts the mute this long before the flagged word."></span></div><div class="control"><input type="number" class="narrow" id="sub-pre" min="0" max="1" step="0.01"> <span class="unit">seconds</span></div></div>
+        <div class="row"><div class="label">Mute after match <span data-help="Keeps the mute going this long after the flagged word."></span></div><div class="control"><input type="number" class="narrow" id="sub-post" min="0" max="1" step="0.01"> <span class="unit">seconds</span></div></div>
+      </div>
+      <p id="sub-diag" class="muted"></p>
+    </section>
 
-  <section id="media">
-    <h2>Experimental: pictures and sound <span class="tag">Experimental</span></h2>
-    <p class="note">Uses Chrome's built-in model (Gemini Nano) to look at the thumbnail of every video and to listen to the sound while a video plays. It is slow, it only works where Chrome can run the model with picture and sound input, and it can be wrong in both directions. That is why every part can be switched off, every rule has its own slider, and the lists below always win. Nothing leaves your machine. Off until you switch it on.</p>
-    <label class="check big"><input type="checkbox" id="media-enabled"> Turn on the picture and sound checks</label>
-    <p id="media-status" class="note"></p>
-    <div class="row">
-      <button id="media-download-image" hidden>Download the model for pictures</button>
-      <button id="media-download-audio" hidden>Download the model for sound</button>
-      <button id="media-recheck">Check again</button>
-    </div>
-    <progress id="media-progress" max="1" value="0" hidden></progress>
+    <!-- ===================================================== Clean up -->
+    <section class="pane" id="cleanup" data-title="Clean up" data-icon="eraser" data-color="red" data-about="Hide the extras around videos.">
+      <div class="group">
+        <div class="row"><div class="label">Shorts <span data-help="Hides Shorts shelves, Shorts in results and the Shorts button."></span></div><div class="control"><label class="switch"><input type="checkbox" id="cl-shorts"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Open Shorts as videos <span data-help="Opens a Shorts link in the normal player."></span></div><div class="control"><label class="switch"><input type="checkbox" id="cl-shortsAsVideos"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Games <span data-help="Hides Gaming and Playables."></span></div><div class="control"><label class="switch"><input type="checkbox" id="cl-games"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Movies &amp; TV <span data-help="Hides Movies &amp; TV, its shelves and movie results."></span></div><div class="control"><label class="switch"><input type="checkbox" id="cl-movies"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Explore section <span data-help="Hides Music, Live, Podcasts and the other entries under Explore in the sidebar."></span></div><div class="control"><label class="switch"><input type="checkbox" id="cl-explore"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">More from YouTube <span data-help="Hides Premium, YouTube Music, Kids and Labs in the sidebar."></span></div><div class="control"><label class="switch"><input type="checkbox" id="cl-more"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Music videos <span data-help="Hides videos that YouTube marks as music: the note in front of the length on the thumbnail, and the badge of an official artist channel. Off until you switch it on. Chant and hymns are music too."></span></div><div class="control"><label class="switch"><input type="checkbox" id="cl-music"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Suggestions &amp; banners <span data-help="Hides prompts such as “Recommendations not quite right?” and the topic chips above the feed."></span></div><div class="control"><label class="switch"><input type="checkbox" id="cl-banners"><span class="knob"></span></label></div></div>
+      </div>
+      <div class="group-title">Hide shelves titled <span data-help="One title per line. A shelf whose title contains a line is hidden. Capitals do not matter."></span></div>
+      <div class="group"><div class="row stack"><textarea id="cl-titles" rows="3" spellcheck="false" placeholder="Shelf title"></textarea></div></div>
+    </section>
 
-    <h3>Thumbnails</h3>
-    <div class="grid">
-      <label class="check"><input type="checkbox" id="th-enabled"> Check the thumbnail of every video card</label>
-      <label class="check"><input type="checkbox" id="th-near"> Only cards near the screen, nearest first</label>
-      <label class="check"><input type="checkbox" id="th-hold"> Keep a thumbnail invisible until it has been checked</label>
-      <label>Show it anyway after <input type="number" id="th-hold-s" min="0" step="1"> seconds (0 = never)</label>
-      <label>At most <input type="number" id="th-max" min="1" step="1"> thumbnails per page</label>
-    </div>
-    <p class="note">Each picture rule asks the model one question per prompt wording for every thumbnail, so this takes a while. Hiding the picture until it is checked is the only way to never see a flagged one, but a slow model leaves empty frames. Verdicts are remembered for 30 days.</p>
+    <!-- ===================================================== On-device AI -->
+    <section class="pane" id="ai" data-title="On-device AI" data-icon="cpu" data-color="purple" data-about="Resolves cases the word lists cannot decide.">
+      <div class="group">
+        <div class="row"><div class="label">Use on-device AI</div><div class="control"><label class="switch"><input type="checkbox" id="ai-enabled"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Models to use <span data-help="Automatic asks Kev-0.6B first, and Chrome's own model (Gemini Nano) takes a second look when Kev is unsure. Either one alone works too. Kev-0.6B is downloaded by this extension; Chrome decides which model it has, and an extension cannot choose another."></span></div><div class="control"><select id="ai-backend"><option value="auto">Automatic: Kev-0.6B, then Gemini Nano</option><option value="kev">Kev-0.6B only</option><option value="prompt">Gemini Nano only</option></select></div></div>
+        <div class="row"><div class="label">Model availability <span data-help="Looks at Kev-0.6B (downloaded by this extension) and at Chrome's own model, which Chrome decides on; an extension cannot choose another."></span><div class="sub" id="ai-status"></div></div><div class="control"><button id="ai-check" class="primary">Check</button></div></div>
+      </div>
+      <div id="ai-models" class="models"></div>
+      <div id="ai-advice" class="advice" aria-live="polite"></div>
+      <details class="examples">
+        <summary>Check on the rule examples <span data-help="Runs the example and spared titles of every rule that has a question through the real rules: once with the word lists alone, once with the on-device models behind them. It counts how many examples are flagged and how many spared titles are flagged by mistake. The lines are the rule author's illustrations, not a measurement of accuracy. A question takes about 0.1 s on a graphics chip and about 2 s on the processor (measured on one computer), and only some lines are asked, so a run takes from under a minute to a few minutes."></span></summary>
+        <div class="btn-row"><button id="ai-examples-run">Run the check</button><button id="ai-examples-stop" hidden>Stop</button><progress id="ai-examples-progress" max="1" value="0" hidden></progress><span id="ai-examples-count" class="muted"></span></div>
+        <div id="ai-examples-out" class="result"></div>
+      </details>
+      <details class="machine">
+        <summary>System details <span data-help="Web pages cannot read free disk space or video memory, so Chrome's own availability answer is the real test."></span></summary>
+        <dl id="ai-machine"></dl>
+        <div class="btn-row"><button id="ai-internals">Open Chrome diagnostics</button><span id="ai-internals-note" class="muted"></span></div>
+      </details>
+      <details class="bench">
+        <summary>Benchmark <span data-help="Runs a few test prompts to measure speed on this computer. Nothing is stored or sent."></span></summary>
+        <div class="btn-row"><button id="ai-bench">Run benchmark</button><progress id="ai-bench-progress" max="1" value="0" hidden></progress></div>
+        <div id="ai-bench-out" class="result"></div>
+      </details>
+    </section>
 
-    <h3>Sound</h3>
-    <div class="grid">
-      <label class="check"><input type="checkbox" id="au-enabled"> Listen to the sound while a video plays</label>
-      <label class="check"><input type="checkbox" id="au-nocap"> Only when the video has no readable captions</label>
-      <label>Judge the sound in windows of <input type="number" id="au-window" min="3" max="20" step="1"> seconds</label>
-      <label>Start after <input type="number" id="au-start" min="0" step="1"> seconds</label>
-      <label>At most <input type="number" id="au-max" min="1" step="1"> windows per video</label>
-    </div>
-    <p class="note">A window of sound is judged after it has played. The check can therefore only react to what comes next: pause the video, mute it until a window comes back clean, or show a label. The first seconds of anything are always heard. If the model is slower than the sound, windows are skipped and counted.</p>
+    <!-- ===================================================== Images & Audio -->
+    <section class="pane" id="media" data-title="Images &amp; Audio" data-icon="image" data-color="pink" data-about="Experimental. Analyzes thumbnails and audio on this computer."
+             data-help="Uses Chrome's on-device model. It is slow and can flag wrongly or miss. Allow &amp; Block lists always take precedence.">
+      <div class="group">
+        <div class="row"><div class="label">Enable</div><div class="control"><label class="switch"><input type="checkbox" id="media-enabled"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Compatibility <span id="media-help"></span><div class="sub" id="media-status"></div></div><div class="control"><button id="media-recheck">Recheck</button></div></div>
+      </div>
 
-    <h3>When it is wrong</h3>
-    <div class="grid">
-      <label>Prompts per question
-        <select id="media-votes"><option value="1">1 (fastest)</option><option value="2">2</option><option value="3">3 (slowest, most careful)</option></select>
-      </label>
-      <label class="check"><input type="checkbox" id="media-refusal"> Treat the browser's "unsafe response" refusal as a flag (only for rules that say so)</label>
-      <label class="check"><input type="checkbox" id="media-remember"> Remember videos the sound check flagged, so feeds can hide them next time</label>
-      <label>Such videos in feeds are
-        <select id="media-remembered-action"><option value="hide">hidden</option><option value="dim">dimmed</option><option value="label">labelled</option></select>
-      </label>
-    </div>
-    <p class="note">Every picture and sound rule is in the list of rules above, marked Experimental. A rule that flags too much: lower its slider, or switch it off. A single wrong verdict: use the buttons in the log, or the lists below.</p>
-    <div class="row"><button id="media-clear">Forget remembered verdicts and videos</button></div>
+      <div class="group-title">Thumbnails <span data-help="Each thumbnail is checked once per rule and prompt. Results are cached for 30 days."></span></div>
+      <div class="group">
+        <div class="row"><div class="label">Analyze thumbnails</div><div class="control"><label class="switch"><input type="checkbox" id="th-enabled"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Near viewport only</div><div class="control"><label class="switch"><input type="checkbox" id="th-near"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Hide until checked <span data-help="Never shows a flagged thumbnail, but a slow model leaves empty frames."></span></div><div class="control"><label class="switch"><input type="checkbox" id="th-hold"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Reveal after <span data-help="Shows a thumbnail that is still unchecked after this time. 0 never shows it."></span></div><div class="control"><input type="number" id="th-hold-s" min="0" step="1"> <span class="unit">seconds</span></div></div>
+        <div class="row"><div class="label">Max per page</div><div class="control"><input type="number" id="th-max" min="1" step="1"> <span class="unit">thumbnails</span></div></div>
+      </div>
 
-    <h3>Allow and block lists</h3>
-    <p class="note">A list always wins over a rule, a model and the sliders. One entry per line. For videos: an id or any YouTube address. For channels: the name as YouTube shows it. If a video is on both lists, it is allowed.</p>
-    <div class="grid lists">
-      <label class="wide-col">Never flag these videos <textarea id="list-allowVideos" rows="3" spellcheck="false"></textarea></label>
-      <label class="wide-col">Never flag these channels <textarea id="list-allowChannels" rows="3" spellcheck="false"></textarea></label>
-      <label class="wide-col">Always hide these videos <textarea id="list-denyVideos" rows="3" spellcheck="false"></textarea></label>
-      <label class="wide-col">Always hide these channels <textarea id="list-denyChannels" rows="3" spellcheck="false"></textarea></label>
-    </div>
-    <div id="list-messages" class="messages" aria-live="polite"></div>
+      <div class="group-title">Audio <span data-help="A clip is analyzed after it has played, so a flag affects what comes next: pause, mute until a clean clip, or show a label. If the model is slower than the audio, clips are skipped."></span></div>
+      <div class="group">
+        <div class="row"><div class="label">Analyze audio</div><div class="control"><label class="switch"><input type="checkbox" id="au-enabled"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Only without captions</div><div class="control"><label class="switch"><input type="checkbox" id="au-nocap"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Audio clip length</div><div class="control"><input type="number" id="au-window" min="3" max="20" step="1"> <span class="unit">seconds</span></div></div>
+        <div class="row"><div class="label">Start delay</div><div class="control"><input type="number" id="au-start" min="0" step="1"> <span class="unit">seconds</span></div></div>
+        <div class="row"><div class="label">Max clips per video</div><div class="control"><input type="number" id="au-max" min="1" step="1"> <span class="unit">clips</span></div></div>
+      </div>
 
-    <h3>Try a picture or a sound</h3>
-    <p class="note">Choose a picture or an audio file from your computer. It is judged here with the rules above, exactly like a thumbnail or a window of sound, and goes nowhere.</p>
-    <div class="row"><input type="file" id="media-file" accept="image/*,audio/*"><button id="media-run" class="primary">Evaluate</button></div>
-    <div id="media-result" class="result"></div>
-  </section>
+      <div class="group-title">Accuracy &amp; fallback</div>
+      <div class="group">
+        <div class="row"><div class="label">Prompts per check <span data-help="More prompts are slower and more careful."></span></div><div class="control"><select id="media-votes"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div></div>
+        <div class="row"><div class="label">Flag safety refusals <span data-help="Treats a browser safety refusal as a flag, for rules that allow it."></span></div><div class="control"><label class="switch"><input type="checkbox" id="media-refusal"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Remember flagged videos <span data-help="Lets lists hide them next time."></span></div><div class="control"><label class="switch"><input type="checkbox" id="media-remember"><span class="knob"></span></label></div></div>
+        <div class="row"><div class="label">Remembered videos</div><div class="control"><select id="media-remembered-action"><option value="hide">Hide</option><option value="dim">Dim</option><option value="label">Label</option></select></div></div>
+      </div>
+      <div class="btn-row"><button id="media-clear">Clear media cache</button></div>
 
-  <section id="log">
-    <h2>Log</h2>
-    <div class="row">
-      <label class="check"><input type="checkbox" id="log-flagged"> Only items that were flagged</label>
-      <button id="log-export">Export as JSON</button>
-      <button id="log-clear">Clear</button>
-    </div>
-    <ol id="log-list" class="log"></ol>
-  </section>
+      <div class="group-title">Test a file <span data-help="Analyzes an image or audio file from this computer with the rules above. Nothing is uploaded."></span></div>
+      <div class="btn-row"><input type="file" id="media-file" accept="image/*,audio/*"><button id="media-run" class="primary">Analyze</button></div>
+      <div id="media-result" class="result"></div>
+    </section>
 
-  <section id="test">
-    <h2>Test box</h2>
-    <p class="note">Paste a title, a description or a few lines of subtitles and see which rules react, with their confidence.</p>
-    <div class="row"><select id="test-surface"><option value="feed-card">Feed card (title)</option><option value="watch-meta">Video page (title and description)</option><option value="subtitles">Subtitles</option></select></div>
-    <textarea id="test-text" rows="5" placeholder="Paste text here"></textarea>
-    <div class="row"><button id="test-run" class="primary">Evaluate</button></div>
-    <div id="test-result" class="result"></div>
-  </section>
-</main>
+    <!-- ===================================================== Allow & Block -->
+    <section class="pane" id="lists" data-title="Allow &amp; Block" data-icon="list-checks" data-color="green" data-about="Lists override rules and the model."
+             data-help="One entry per line: a video ID or URL, or a channel name. A video on both lists is allowed.">
+      <div class="group-title">Allowed</div>
+      <div class="group">
+        <div class="row stack"><div class="label">Videos</div><textarea id="list-allowVideos" rows="3" spellcheck="false" placeholder="https://www.youtube.com/watch?v=..."></textarea></div>
+        <div class="row stack"><div class="label">Channels</div><textarea id="list-allowChannels" rows="3" spellcheck="false" placeholder="Channel name"></textarea></div>
+      </div>
+      <div class="group-title">Blocked</div>
+      <div class="group">
+        <div class="row stack"><div class="label">Videos</div><textarea id="list-denyVideos" rows="3" spellcheck="false" placeholder="https://www.youtube.com/watch?v=..."></textarea></div>
+        <div class="row stack"><div class="label">Channels</div><textarea id="list-denyChannels" rows="3" spellcheck="false" placeholder="Channel name"></textarea></div>
+      </div>
+      <div id="list-messages" class="messages" aria-live="polite"></div>
+    </section>
+
+    <!-- ===================================================== Activity -->
+    <section class="pane" id="log" data-title="Activity" data-icon="history" data-color="grey" data-about="Recent checks, newest first.">
+      <div class="row-bar">
+        <label class="check"><input type="checkbox" id="log-flagged"> Flagged only</label>
+        <span class="spacer"></span>
+        <button id="log-export">Export JSON</button>
+        <button id="log-clear">Clear</button>
+      </div>
+      <ol id="log-list" class="log"></ol>
+    </section>
+
+    <!-- ===================================================== Test rules -->
+    <section class="pane" id="test" data-title="Test rules" data-icon="flask-conical" data-color="blue" data-about="See which rules flag a piece of text.">
+      <div class="row-bar"><label class="inline">Test as <select id="test-surface"><option value="feed-card">List title</option><option value="related">Recommended video</option><option value="watch-meta">Video title &amp; description</option><option value="comment">Comment</option><option value="subtitles">Subtitles</option></select></label></div>
+      <textarea id="test-text" rows="5" placeholder="Text to test"></textarea>
+      <div class="btn-row"><button id="test-run" class="primary">Test</button></div>
+      <div id="test-result" class="result"></div>
+    </section>
+  </main>
+</div>
 <script type="module" src="options.js"></script>
 </body>
 </html>

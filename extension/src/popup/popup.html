@@ -2,24 +2,28 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vianney</title>
-<style>
-  :root { color-scheme: light dark; --accent: #7a1f2b; }
-  body { margin: 0; width: 280px; font: 14px/1.5 system-ui, sans-serif; padding: 14px 16px 16px; }
-  h1 { font: 600 16px Georgia, serif; margin: 0 0 8px; }
-  .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 6px 0; }
-  .muted { opacity: .7; font-size: 13px; }
-  button { font: inherit; font-weight: 600; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; width: 100%; margin-top: 10px; }
-  #due { color: var(--accent); font-weight: 600; }
-</style>
+<link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <h1>Vianney Content Blocker</h1>
-  <label class="row"><span>Filtering is on</span><input type="checkbox" id="enabled"></label>
-  <div class="row muted"><span>Flagged today</span><span id="flagged">0</span></div>
-  <div class="row muted"><span>Watch time counted</span><span id="watch">-</span></div>
-  <div id="due" hidden>A break is due.</div>
-  <button id="open">Settings</button>
+  <header class="top">
+    <img class="app-icon" src="../../icons/icon128.png" alt="" width="36" height="36">
+    <div class="who"><strong>Vianney</strong><span id="status"></span></div>
+    <label class="switch" title="Turn Vianney on or off"><input type="checkbox" id="enabled" aria-label="Enable Vianney"><span class="knob"></span></label>
+  </header>
+
+  <div class="seg" id="tabs" role="tablist" aria-label="View">
+    <button role="tab" data-tab="settings" aria-selected="true">Settings</button>
+    <button role="tab" data-tab="activity" aria-selected="false">Activity</button>
+  </div>
+
+  <main id="body">
+    <section id="settings"></section>
+    <section id="activity" hidden></section>
+  </main>
+
+  <footer><button id="open">All settings</button></footer>
   <script type="module" src="popup.js"></script>
 </body>
 </html>

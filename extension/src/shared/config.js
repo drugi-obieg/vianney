@@ -4,6 +4,7 @@
 import { parseRules } from '../core/rules.js';
 import { parseLexicon } from '../core/lexicon.js';
 import { DEFAULTS as BREAK_DEFAULTS } from '../core/breaktimer.js';
+import { CLEANUP_DEFAULTS } from '../core/cleanup.js';
 
 // The shipped rules come in two files: the text rules, and the experimental picture and sound rules.
 // The second file has no header, so the two can be joined into one text.
@@ -13,11 +14,16 @@ export const DEFAULT_SETTINGS = {
   enabled: true,
   rulesText: null,                 // null = the shipped pack
   sensitivity: {},                 // ruleId -> number (0..1) or level name
+  actions: {},                     // ruleId -> {surface: action}: what to do instead of what the rule says
   ruleEnabled: {},                 // ruleId -> boolean
-  surfaces: { feed: true, watchMeta: true, subtitles: true },
+  surfaces: { feed: true, related: true, comments: true, watchMeta: true, subtitles: true },   // feed: lists and search; related: recommended videos on a video page
+  cleanup: { ...CLEANUP_DEFAULTS, shelfTitles: [...CLEANUP_DEFAULTS.shelfTitles] },   // hide Shorts, Games, Movies & TV and other extras
   subtitles: { autoCaptions: true, mutePre: 0.12, mutePost: 0.18, maskVisible: true },
   brk: { ...BREAK_DEFAULTS, message: '' },
-  ai: { enabled: true },
+  // backend: 'auto' = the local model Kev-0.6B first and Chrome's own model as a second look, 'kev' = Kev only, 'prompt' = Chrome's model only.
+  // shots: how many of a rule's examples and spared lines (each side) go to the model beside its question (core/shots.js); 0 = none [choice: 2 of each side, examples
+  // first, was the best of 11 configurations of Kev-0.6B on the rule author's own lines, 3 and 5 were worse: research/kev-accuracy-smoke.md]
+  ai: { enabled: true, backend: 'auto', shots: 2 },
   // Experimental: judge thumbnails and sound with Chrome's on-device model (Gemini Nano). Off until switched on.
   media: {
     enabled: false,
@@ -45,7 +51,9 @@ function mergeInto(base, extra) {
 }
 
 export function mergeSettings(stored) {
-  return mergeInto(DEFAULT_SETTINGS, stored || {});
+  const merged = mergeInto(DEFAULT_SETTINGS, stored || {});
+  delete merged.brk.showBanner;   // the banner is gone (the reminder is a video or a comment now); an old stored setting would only linger
+  return merged;
 }
 
 export async function loadSettings() {
@@ -75,7 +83,7 @@ export async function loadDefaultRulesText() {
 export async function loadPack(settings) {
   const rulesText = settings.rulesText != null ? settings.rulesText : await loadDefaultRulesText();
   const parsed = parseRules(rulesText);
-  const names = new Set(parsed.rules.flatMap((r) => r.lexicon));
+  const names = new Set(parsed.rules.flatMap((r) => [...r.lexicon, ...(r.spareChannel ? [r.spareChannel] : []), ...(r.spareWords ? [r.spareWords] : [])]));
   const lexicons = {};
   const problems = [...parsed.errors.map((e) => ({ where: 'rules', line: e.line, message: e.message }))];
   for (const name of names) {

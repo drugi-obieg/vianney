@@ -1,0 +1,74 @@
+/* The toolbar popup: a small settings panel in the manner of iOS (grouped lists, big switches, a segmented control), for quick changes and a
+   look at the activity without opening the full settings page. Same type and colours as that page (../options/options.css). */
+@font-face { font-family: "Calmet UI"; src: url("../options/fonts/CalmetUI-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Calmet UI"; src: url("../options/fonts/CalmetUI-Italic.ttf") format("truetype"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "Calmet UI"; src: local("Helvetica Neue"), local("HelveticaNeue"), local("Arial"), local("Segoe UI"), local("Liberation Sans"), local("DejaVu Sans"); font-weight: 400; font-style: normal; unicode-range: U+002A; }
+
+:root {
+  --window: #f2f2f7; --card: #ffffff; --line: rgba(60, 60, 67, .14); --text: #1c1c1e; --muted: #6e6e73; --accent: #0a62d4; --accent-ink: #ffffff;
+  --hover: rgba(0, 0, 0, .05); --switch-off: #e5e5ea; --seg: rgba(118, 118, 128, .12); --seg-on: #ffffff; --font: "Calmet UI", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --window: #000000; --card: #1c1c1e; --line: rgba(84, 84, 88, .55); --text: #f5f5f7; --muted: #a1a1a6; --accent: #2f6fe0; --hover: rgba(255, 255, 255, .07); --switch-off: #39393d; --seg: rgba(118, 118, 128, .24); --seg-on: #4a4a4d; color-scheme: dark; }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--window); }
+body { margin: 0; width: 360px; max-height: 580px; overflow-y: auto; background: var(--window); color: var(--text); font: 15px/1.35 var(--font); font-synthesis: none; -webkit-font-smoothing: antialiased; }
+
+.top { display: flex; align-items: center; gap: 11px; padding: 14px 16px 10px; }
+.app-icon { border-radius: 22%; flex: none; }
+.who { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.who strong { font-size: 18px; font-weight: 400; }
+.who span { color: var(--muted); font-size: 12.5px; }
+
+.seg { display: flex; margin: 2px 16px 4px; padding: 2px; border-radius: 9px; background: var(--seg); }
+.seg button { all: unset; flex: 1; text-align: center; padding: 6px 0; border-radius: 7px; cursor: pointer; font-size: 14px; }
+.seg button[aria-selected="true"] { background: var(--seg-on); box-shadow: 0 1px 3px rgba(0, 0, 0, .25); }
+.seg button:focus-visible { outline: 2px solid var(--accent); }
+
+main { padding: 0 16px 6px; }
+.group-title { margin: 16px 16px 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.group { background: var(--card); border-radius: 12px; overflow: hidden; }
+.group + .group { margin-top: 10px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 7px 14px; position: relative; }
+.row + .row::before { content: ""; position: absolute; top: 0; left: 14px; right: 0; border-top: 1px solid var(--line); }
+.row .label { flex: 1; min-width: 0; }
+.row .value { color: var(--muted); }
+.off .group, .off .group-title { opacity: .5; pointer-events: none; }
+.callout { margin: 10px 0 0; padding: 10px 14px; border-radius: 12px; background: var(--accent); color: var(--accent-ink); }
+
+/* a switch the size of the one in iOS */
+.switch { position: relative; display: inline-block; width: 51px; height: 31px; flex: none; }
+.switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; z-index: 1; width: 100%; height: 100%; }
+.switch .knob { position: absolute; inset: 0; border-radius: 16px; background: var(--switch-off); transition: background .18s; }
+.switch .knob::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, .3); transition: transform .18s; }
+.switch input:checked + .knob { background: var(--accent); }
+.switch input:checked + .knob::after { transform: translateX(20px); }
+.switch input:focus-visible + .knob { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* a stepper: minus and plus in one pill */
+.stepper { display: inline-flex; border-radius: 8px; background: var(--seg); overflow: hidden; }
+.stepper button { all: unset; width: 42px; height: 30px; display: grid; place-items: center; cursor: pointer; font-size: 20px; line-height: 1; }
+.stepper button + button { border-left: 1px solid var(--line); }
+.stepper button:hover { background: var(--hover); }
+.stepper button:focus-visible { outline: 2px solid var(--accent); }
+
+.entry { display: block; padding: 9px 14px; position: relative; }
+.entry + .entry::before { content: ""; position: absolute; top: 0; left: 14px; right: 0; border-top: 1px solid var(--line); }
+.entry .title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.entry .meta { color: var(--muted); font-size: 12.5px; margin-top: 1px; }
+.entry .acts { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
+.empty { padding: 16px 14px; color: var(--muted); text-align: center; }
+
+button.pill { all: unset; cursor: pointer; font-size: 13px; padding: 3px 11px; border-radius: 13px; background: var(--seg); }
+button.pill:hover { background: var(--hover); }
+button.pill:disabled { opacity: .5; cursor: default; }
+button.pill:focus-visible { outline: 2px solid var(--accent); }
+
+footer { padding: 10px 16px 16px; }
+footer button { all: unset; box-sizing: border-box; display: block; width: 100%; text-align: center; padding: 11px 0; border-radius: 12px; background: var(--card); color: var(--accent); cursor: pointer; }
+footer button:hover { background: var(--hover); }
+footer button:focus-visible { outline: 2px solid var(--accent); }
