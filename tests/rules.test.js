@@ -124,6 +124,14 @@ rule audio_coarse
   action: mute-next
 `;
 
+test('"blackout" is a thumbnail action, and only a thumbnail action', () => {
+  const ok = parseRules('rule a\n  where: thumbnail\n  ask noul: q\n  action: thumbnail=blackout\n');
+  assert.deepEqual(ok.errors, []);
+  assert.equal(ok.rules[0].action.thumbnail, 'blackout');
+  const bad = parseRules('rule a\n  where: feed-card\n  lexicon: x\n  action: feed-card=blackout\n');
+  assert.ok(bad.errors.some((e) => /not valid for feed-card/.test(e.message)));
+});
+
 test('rules can look at thumbnails and sound, with media actions and the refusal key', () => {
   const { rules, errors } = parseRules(MEDIA);
   assert.deepEqual(errors, []);

@@ -272,6 +272,72 @@ test('without a media-capable backend nothing is flagged and the rules say they 
   assert.equal((await mediaEngine(null).evaluateMedia('audio', { id: 'v', window: 0, media: {} })).flagged.length, 0);
 });
 
+test('the user can choose another action for a rule and surface; an action the surface does not know is ignored', async () => {
+  const be = new FakeMediaBackend(() => ({ p: 1 }));
+  const e = mediaEngine(be, { actions: { immodest_images: { thumbnail: 'blackout' }, explicit_images: { thumbnail: 'mute-word' } } });
+  const v = await e.evaluateMedia('thumbnail', { id: 'vid', media: {} });
+  const by = Object.fromEntries(v.results.map((r) => [r.ruleId, r.action]));
+  assert.equal(by.immodest_images, 'blackout', 'the choice replaces the rule\'s "blur"');
+  assert.equal(by.explicit_images, 'hide', '"mute-word" is not a picture action, so the rule\'s own action stays');
+  assert.equal(v.action, 'hide');
+  assert.equal(e.actionFor({ id: 'nothing_set', action: { thumbnail: 'blur' } }, 'thumbnail'), 'blur');
+});
+
+test('blackout is stronger than blur and weaker than hide when several rules flag the same picture', async () => {
+  const { strongestAction } = await import('../extension/src/core/engine.js');
+  assert.equal(strongestAction(['blur', 'blackout']), 'blackout');
+  assert.equal(strongestAction(['blackout', 'hide']), 'hide');
+  assert.equal(strongestAction(['dim', 'blackout', 'label']), 'blackout');
+});
+
+test('a chosen action applies to titles and subtitles too', async () => {
+  const e = engine({ actions: { coarse: { 'feed-card': 'dim', subtitles: 'skip-segment' } } });
+  assert.equal((await e.evaluate({ title: 'This is fucking great', channel: 'x' }, 'feed-card')).action, 'dim');
+  const tokens = tokenize('well this is fucking great').map((t, i) => ({ ...t, start: i, end: i + 0.5 }));
+  const d = await e.evaluateSubtitles(tokens);
+  assert.equal(d[0].action, 'skip-segment');
+});
+
+test('the quick (synchronous, word-list only) verdict equals the full verdict whenever no model can add to it', async () => {
+  const titles = ['This is fucking great', 'Total crap', 'oh my god look', 'Jesus Christ is Lord', 'thank god it is friday', 'exposed: the drama', 'Friday Vespers, Lord have mercy', '', 'plain title'];
+  for (const settings of [{}, { sensitivity: { coarse: 0.5, lords: 0.1 } }, { ruleEnabled: { coarse: false } }]) {
+    const e = engine(settings);
+    for (const title of titles) {
+      for (const surface of ['feed-card', 'subtitles']) {
+        const item = { title, channel: 'x', text: title };
+        const quick = e.evaluateQuick(item, surface);
+        const full = await e.evaluate(item, surface);
+        assert.deepEqual(quick.ps, full.ps, `${title} / ${surface}`);
+        assert.deepEqual(quick.flagged.map((r) => r.ruleId), full.flagged.map((r) => r.ruleId), `${title} / ${surface}`);
+        assert.equal(quick.action, full.action, `${title} / ${surface}`);
+        assert.equal(quick.undecided, false, 'without a backend nothing is undecided');
+      }
+    }
+  }
+});
+
+test('quick verdicts say when a model could still add a flag, and a model answer only ever adds to them', async () => {
+  const be = new FakeBackend({ p: 1 });
+  be.enabled = true;
+  const e = engine({}, be);
+  // "exposed" is a 0.5 cue for gossip (flag at 0.7): inside the uncertain band, so a model could still flag it
+  const quick = e.evaluateQuick({ title: 'exposed by his friend', channel: '' }, 'feed-card');
+  assert.equal(quick.flagged.length, 0);
+  assert.equal(quick.undecided, true);
+  assert.equal(be.calls.length, 0, 'the quick stage never asks the model');
+  const full = await e.evaluate({ title: 'exposed by his friend', channel: '' }, 'feed-card');
+  assert.deepEqual(full.flagged.map((r) => r.ruleId), ['gossip']);
+  // a strong word-list hit is decided without the model
+  const strong = e.evaluateQuick({ title: 'This is fucking great', channel: '' }, 'feed-card');
+  assert.equal(strong.top.ruleId, 'coarse');
+  assert.equal(strong.undecided, false);
+  for (const title of ['This is fucking great', 'oh my god look', 'exposed by his friend']) {
+    const q = e.evaluateQuick({ title, channel: '' }, 'feed-card').flagged.map((r) => r.ruleId);
+    const f = (await e.evaluate({ title, channel: '' }, 'feed-card')).flagged.map((r) => r.ruleId);
+    for (const id of q) assert.ok(f.includes(id), `${title}: a quick flag (${id}) must survive the full evaluation`);
+  }
+});
+
 test('pictures and sound do not depend on the switch for the text questions', async () => {
   const be = new FakeMediaBackend(() => ({ p: 1 }));
   be.enabled = false; // "use the on-device AI for rules" is off

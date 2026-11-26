@@ -1,19 +1,53 @@
 // Parser for the plain-text rule format (see plan.md section 5 and extension/rules/*.rules).
 
-export const TEXT_SURFACES = ['feed-card', 'watch-meta', 'subtitles'];
+// feed-card: a video in a list, in search results or on the home page. related: a recommended video next to the one you watch (a card like
+// any other, but with a switch and an action of its own). comment: a comment under a video. watch-meta: the title and description of the video
+// you opened. subtitles: what is said in it.
+export const TEXT_SURFACES = ['feed-card', 'related', 'comment', 'watch-meta', 'subtitles'];
 // Experimental: judged by the on-device model from a thumbnail picture or from a few seconds of sound.
 export const MEDIA_SURFACES = ['thumbnail', 'audio'];
 export const SURFACES = [...TEXT_SURFACES, ...MEDIA_SURFACES];
 export const ACTIONS = {
   'feed-card': ['hide', 'blank', 'dim', 'label'],
+  related: ['hide', 'blank', 'dim', 'label'],
+  comment: ['hide', 'blur', 'dim', 'label'], // blur: the comment stays, unreadable, with a Show button
   'watch-meta': ['warn-overlay', 'label'],
   subtitles: ['mute-word', 'skip-segment', 'censor-caption'],
-  thumbnail: ['blur', 'hide', 'blank', 'dim', 'label'],
+  thumbnail: ['blur', 'blackout', 'hide', 'blank', 'dim', 'label'], // blackout: the picture becomes pure black, the card and its title stay
   audio: ['pause-overlay', 'mute-next', 'label'],
 };
-export const DEFAULT_ACTION = { 'feed-card': 'hide', 'watch-meta': 'warn-overlay', subtitles: 'mute-word', thumbnail: 'blur', audio: 'pause-overlay' };
+// A rule that names no action for a surface gets this. A recommended video takes the action the rule gives a feed card, because it is
+// the same kind of thing; a comment is blurred rather than removed, so that a false alarm costs one click and the conversation stays whole.
+export const DEFAULT_ACTION = { 'feed-card': 'hide', related: 'hide', comment: 'blur', 'watch-meta': 'warn-overlay', subtitles: 'mute-word', thumbnail: 'blur', audio: 'pause-overlay' };
 
-const RULE_KEYS = new Set(['title', 'source', 'where', 'lexicon', 'gate', 'flag at', 'action', 'enabled', 'levels', 'refusal']);
+// name, plain, group, example, spared: how the rule is shown to a person (settings page). They never change what a rule does.
+//   name     the plain name ("God's name in vain"); `title` stays the traditional name
+//   plain    one sentence in plain words
+//   group    which heading of the list it sits under
+//   example  a title the rule catches (repeatable; for text rules the tests check that it really does)
+//   spared   a title that looks similar but is left alone (repeatable)
+// confirm: model  a word-list hit at or above `flag at` is not final when an on-device model is there: the model is asked the rule's question too, and a clear
+//          "no" (below VETO_BELOW in sensitivity.js) overrules the hit. For rules that flag an ideology but must spare what warns against it (Freemasonry, Communism):
+//          the words are the same on both sides, only a model can tell the invitation from the warning. Without a model the word list decides alone. Needs an "ask" line.
+// The examples and the spared lines are also shown to the model beside the question (core/shots.js), the nearest ones, so a rule teaches the model by its own lines.
+// A line may name the channel it comes from after " @ " ("Ouija Boards @ Ascent of Mount Carmel"): splitLine() gives the title and the channel, which tests, the check on the
+// rule examples and the examples for the model use as the engine does with a card (a title and a channel).
+// spare words: <word list>  when the text of the card (title and channel) hits this word list, a strong word-list hit of this rule is lowered like that: for the rules about
+//          books, a title about the LIFE or the history of the author (biography, born, died, exile, "influence on") is not about his works, which are what the Index forbade
+//          (the owner, 2026-11-26: "it's about the life of the person David Hume (historical), not 'opera omnia' (his works), that's the difficulty"); the model decides.
+// spare channel: <word list>  when the CHANNEL name of a card hits this word list (Catholic, Apostolic, Carmel, ...), a strong word-list hit of this rule is lowered to the
+//          top of the uncertain band: the model decides, and without a model the card is not flagged. A video about an error from a channel that is itself Catholic is
+//          most likely a warning against it (the owner's reading, 2026-11-26); only for rules about errors, not for rules about books ("videos that discuss these authors").
+const RULE_KEYS = new Set(['title', 'name', 'plain', 'group', 'example', 'spared', 'source', 'where', 'lexicon', 'gate', 'flag at', 'band', 'action', 'enabled', 'levels', 'refusal', 'confirm', 'spare channel', 'spare words']);
+
+/** A line of examples may end in " @ <channel>": the title and the channel of the card it stands for. */
+export function splitLine(line) {
+  const s = String(line);
+  const i = s.lastIndexOf(' @ ');
+  if (i < 1) return { title: s, channel: '' };
+  const channel = s.slice(i + 3).trim();
+  return channel && channel.length <= 80 ? { title: s.slice(0, i).trim(), channel } : { title: s, channel: '' };
+}
 
 function stripComment(v) {
   return v.replace(/\s+#.*$/, '').trim();
@@ -45,8 +79,8 @@ export function parseRules(text) {
     const ruleHead = line.match(/^rule\s+([a-z0-9_]+)\s*(?:#.*)?$/);
     if (ruleHead) {
       cur = {
-        id: ruleHead[1], title: ruleHead[1], source: '', where: [], lexicon: [], asks: [], gate: null,
-        flagAtRaw: null, flagAt: 0.7, actionRaw: null, action: {}, enabled: true, refusal: 'ignore', line: n,
+        id: ruleHead[1], title: ruleHead[1], name: '', plain: '', group: '', examples: [], spared: [], source: '', where: [], lexicon: [], asks: [], gate: null,
+        flagAtRaw: null, flagAt: 0.7, band: null, actionRaw: null, action: {}, enabled: true, refusal: 'ignore', confirm: 'none', spareChannel: '', spareWords: '', line: n,
       };
       lastAsk = null;
       rules.push(cur);
@@ -79,14 +113,23 @@ export function parseRules(text) {
 
     switch (key) {
       case 'title': cur.title = value.trim(); break;
+      case 'name': cur.name = value.trim(); break;
+      case 'plain': cur.plain = value.trim(); break;
+      case 'group': cur.group = stripComment(value); break;
+      case 'example': if (value.trim()) cur.examples.push(value.trim()); break;
+      case 'spared': if (value.trim()) cur.spared.push(value.trim()); break;
       case 'source': cur.source = value.trim(); break;
       case 'where': cur.where = list(value); break;
       case 'lexicon': cur.lexicon = list(value); break;
       case 'gate': cur.gate = stripComment(value); break;
       case 'flag at': cur.flagAtRaw = stripComment(value); break;
+      case 'band': { const b = Number(stripComment(value)); if (!(b >= 0 && b <= 1)) fail(n, `rule ${cur.id}: "band" must be a number between 0 and 1`); else cur.band = b; break; }
       case 'action': cur.actionRaw = stripComment(value); break;
       case 'enabled': cur.enabled = stripComment(value) !== 'false'; break;
       case 'refusal': cur.refusal = stripComment(value); break;
+      case 'confirm': cur.confirm = stripComment(value); break;
+      case 'spare channel': cur.spareChannel = stripComment(value); break;
+      case 'spare words': cur.spareWords = stripComment(value); break;
       case 'levels':
         if (!lastAsk || lastAsk.type !== 'score') fail(n, '"levels" belongs under an "ask score" line');
         else lastAsk.levels = list(value);
@@ -99,6 +142,7 @@ export function parseRules(text) {
   for (const r of rules) {
     if (seen.has(r.id)) fail(r.line, `duplicate rule id "${r.id}"`);
     seen.add(r.id);
+    if (!r.name) r.name = r.title; // the plain name defaults to the title
 
     if (!r.where.length) fail(r.line, `rule ${r.id}: "where" is missing`);
     for (const w of r.where) if (!SURFACES.includes(w)) fail(r.line, `rule ${r.id}: unknown surface "${w}"`);
@@ -115,6 +159,13 @@ export function parseRules(text) {
     }
     if (r.gate === null) r.gate = r.lexicon.length ? 'lexicon' : 'always';
     if (r.gate !== 'lexicon' && r.gate !== 'always') fail(r.line, `rule ${r.id}: gate must be "lexicon" or "always"`);
+    if (r.confirm !== 'model' && r.confirm !== 'none') fail(r.line, `rule ${r.id}: confirm must be "model" or "none"`);
+    else if (r.confirm === 'model' && !r.asks.some((a) => a.type === 'noul')) fail(r.line, `rule ${r.id}: "confirm: model" needs an "ask noul" question to ask`);
+    else if (r.confirm === 'model' && !r.lexicon.length) fail(r.line, `rule ${r.id}: "confirm: model" confirms word-list hits, so it needs a lexicon`);
+    if (r.spareChannel && !r.lexicon.length) fail(r.line, `rule ${r.id}: "spare channel" lowers word-list hits, so it needs a lexicon`);
+    if (r.spareChannel && !/^[a-z0-9_]+$/.test(r.spareChannel)) fail(r.line, `rule ${r.id}: "spare channel" names a word list (letters, digits and underscores)`);
+    if (r.spareWords && !r.lexicon.length) fail(r.line, `rule ${r.id}: "spare words" lowers word-list hits, so it needs a lexicon`);
+    if (r.spareWords && !/^[a-z0-9_]+$/.test(r.spareWords)) fail(r.line, `rule ${r.id}: "spare words" names a word list (letters, digits and underscores)`);
 
     // a score question without usable levels was already reported above; ignore it from here on
     const scoreAsk = r.asks.find((a) => a.type === 'score' && a.levels && a.levels.length >= 2);
@@ -151,7 +202,7 @@ export function parseRules(text) {
     if (bare && !SURFACES.some((s) => ACTIONS[s].includes(bare))) fail(r.line, `rule ${r.id}: unknown action "${bare}"`);
     for (const s of r.where) {
       if (!SURFACES.includes(s)) continue;
-      r.action[s] = explicit[s] || (bare && ACTIONS[s].includes(bare) ? bare : DEFAULT_ACTION[s]);
+      r.action[s] = explicit[s] || (s === 'related' && explicit['feed-card']) || (bare && ACTIONS[s].includes(bare) ? bare : DEFAULT_ACTION[s]);
     }
   }
 

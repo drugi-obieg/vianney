@@ -2,7 +2,8 @@
 //
 // Cascade for one rule and one piece of text (plan.md section 4.2):
 //   1. lexicon hits give p_lex = the heaviest weight among the hits (0 when there is no hit);
-//   2. if p_lex already reaches the rule's flag-at level the rule fires, no model is asked;
+//   2. if p_lex already reaches the rule's flag-at level the rule fires, no model is asked (except for a rule with `confirm: model`: when a model is there it is
+//      asked as well, and a clear "no" overrules the hit; without a model the word list decides alone);
 //   3. otherwise, if the rule has questions, a backend is available and the gate allows it
 //      (gate "lexicon" = only after at least one cue, gate "always" = every time), the model answers
 //      and its answer becomes p;
@@ -11,9 +12,11 @@
 
 import { tokenize, hashText, maskTokens } from './text.js';
 import { makeMatcher, maxWeight } from './lexicon.js';
-import { flagAtFor, uncertainFloor, isFlagged } from './sensitivity.js';
+import { flagAtFor, uncertainFloor, isFlagged, VETO_BELOW, SPARE_DROP } from './sensitivity.js';
+import { withExamples } from './shots.js';
+import { ACTIONS } from './rules.js';
 
-const SEVERITY = { hide: 5, blank: 4, 'warn-overlay': 4, 'pause-overlay': 4, 'skip-segment': 4, blur: 3, 'mute-next': 3, 'mute-word': 3, 'censor-caption': 2, dim: 2, label: 1 };
+const SEVERITY = { hide: 5, blank: 4, 'warn-overlay': 4, 'pause-overlay': 4, 'skip-segment': 4, blackout: 3.5, blur: 3, 'mute-next': 3, 'mute-word': 3, 'censor-caption': 2, dim: 2, label: 1 };
 
 export function strongestAction(actions) {
   return actions.reduce((best, a) => (!best || (SEVERITY[a] || 0) > (SEVERITY[best] || 0) ? a : best), null);
@@ -43,6 +46,15 @@ export class Engine {
     this.cache.clear();
   }
 
+  /**
+   * What happens when a rule flags on a surface: the user's choice in the settings (settings.actions[ruleId][surface]),
+   * if it is one this surface knows, otherwise the action written in the rule.
+   */
+  actionFor(rule, surface) {
+    const mine = this.settings.actions && this.settings.actions[rule.id] && this.settings.actions[rule.id][surface];
+    return mine && ACTIONS[surface] && ACTIONS[surface].includes(mine) ? mine : rule.action[surface];
+  }
+
   isEnabled(rule) {
     const o = this.settings.ruleEnabled ? this.settings.ruleEnabled[rule.id] : undefined;
     return o === undefined ? rule.enabled : !!o;
@@ -53,7 +65,7 @@ export class Engine {
   }
 
   textFor(item, surface) {
-    if (surface === 'subtitles') return item.text || '';
+    if (surface === 'subtitles' || surface === 'comment') return item.text || '';
     if (surface === 'watch-meta') return [item.title, item.channel, item.description, item.keywords].filter(Boolean).join('\n');
     return [item.title, item.channel].filter(Boolean).join('\n');
   }
@@ -62,16 +74,27 @@ export class Engine {
     return !!this.backend && this.backend.enabled !== false;
   }
 
-  /** Ask the model all questions of a rule; the highest p wins. Returns {p} or {error}. */
-  async ask(rule, text) {
-    const key = rule.id + '|' + hashText(text);
+  /** How many examples of each side go beside a question (settings.ai.shots; none when the settings say nothing, as in the first tests). */
+  shots() {
+    const n = this.settings && this.settings.ai ? Number(this.settings.ai.shots) : 0;
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  /** The yes/no question as the model gets it: the rule's own, with the nearest of the rule's examples and spared lines after it (core/shots.js). */
+  questionFor(rule, q, text, leaveOut) {
+    return q.type === 'noul' ? withExamples(q.question, rule, { shots: this.shots(), text, leaveOut }) : q.question;
+  }
+
+  /** Ask the model all questions of a rule; the highest p wins. Returns {p} or {error}. `leaveOut` is a line of the rule that must not be shown as an example. */
+  async ask(rule, text, leaveOut = null) {
+    const key = `${rule.id}|${hashText(text)}|${this.shots()}|${leaveOut ? hashText(leaveOut) : ''}`;
     if (this.cache.has(key)) return this.cache.get(key);
     let best = null;
     let error = null;
     for (const q of rule.asks) {
       let r;
       try {
-        if (q.type === 'noul') r = await this.backend.askNoul(q.question, text);
+        if (q.type === 'noul') r = await this.backend.askNoul(this.questionFor(rule, q, text, leaveOut), text);
         else r = await this.backend.askScore(q.question, q.levels, text);
       } catch (e) {
         r = { p: null, error: String((e && e.name) || e) };
@@ -84,28 +107,57 @@ export class Engine {
     return out;
   }
 
-  /** Evaluate one rule on some text. */
-  async evalRule(rule, text) {
+  /**
+   * The deterministic stage of one rule: what the word lists say, and whether a model could still change the answer. `channel` is the channel name of the card:
+   * for a rule with `spare channel`, a channel name that hits that word list (a Catholic channel) lowers a strong hit to just under the flag level, into the
+   * band where a model decides (and where, with no model, nothing is flagged); so does a text that hits the list of a rule's `spare words` (the life of an author
+   * is not his books).
+   */
+  lexiconStage(rule, text, channel = '') {
     const tokens = tokenize(text);
     const hits = rule.lexicon.length ? this.matcher.match(tokens, rule.lexicon) : [];
-    const pLex = maxWeight(hits);
+    let pLex = maxWeight(hits);
     const flagAt = flagAtFor(rule, this.settings);
-    let p = pLex;
-    let via = pLex > 0 ? 'lexicon' : 'none';
-    let modelError = null;
-    const low = uncertainFloor(flagAt);
+    let channelSpared = false;
+    let wordsSpared = false;
+    if (pLex >= flagAt - 1e-9) {
+      if (rule.spareChannel && channel && this.matcher.match(tokenize(channel), [rule.spareChannel]).length) channelSpared = true;
+      if (rule.spareWords && this.matcher.match(tokens, [rule.spareWords]).length) wordsSpared = true;
+      if (channelSpared || wordsSpared) pLex = Math.min(pLex, flagAt - SPARE_DROP);
+    }
+    const low = uncertainFloor(flagAt, rule.band === null ? undefined : rule.band);
     // The model is only asked inside the uncertain band (or always, for gate "always" rules).
     const needsModel = rule.asks.length > 0 && pLex < flagAt - 1e-9
       && (rule.gate === 'always' || (hits.length > 0 && pLex >= low - 1e-9));
+    // a strong hit that the rule wants the model to look at too (`confirm: model`): the model may overrule it
+    const needsConfirm = rule.confirm === 'model' && rule.asks.length > 0 && hits.length > 0 && pLex >= flagAt - 1e-9;
+    return { tokens, hits, pLex, flagAt, low, needsModel, needsConfirm, channelSpared, wordsSpared };
+  }
+
+  /** Evaluate one rule on some text. `opts.leaveOut`: a line of the rule that is not shown to the model as an example (the check on the rule's own examples). */
+  async evalRule(rule, text, opts = {}) {
+    const { tokens, hits, pLex, flagAt, low, needsModel, needsConfirm, channelSpared, wordsSpared } = this.lexiconStage(rule, text, opts.channel || '');
+    let p = pLex;
+    let via = pLex > 0 ? 'lexicon' : 'none';
+    let modelError = null;
+    let vetoed = false;
     if (needsModel && this.modelUsable()) {
-      const m = await this.ask(rule, text);
+      const m = await this.ask(rule, text, opts.leaveOut);
       if (typeof m.p === 'number') { p = m.p; via = 'model'; } else modelError = m.error;
+    } else if (needsConfirm && this.modelUsable()) {
+      const m = await this.ask(rule, text, opts.leaveOut);
+      if (typeof m.p !== 'number') modelError = m.error;                   // no answer: the word list stands
+      else if (m.p < VETO_BELOW) { p = m.p; via = 'model'; vetoed = true; } // a clear no overrules it
+      else via = 'lexicon+model';                                           // confirmed, or not sure enough to overrule
     }
     return {
       ruleId: rule.id,
       p,
       pLex,
       flagAt,
+      vetoed,
+      channelSpared,
+      wordsSpared,
       flagged: isFlagged(p, flagAt),
       uncertain: p > 0 && p < flagAt && p >= low - 1e-9,
       via,
@@ -171,8 +223,8 @@ export class Engine {
     const results = [];
     for (const rule of this.rulesFor(surface)) {
       const r = await this.evalMediaRule(rule, surface, item);
-      r.action = rule.action[surface];
-      r.title = rule.title;
+      r.action = this.actionFor(rule, surface);
+      r.title = rule.name;
       results.push(r);
     }
     const flagged = results.filter((r) => r.flagged).sort((a, b) => b.p - a.p);
@@ -192,21 +244,49 @@ export class Engine {
       const rule = this.rules.find((r) => r.id === b.rule);
       if (!rule || !this.isEnabled(rule) || typeof b.p !== 'number') continue;
       const flagAt = flagAtFor(rule, this.settings);
-      if (isFlagged(b.p, flagAt)) flagged.push({ ruleId: rule.id, title: rule.title, p: b.p, flagAt, via: 'remembered' });
+      if (isFlagged(b.p, flagAt)) flagged.push({ ruleId: rule.id, title: rule.name, p: b.p, flagAt, via: 'remembered' });
     }
     flagged.sort((a, b) => b.p - a.p);
     return { flagged, top: flagged[0] || null };
   }
 
-  /** Evaluate a card or a video page against every enabled rule for the surface. */
-  async evaluate(item, surface) {
+  /**
+   * The deterministic stage alone, for every enabled rule, synchronously: what the word lists decide without any model.
+   * The feed filter applies this in the same task in which a card appears, so a card the word lists flag is never painted.
+   * A model can ADD flags to this (it answers below the flag-at level) and, for a rule with `confirm: model`, take one away again (a clear "no" overrules a
+   * strong hit): the hit is applied first all the same, because content that the words flag must not be painted while the model thinks, and the slow path
+   * puts the card back if the model overrules it. `undecided` is true when a model could still change the answer of this.
+   */
+  evaluateQuick(item, surface) {
+    const text = this.textFor(item, surface);
+    const results = [];
+    let undecided = false;
+    for (const rule of this.rulesFor(surface)) {
+      if (!text.trim()) continue;
+      const { tokens, hits, pLex, flagAt, low, needsModel, needsConfirm, channelSpared, wordsSpared } = this.lexiconStage(rule, text, item.channel || '');
+      if ((needsModel || needsConfirm) && this.modelUsable()) undecided = true;
+      results.push({
+        ruleId: rule.id, title: rule.name, action: this.actionFor(rule, surface),
+        p: pLex, pLex, flagAt, channelSpared, wordsSpared, flagged: isFlagged(pLex, flagAt), uncertain: pLex > 0 && pLex < flagAt && pLex >= low - 1e-9,
+        via: pLex > 0 ? 'lexicon' : 'none', needsModel: needsModel && !this.modelUsable(), modelError: null,
+        hits: hits.slice(0, 6).map((h) => ({ entry: h.entry, weight: h.weight, text: tokens.slice(h.from, h.to + 1).map((t) => t.raw).join(' ') })),
+      });
+    }
+    const flagged = results.filter((r) => r.flagged).sort((a, b) => b.p - a.p);
+    const ps = {};
+    for (const r of results) if (r.p > 0) ps[r.ruleId] = r.p;
+    return { surface, results, flagged, ps, action: strongestAction(flagged.map((r) => r.action)), top: flagged[0] || null, undecided };
+  }
+
+  /** Evaluate a card or a video page against every enabled rule for the surface. `opts.leaveOut`: see evalRule. */
+  async evaluate(item, surface, opts = {}) {
     const text = this.textFor(item, surface);
     const results = [];
     for (const rule of this.rulesFor(surface)) {
       if (!text.trim()) continue;
-      const r = await this.evalRule(rule, text);
-      r.action = rule.action[surface];
-      r.title = rule.title;
+      const r = await this.evalRule(rule, text, { ...opts, channel: item.channel || '' });
+      r.action = this.actionFor(rule, surface);
+      r.title = rule.name;
       results.push(r);
     }
     const flagged = results.filter((r) => r.flagged).sort((a, b) => b.p - a.p);
@@ -246,7 +326,7 @@ export class Engine {
       if (!rule.lexicon.length) continue;
       const hits = this.matcher.match(tokens, rule.lexicon);
       const flagAt = flagAtFor(rule, this.settings);
-      const low = uncertainFloor(flagAt);
+      const low = uncertainFloor(flagAt, rule.band === null ? undefined : rule.band);
       for (const h of hits) {
         let p = h.weight;
         let via = 'lexicon';
@@ -261,11 +341,12 @@ export class Engine {
         }
         if (!isFlagged(p, flagAt)) continue;
         // Skipping a passage means skipping the whole stretch the model judged, not only the cue words.
-        const wide = via === 'model' && rule.action.subtitles === 'skip-segment' && win;
+        const action = this.actionFor(rule, 'subtitles');
+        const wide = via === 'model' && action === 'skip-segment' && win;
         const first = wide ? tokens[win.a] : tokens[h.from];
         const last = wide ? tokens[win.b] : tokens[h.to];
         decisions.push({
-          ruleId: rule.id, title: rule.title, action: rule.action.subtitles, p, flagAt, via,
+          ruleId: rule.id, title: rule.name, action, p, flagAt, via,
           from: h.from, to: h.to, entry: h.entry,
           text: tokens.slice(h.from, h.to + 1).map((t) => t.raw).join(' '),
           start: first && first.start, end: last && last.end,
