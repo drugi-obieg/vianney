@@ -36,7 +36,7 @@ CONTEXT_SITE = """\
 # Vianney Content Blocker: the website
 
 The website of a Chrome extension that hides YouTube content its user decided against (word lists, and an optional on-device model). It is a
-Jekyll site on GitHub Pages. Its name and idea come from St. Jean-Marie Vianney, the Curé of Ars. The text is English. The readers are people who might
+Jekyll site, served from Cloudflare Pages. Its name and idea come from St. Jean-Marie Vianney, the Curé of Ars. The text is English. The readers are people who might
 install a test build, and people interested in the project.
 
 Three pages, as little text as possible on each:

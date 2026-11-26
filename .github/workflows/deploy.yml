@@ -1,0 +1,101 @@
+name: Deploy to Cloudflare Pages
+
+# The website (Jekyll) is built the way GitHub Pages builds a Jekyll site and is served from Cloudflare Pages at https://vianney.cc.
+#
+# This repository is public, so the workflow runs for a push to main and by hand, and for nothing else (never for a pull request); the two secrets reach only the steps that
+# use them (the job that runs the repository's tests has none); and every action is pinned to a commit (the comment names the release).
+#
+# Secrets, under Settings > Secrets and variables > Actions (or in the environment "production", which can be limited to the branch main):
+#   CLOUDFLARE_API_TOKEN    a custom token with Account > Cloudflare Pages > Edit, and Zone > DNS > Edit and Zone > Zone > Read for the zone vianney.cc only
+#   CLOUDFLARE_ACCOUNT_ID   the id of the Cloudflare account (the sidebar of Workers & Pages shows it)
+# Optional variable: CLOUDFLARE_ZONE_ID, if the token may not read zones.
+#
+# wrangler uploads the site. What wrangler does not do is in tools/cloudflare-pages.sh (tested in tests/cloudflare-pages.test.js): the Pages project, the custom domains,
+# the DNS records that point them at the project, and the check that the live site is the build that was just made.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time; one that has begun is not cancelled.
+concurrency:
+  group: cloudflare-pages
+  cancel-in-progress: false
+
+env:
+  CF_PROJECT: vianney
+  CF_ZONE: vianney.cc
+  CF_DOMAINS: vianney.cc www.vianney.cc
+  CF_BRANCH: main
+  WRANGLER_SEND_METRICS: "false"
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+      - name: Unit tests
+        run: npm test
+
+  deploy:
+    name: Build and deploy
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: production
+      url: https://vianney.cc
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # What GitHub Pages ran for this site until now: the github-pages gem (Jekyll 3.10) in GitHub's own container.
+      - name: Build the site
+        uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1.0.13
+        with:
+          source: ./
+          destination: ./_site
+
+      - name: Check the build
+        run: tools/cloudflare-pages.sh build
+
+      - name: Make sure the Pages project exists
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: tools/cloudflare-pages.sh project
+
+      - name: Upload the site
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.158.0"
+          command: pages deploy _site --project-name=${{ env.CF_PROJECT }} --branch=${{ env.CF_BRANCH }} --commit-hash=${{ github.sha }} --commit-message="Deploy ${{ github.sha }}"
+
+      - name: Custom domains and DNS records
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
+        run: tools/cloudflare-pages.sh domains
+
+      - name: Check the live site
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: tools/cloudflare-pages.sh check
