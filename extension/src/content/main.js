@@ -1,6 +1,6 @@
 // Entry point of the content script (loaded by loader.js as an ES module).
 // Wires together: engine, feed filter, watch guard, break reminder, watch-time tracking, and the experimental
-// picture (thumbnail) and sound checks.
+// image (thumbnail) and audio checks, and Clean up.
 
 import { Engine } from '../core/engine.js';
 import { isDue } from '../core/breaktimer.js';
@@ -9,9 +9,12 @@ import { FeedFilter } from './feed.js';
 import { WatchGuard } from './watch.js';
 import { BreakUI } from './breakcard.js';
 import { startWatchTimeTracking } from './watchtime.js';
-import { findCards, videoIdOf } from './discover.js';
+import { findCards, videoIdOf, inPlayer } from './discover.js';
 import { ThumbnailGuard } from './thumbs.js';
 import { AudioGuard, pageVideoId, pageVideo } from './audio.js';
+import { startPreviewGuard } from './preview.js';
+import { startCleanup } from './cleanup.js';
+import { CommentFilter } from './comments.js';
 
 function send(msg) {
   return new Promise((resolve) => {
@@ -47,6 +50,7 @@ export async function start() {
   const thumbs = new ThumbnailGuard({ engine, log, getSettings: () => settings, rescan: () => feed.schedule(0) });
   const feed = new FeedFilter({ engine, log, getSettings: () => settings, onCards: (cards) => thumbs.observe(cards) });
   const watch = new WatchGuard({ engine, log, getSettings: () => settings });
+  const comments = new CommentFilter({ engine, log, getSettings: () => settings });
   const audio = new AudioGuard({
     engine, log, getSettings: () => settings,
     getContext: () => {
@@ -69,18 +73,31 @@ export async function start() {
   function refreshBreak() {
     const due = isDue(breakState, settings.brk);
     clearInterval(breakTimer);
+    if (!settings.debug) breakUI.setDebug(null);   // the hook of the end-to-end test (cmd 'break' below) works only while settings.debug is true
     if (!due) { breakUI.remove(); return; }
-    const apply = () => breakUI.update({ due: true, seconds: (breakState && breakState.accumSeconds) || 0, cfg: settings.brk, cards: findCards() });
+    // The reminder is a video in a list or a comment, put at a random place and kept there (content/breakcard.js). This loop only brings its times up to date
+    // and puts it back if YouTube removed it; the cards are looked for only when it has to be placed.
+    const apply = () => breakUI.update({ due: true, seconds: (breakState && breakState.accumSeconds) || 0, cfg: settings.brk, findCards: () => findCards().filter((c) => !inPlayer(c.el)) });
     apply();
-    breakTimer = setInterval(apply, 1500); // YouTube redraws grids: put the card back when it disappears
+    breakTimer = setInterval(apply, 1500);
   }
 
   // ---- AI availability (checked now and then, because the model can come and go)
+  // The models are layered (the local model Kev-0.6B, then Chrome's own): `key` names which of them can answer. When that changes, the answers kept
+  // in the engine's cache came from other models, so they are forgotten and the cards are judged again. While the local model is loading or being
+  // downloaded the answer is about to change, so ask again soon.
+  let aiKey = null;
+  let aiSoon = null;
   async function refreshAi() {
     const r = await send({ type: 'ai-status' });
     const was = backend.enabled;
     backend.enabled = !!settings.ai.enabled && !!r && r.availability === 'available';
-    if (backend.enabled && !was) { engine.cache.clear(); feed.refilter(); watch.settingsChanged(); }
+    const key = r && r.key ? r.key : null;
+    const changed = key !== aiKey;
+    aiKey = key;
+    if (backend.enabled && (!was || changed)) { engine.cache.clear(); feed.refilter(); comments.refilter(); watch.settingsChanged(); }
+    clearTimeout(aiSoon);
+    if (r && r.loading) aiSoon = setTimeout(refreshAi, 3000);
   }
 
   // ---- pictures and sound (experimental): which kinds the model can judge right now, and the settings allow
@@ -102,6 +119,9 @@ export async function start() {
   }
 
   feed.start();
+  comments.start();
+  const cleanup = startCleanup(() => settings);
+  startPreviewGuard();
   thumbs.start();
   audio.start();
   watch.start();
@@ -127,18 +147,22 @@ export async function start() {
         pack = await loadPack(settings);
         engine = makeEngine();
         feed.engine = engine;
+        comments.engine = engine;
         watch.engine = engine;
         thumbs.engine = engine;
         audio.engine = engine;
       }
       engine.setSettings(settings);
+      cleanup.refresh();
       feed.refilter();
+      comments.refilter();
       watch.settingsChanged();
       refreshBreak();
       refreshAi();
       applyMedia();
     }
     if (changes.flaggedVideos) feed.setRemembered(changes.flaggedVideos.newValue || {});
+    if (changes.kevEpoch) refreshAi();   // the local model was downloaded or deleted: look at once, not in a minute
     if (changes.breakState) {
       breakState = changes.breakState.newValue || null;
       refreshBreak();
@@ -161,6 +185,7 @@ export async function start() {
           id,
           feed: { hidden: feed.hiddenCount, lastScanMs: feed.lastScanMs, findMs: (() => { const t = performance.now(); findCards(); return Math.round(performance.now() - t); })(), cards: findCards().length, ids: findCards().map((c) => c.id), states: [...document.querySelectorAll('[data-vianney-state]')].map((el) => { const a = el.querySelector('a[title]'); const link = el.querySelector('a[href*="/watch?v="], a[href*="/shorts/"]'); return { id: link ? videoIdOf(link) : null, state: el.dataset.vianneyState, reason: el.dataset.vianneyReason, title: (a ? a.getAttribute('title') : el.textContent.replace(/\s+/g, ' ').trim()).slice(0, 90) }; }) },
           watch: watch.snapshot(),
+          comments: comments.snapshot(),
           thumbs: thumbs.snapshot(),
           audio: audio.snapshot(),
           media: backend.mediaEnabled,
@@ -175,6 +200,11 @@ export async function start() {
         watch.state = { metaChecked: false };
         await watch.onVideo(args.video);
         reply = { id, watch: watch.snapshot() };
+      } else if (cmd === 'break') {
+        // for the end-to-end test: decide where and with which words the break reminder appears ({kind: 'video' | 'comment', index: n, title: n, caption: n}), or leave it to chance again (no arguments)
+        breakUI.setDebug(args && Object.keys(args).length ? args : null);
+        refreshBreak();
+        reply = { id, ui: breakUI.state() };
       } else if (cmd === 'flush') {
         reply = { id, ok: true };
       } else if (cmd === 'evaluate') {
