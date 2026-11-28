@@ -78,6 +78,12 @@
       {%- endif %}
 {{ content }}
     </article>
+    {%- comment %}On a phone the list of pages is one step back ("< Vianney"), which nobody is told to press: the same pages again at the foot of the page. Shown by site.css on a phone only.{% endcomment %}
+    <nav class="foot-nav" aria-label="Pages">
+      {%- for item in site.data.nav %}
+      <a class="nav-item" href="{% if item.external %}{{ item.url }}{% else %}{{ item.url | relative_url }}{% endif %}"{% if item.url == page.url %} aria-current="page"{% endif %}{% if item.external %} rel="noopener"{% endif %}><span class="tile sm c-{{ item.color }}">{% include icon.html name=item.icon size=14 %}</span><span class="name">{{ item.title }}</span>{% if item.external %}<span class="ext">{% include icon.html name="external-link" size=12 %}</span>{% else %}<span class="go">{% include icon.html name="chevron-right" size=16 %}</span>{% endif %}</a>
+      {%- endfor %}
+    </nav>
     {%- if page.credits %}
     {% include credits.html %}
     {%- endif %}

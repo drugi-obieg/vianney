@@ -17,6 +17,9 @@ import { normalizeTitles } from '../core/cleanup.js';
 import { decodeToMono16k } from '../shared/decode.js';
 import { icon } from './icons.js';
 import * as ai from '../ai/prompt-backend.js';
+import { checklist, reportText } from '../core/nanocheck.js';
+import { collectFacts } from '../shared/nanoprobe.js';
+import { TARGET } from '../shared/target.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -556,17 +559,17 @@ async function collectMachine() {
 }
 
 // ---- the model rows: Kev-0.6B first (the local model), then Chrome's own model, one row per kind of input
-const kevUi = { gpu: null, stored: null, job: null, runtime: null, confirmDelete: false, note: '', view: null, poll: null };
+const kevUi = { gpu: null, stored: null, job: null, runtime: null, unsupported: false, confirmDelete: false, note: '', view: null, poll: null };
 
 /** What the Kev row shows now, from what is known about the model. */
-const kevInfo = () => kevStatusInfo({ gpu: kevUi.gpu, stored: kevUi.stored, job: kevUi.job, runtime: kevUi.runtime, confirmDelete: kevUi.confirmDelete, note: kevUi.note });
+const kevInfo = () => kevStatusInfo({ gpu: kevUi.gpu, stored: kevUi.stored, job: kevUi.job, runtime: kevUi.runtime, unsupported: kevUi.unsupported, confirmDelete: kevUi.confirmDelete, note: kevUi.note });
 
 /** Ask the service worker (and, through it, the offscreen document) what is stored and what is running. */
 async function kevFetch() {
   kevUi.gpu = await probeGpu();
   try {
     const r = await chrome.runtime.sendMessage({ type: 'kev-status', preferSet: chooseSet(kevUi.gpu).set });
-    if (r && r.stored !== undefined) { kevUi.stored = r.stored; kevUi.job = r.job; kevUi.runtime = r.runtime; }
+    if (r && r.stored !== undefined) { kevUi.stored = r.stored; kevUi.job = r.job; kevUi.runtime = r.runtime; kevUi.unsupported = !!r.unsupported; }
   } catch (e) { /* the worker is asleep or reloading: the next check asks again */ }
   clearTimeout(kevUi.poll);
   const phase = kevUi.job && kevUi.job.phase;
@@ -662,7 +665,7 @@ function renderModels() {
   box.textContent = '';
   kevUi.view = null;
   paintKev(true);
-  for (const cap of CAPABILITIES) {
+  for (const cap of TARGET.nano ? CAPABILITIES : []) {     // Chrome's own model: only Google Chrome has it
     const info = statusInfo(modelStatus[cap.id], cap.id);
     const bar = h('progress', { max: 1, value: 0, hidden: true });
     const note = h('p', { class: 'note' }, modelNotes[cap.id] || '');
@@ -721,7 +724,76 @@ async function runModelCheck() {
   renderModels();
   renderAdvice();
   await renderMachine();
+  await runNanoCheck();
   $('ai-status').textContent = '';
+}
+
+// ------------------------------------------------------------------ set up Gemini Nano: a checklist (core/nanocheck.js)
+// The checks run here, in the extension: what the browser is, what Chrome's model interface answers, the reason that Chrome itself gives when the model cannot
+// be started, the free disk space of the profile. What a page cannot read is not guessed: the step names the page of Chrome and the line on it, and a button
+// opens it. (A page of the website cannot open chrome:// addresses; an extension can.)
+const NANO_MARK = { ok: '✓', fail: '✕', warn: '!', todo: '→', busy: '…', info: 'i', unknown: '?' };
+const NANO_WORD = { ok: 'Done', fail: 'Problem', warn: 'Check', todo: 'To do', busy: 'Wait', info: 'For your information', unknown: 'Not known' };
+let nanoFacts = null;
+let nanoShown = false;     // the section is opened by the first result, and then left as the reader keeps it
+
+/** Open a page of Chrome in a new tab. Where the browser refuses, the address is copied: it can still be pasted into the address bar. */
+async function openChromePage(url) {
+  const note = $('nano-note');
+  try {
+    await chrome.tabs.create({ url });
+    note.textContent = '';
+  } catch (e) {
+    try { await navigator.clipboard.writeText(url); note.textContent = `This browser would not open it. The address is copied: paste it into the address bar.`; }
+    catch (e2) { note.textContent = `This browser would not open it. Enter ${url} in the address bar.`; }
+  }
+}
+
+function nanoLink(l) {
+  if (l.kind === 'web') return h('a', { class: 'btn-link', href: l.url, target: '_blank', rel: 'noopener' }, l.label);
+  const button = h('button', { type: 'button', class: l.primary ? 'small primary' : 'small', title: l.url }, l.label);
+  button.addEventListener('click', () => openChromePage(l.url));
+  return l.note ? h('span', { class: 'flag', title: l.why || '' }, button, h('span', { class: 'muted' }, `set to “${l.note}”`)) : button;
+}
+
+function nanoRow(s, next) {
+  const lines = s.lines && h('details', {}, h('summary', {}, 'What to read there'),
+    h('dl', {}, s.lines.flatMap((x) => [h('dt', {}, x.line), h('dd', {}, `Should be ${x.want}. ${x.otherwise}`)])));
+  return h('li', { class: `check s-${s.status}${next ? ' next' : ''}`, 'data-step': s.id, 'data-status': s.status },
+    h('span', { class: 'mark', title: NANO_WORD[s.status] || '', role: 'img', 'aria-label': NANO_WORD[s.status] || '' }, NANO_MARK[s.status] || '?'),
+    h('div', { class: 'body' },
+      h('div', { class: 't' }, s.title, next ? h('span', { class: 'pill start' }, 'Start here') : null),
+      h('div', { class: 'd' }, s.detail),
+      s.links.length ? h('div', { class: 'acts' }, s.links.map(nanoLink)) : null,
+      lines));
+}
+
+function paintNano(result) {
+  const v = $('nano-verdict');
+  v.className = `nano-verdict tone-${result.verdict.tone}`;
+  v.replaceChildren(h('strong', {}, result.verdict.title), h('span', {}, result.verdict.text));
+  $('nano-steps').replaceChildren(...result.steps.map((s) => nanoRow(s, s.id === result.next)));
+  if (!nanoShown) { nanoShown = true; $('nano').open = result.verdict.tone !== 'ok'; }
+}
+
+async function runNanoCheck() {
+  if (!TARGET.nano) return;
+  $('nano-note').textContent = 'Checking…';
+  try { nanoFacts = await collectFacts({ where: 'extension' }); } catch (e) { nanoFacts = { where: 'extension' }; }
+  paintNano(checklist(nanoFacts));
+  $('nano-note').textContent = '';
+}
+
+function bindNano() {
+  if (!TARGET.nano) { $('nano').hidden = true; return; }      // a browser that cannot have Chrome's model has nothing to set up
+  $('nano-run').addEventListener('click', runNanoCheck);
+  $('nano-copy').addEventListener('click', async () => {
+    const note = $('nano-note');
+    if (!nanoFacts) await runNanoCheck();
+    try { await navigator.clipboard.writeText(reportText(nanoFacts)); note.textContent = 'Copied: paste it into a bug report.'; }
+    catch (e) { note.textContent = 'Could not copy.'; }
+    setTimeout(() => { if (note.textContent.startsWith('Copied') || note.textContent.startsWith('Could not copy')) note.textContent = ''; }, 3500);
+  });
 }
 
 // ------------------------------------------------------------------ check on the rule examples
@@ -903,10 +975,7 @@ function bindAi() {
   $('ai-examples-run').addEventListener('click', runExamplesCheck);
   $('ai-examples-stop').addEventListener('click', () => { if (examplesCtl) examplesCtl.abort(); });
   $('ai-bench').addEventListener('click', runBenchmark);
-  $('ai-internals').addEventListener('click', async () => {
-    try { await chrome.tabs.create({ url: 'chrome://on-device-internals' }); $('ai-internals-note').textContent = ''; }
-    catch (e) { $('ai-internals-note').textContent = 'Could not open it. Enter chrome://on-device-internals in the address bar.'; }
-  });
+  bindNano();
   runModelCheck();
 }
 
@@ -1079,7 +1148,7 @@ function renderLog() {
   for (const e of items) {
     const ps = Object.entries(e.ps || {}).map(([r, p]) => `${nameOf(r)} ${pct(p)}`).join(', ');
     list.append(h('li', {},
-      h('div', { class: 't' }, `${new Date(e.t).toLocaleTimeString()} · ${SURFACE_NAME[e.surface] || e.surface}${e.via ? ' · ' + (VIA_LABEL[e.via] || e.via) : ''}`),
+      h('div', { class: 't' }, `${new Date(e.t).toLocaleTimeString()} · ${SURFACE_NAME[e.surface] || e.surface}${e.n > 1 ? ` · seen ${e.n}×` : ''}${e.via ? ' · ' + (VIA_LABEL[e.via] || e.via) : ''}`),
       h('div', {}, [censor(e.title || '(no title)'), e.channel ? ` (${e.channel})` : '']),
       h('div', {}, [
         e.flagged && e.flagged.length ? h('span', { class: 'flag' }, `Flagged: ${e.flagged.map(nameOf).join(', ')}${e.action ? ' → ' + e.action.split(',').map((a) => ACTION_LABEL[a] || a).join(', ') : ''}  `) : '',

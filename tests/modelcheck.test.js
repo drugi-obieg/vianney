@@ -36,7 +36,7 @@ test('the recommendation follows the three statuses and never offers what cannot
 });
 
 test('machine rows only claim what a page can know', () => {
-  const rows = machineRows({ userAgent: 'Mozilla/5.0 (Macintosh) AppleWebKit/537.36 Chrome/158.0.0.0 Safari/537.36', cores: 8, memoryGB: 8, gpu: { vendor: 'apple', architecture: 'metal-3' }, quotaBytes: 5 * 1073741824 });
+  const rows = machineRows({ userAgent: 'Mozilla/5.0 (Macintosh) AppleWebKit/537.36 Chrome/158.0.0.0 Safari/537.36', cores: 8, memoryGB: 8, gpu: { vendor: 'apple', architecture: 'metal-3' }, quotaBytes: 5 * 1073741824 + 1000, usageBytes: 1000 });
   const by = Object.fromEntries(rows.map((r) => [r.label, r]));
   assert.equal(by.Browser.value, 'Chrome 158');
   assert.equal(by['Processor threads'].value, '8');
@@ -44,8 +44,8 @@ test('machine rows only claim what a page can know', () => {
   assert.match(by.Memory.note, /cannot be confirmed/);
   assert.match(by.Graphics.value, /apple/);
   assert.match(by.Graphics.note, /pages cannot read/);
-  assert.match(by.Disk.value, /Not readable/);
-  assert.match(by.Disk.note, /22 GB/);
+  assert.equal(by.Disk.value, '5.0 GiB free', 'the free space of the profile drive, from the quota of an extension that has none of its own');
+  assert.match(by.Disk.note, /does not start the download of its model below 20\.0 GiB/);
   const bare = Object.fromEntries(machineRows({ userAgent: 'x', gpu: null }).map((r) => [r.label, r]));
   assert.match(bare.Graphics.value, /none/);
   assert.match(bare.Graphics.note, /audio input is unavailable/);

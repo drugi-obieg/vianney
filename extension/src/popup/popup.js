@@ -96,18 +96,23 @@ function renderActivity() {
     const time = new Date(e.t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const entry = h('div', { class: 'entry' },
       h('div', { class: 'title' }, censor(e.title || '(no title)')),
-      h('div', { class: 'meta' }, `${time}${flagged ? ' · ' + e.flagged.map((id) => names[id] || id).join(', ') : ''}`));
-    if (/^[\w-]{11}$/.test(e.id || '')) {
-      const btn = h('button', { class: 'pill', type: 'button' }, flagged ? 'Allow' : 'Block');
+      h('div', { class: 'meta' }, `${time}${e.n > 1 ? ` · seen ${e.n}×` : ''}${flagged ? ' · ' + e.flagged.map((id) => names[id] || id).join(', ') : ''}`));
+    // "Allow" is the answer to a false alarm, and a false alarm is usually the channel's, not one video's: so the channel is offered next to the video
+    const acts = h('div', { class: 'acts' });
+    const offer = (label, key, value) => {
+      const btn = h('button', { class: 'pill', type: 'button' }, label);
       btn.addEventListener('click', async () => {
         settings = mergeSettings(settings);
-        settings.lists = addToList(settings.lists, flagged ? 'allowVideos' : 'denyVideos', e.id);
+        settings.lists = addToList(settings.lists, key, value);
         await saveSettings(settings);
         btn.textContent = 'Added';
         btn.disabled = true;
       });
-      entry.append(h('div', { class: 'acts' }, btn));
-    }
+      acts.append(btn);
+    };
+    if (/^[\w-]{11}$/.test(e.id || '')) offer(flagged ? 'Allow video' : 'Block video', flagged ? 'allowVideos' : 'denyVideos', e.id);
+    if (e.channel && e.surface !== 'comment') offer(flagged ? 'Allow channel' : 'Block channel', flagged ? 'allowChannels' : 'denyChannels', e.channel);
+    if (acts.children.length) entry.append(acts);
     list.append(entry);
   }
   box.append(list);

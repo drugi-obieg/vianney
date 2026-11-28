@@ -1450,7 +1450,7 @@ def scenario_media_thumbnails(env):
     check('the model received real pictures, not placeholders', len(log) >= 4 and all(r['bytes'] > 1500 and r['mime'].startswith('image/') for r in log), json.dumps(log[:2]))
     questions = {r['q'] for r in log}
     check('the questions of the picture rules reached the model', any('naked person' in q for q in questions) and any('underwear' in q for q in questions), '; '.join(sorted(questions))[:300])
-    check('hidden cards are counted for the badge', cmd(p, 'snapshot')['feed']['hidden'] >= 1)
+    check('hidden cards are counted', cmd(p, 'snapshot')['feed']['hidden'] >= 1)
     stored = env.ctrl.eval("chrome.storage.local.get('mediaCache').then(r => Object.keys(r.mediaCache || {}).length)")
     check('verdicts are remembered by the service worker', stored >= 4, str(stored))
     logged = env.ctrl.eval("chrome.storage.local.get('log').then(r => (r.log||[]).filter(e => e.surface === 'thumbnail' && e.flagged.length).map(e => e.id))")

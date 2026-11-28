@@ -8,6 +8,9 @@ import { loadSettings } from '../shared/config.js';
 import * as ai from '../ai/prompt-backend.js';
 import * as kev from '../ai/kev-backend.js';
 import { askLayered } from '../core/layered.js';
+import { addToLog, compactLog } from '../core/logmerge.js';
+import { openable } from '../core/nanocheck.js';
+import { collectFacts } from '../shared/nanoprobe.js';
 import { backendSetting, buildLayers, statusFor, answerFor, fromExtensionPage } from '../ai/ai-router.js';
 
 // Serialise every read-modify-write on storage so that parallel tabs cannot overwrite each other.
@@ -26,10 +29,9 @@ async function readBreakState(cfg) {
 async function appendLog(entry) {
   const settings = await loadSettings();
   if (!settings.log.enabled) return { ok: true, skipped: true };
-  const { log = [] } = await chrome.storage.local.get('log');
-  log.push({ ...entry, t: entry.t || Date.now() });
-  const extra = log.length - settings.log.max;
-  if (extra > 0) log.splice(0, extra);
+  const { log: before = [] } = await chrome.storage.local.get('log');
+  // one row for each thing that was checked, however often it was looked at (core/logmerge.js)
+  const log = addToLog(before, { ...entry, t: entry.t || Date.now() }, settings.log.max);
   await chrome.storage.local.set({ log });
   return { ok: true, size: log.length };
 }
@@ -260,26 +262,58 @@ async function handle(msg, sender) {
         return { ok: true };
       });
 
-    case 'badge': {
-      if (!sender || !sender.tab) return { ok: false };
-      const text = msg.count > 0 ? String(Math.min(msg.count, 999)) : '';
-      await chrome.action.setBadgeText({ tabId: sender.tab.id, text });
-      if (text) await chrome.action.setBadgeBackgroundColor({ tabId: sender.tab.id, color: '#7a1f2b' });
-      return { ok: true };
-    }
-
     default:
       return { error: 'unknown message' };
   }
 }
+
+// Where the model lives in this very page (Firefox, Safari: no offscreen document), its announcements do not come back as messages: they are handled here,
+// as the ones of the offscreen document are, with the sender that they would have had.
+kev.onLocalMessage((msg) => handle(msg, { id: chrome.runtime.id, origin: chrome.runtime.getURL('').replace(/\/+$/, ''), url: chrome.runtime.getURL('src/ai/kev-offscreen.html') }));
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   handle(msg, sender).then(sendResponse).catch((e) => sendResponse({ error: String((e && e.message) || e) }));
   return true; // asynchronous response
 });
 
+// The website (vianney.cc) can ask this extension for two things, because a web page cannot do them itself: to open a page of Chrome (a browser does not
+// let a page navigate to chrome:// addresses, however it asks), and for the facts that only an extension sees (free disk space of the profile). The manifest
+// lets only that site send messages (externally_connectable); this checks the origin again, and opens only the addresses of core/nanocheck.js, nothing else.
+const SITE_ORIGINS = ['https://vianney.cc', 'https://www.vianney.cc'];
+
+async function handleSite(msg, sender) {
+  if (!sender || !SITE_ORIGINS.includes(String(sender.origin || '').replace(/\/+$/, ''))) return { ok: false, error: 'not allowed' };
+  switch (msg && msg.type) {
+    case 'hello': return { ok: true, id: chrome.runtime.id, version: chrome.runtime.getManifest().version };
+    case 'open':
+      if (!openable(msg.url)) return { ok: false, error: 'not allowed' };
+      await chrome.tabs.create({ url: msg.url });
+      return { ok: true };
+    case 'nano-facts': return { ok: true, facts: await collectFacts({ where: 'extension' }) };
+    default: return { ok: false, error: 'unknown message' };
+  }
+}
+
+// (Chrome only: the other browsers either lack the event or never fire it, as the manifest of their builds has no externally_connectable. A missing event must not
+// stop the whole script, so it is looked for first.)
+if (chrome.runtime.onMessageExternal) {
+  chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
+    handleSite(msg, sender).then(sendResponse).catch((e) => sendResponse({ ok: false, error: String((e && e.message) || e) }));
+    return true;
+  });
+}
+
 chrome.runtime.onInstalled.addListener(async (details) => {
   const { settings } = await chrome.storage.local.get('settings');
   if (!settings) await chrome.storage.local.set({ settings: {} });
   if (details.reason === 'install') chrome.runtime.openOptionsPage();
+  if (details.reason === 'update') {
+    // An earlier version put a count of hidden cards on the toolbar icon, tab by tab; it is gone, and a tab that is already open still shows it.
+    try { for (const t of await chrome.tabs.query({})) chrome.action.setBadgeText({ tabId: t.id, text: '' }).catch(() => {}); } catch (e) { /* no tabs to clear */ }
+    // ... and it wrote a row of the log each time it looked at the same video: join them
+    await exclusive(async () => {
+      const { log } = await chrome.storage.local.get('log');
+      if (Array.isArray(log) && log.length) await chrome.storage.local.set({ log: compactLog(log, (await loadSettings()).log.max) });
+    });
+  }
 });

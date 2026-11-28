@@ -132,9 +132,20 @@ export function extractMeta(card) {
     }
   }
   let channel = '';
+  let handle = '';
+  let channelId = '';
   for (const a of el.querySelectorAll(CHANNEL_LINKS)) {
     const t = (a.textContent || '').replace(/\s+/g, ' ').trim();
-    if (t) { channel = t; break; }
+    if (t) {
+      channel = t;
+      // the link also names the channel: by its handle (/@name) or its id (/channel/UC...), which the lists can match when the name is written another way
+      const href = a.getAttribute('href') || '';
+      const h = href.match(/^\/(@[^/?#]+)/);
+      const c = href.match(/^\/channel\/([^/?#]+)/);
+      try { if (h) handle = decodeURIComponent(h[1]); } catch (e) { handle = h[1]; }
+      if (c) channelId = c[1];
+      break;
+    }
   }
-  return { id: card.id, title, channel, music: isMusic(musicSignals(el)) };
+  return { id: card.id, title, channel, handle, channelId, music: isMusic(musicSignals(el)) };
 }

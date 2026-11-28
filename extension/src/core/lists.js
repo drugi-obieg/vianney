@@ -29,15 +29,29 @@ export function parseListText(text) {
 export const EMPTY_LISTS = Object.freeze({ allowVideos: [], allowChannels: [], denyVideos: [], denyChannels: [] });
 
 /**
+ * What names a channel in an entry of a channel list: a display name ("Cantus Vaticanus"), a handle ("@cantusvaticanus"), a channel id ("UC..."), or the
+ * address of its page as it stands in the address bar. Handle, id and address are all reduced to the plain word, so that they can be compared.
+ */
+function channelWord(entry) {
+  const t = String(entry == null ? '' : entry).trim();
+  const url = t.match(/^(?:https?:\/\/)?(?:(?:www|m)\.)?youtube\.com\/(@[^/?#\s]+|(?:channel|c|user)\/[^/?#\s]+)/i);
+  if (!url) return normalizeName(t).replace(/^@/, '');
+  let word = url[1].replace(/^(channel|c|user)\//i, '');
+  try { word = decodeURIComponent(word); } catch (e) { /* keep it as it is */ }
+  return normalizeName(word).replace(/^@/, '');
+}
+
+/**
  * @param {{allowVideos?:string[],allowChannels?:string[],denyVideos?:string[],denyChannels?:string[]}} lists
- * @param {{id?: string, channel?: string}} item
+ * @param {{id?: string, channel?: string, handle?: string, channelId?: string}} item the video, and the channel by whatever the page showed of it: the name
+ *   always, the handle (from the link of the channel) and the id of the channel where the page has them
  * @returns {'allow'|'deny'|null}
  */
 export function listVerdict(lists, item) {
   const l = lists || EMPTY_LISTS;
   const id = item.id || '';
-  const ch = normalizeName(item.channel).replace(/^@/, '');
-  const hasChannel = (arr) => ch && (arr || []).some((x) => normalizeName(x).replace(/^@/, '') === ch);
+  const mine = [item.channel, item.handle, item.channelId].map((x) => normalizeName(x).replace(/^@/, '')).filter(Boolean);
+  const hasChannel = (arr) => mine.length > 0 && (arr || []).some((x) => { const w = channelWord(x); return w && mine.includes(w); });
   if ((l.allowVideos || []).includes(id) || hasChannel(l.allowChannels)) return 'allow';
   if ((l.denyVideos || []).includes(id) || hasChannel(l.denyChannels)) return 'deny';
   return null;

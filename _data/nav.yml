@@ -16,6 +16,12 @@
   about: For Chrome, Edge and Brave on desktop.
   icon: download
   color: blue
+- url: /nano.html
+  title: Gemini Nano
+  heading: Gemini Nano
+  about: Make Chrome's own model work, or find out why it does not.
+  icon: cpu
+  color: purple
 - url: https://github.com/drugi-obieg/vianney
   title: Source
   icon: code-xml

@@ -7,14 +7,15 @@
 // Facts used here for Chrome's model (plan.md section 3.3, from Chrome's documentation):
 //  - Chrome's model is behind the Prompt API. The extension does not choose that model, the browser does; text, picture and sound input
 //    are asked about separately;
-//  - Chrome wants at least 22 GB free on the disk of the profile to start the download, and removes the model again
-//    when free space falls below 10 GB; the model is about 4 GB;
+//  - Chrome wants about 20 GiB free on the disk of the profile to start the download (its documentation says 22 GB), and removes the model again
+//    when free space falls to 5 GiB (the documentation says 10 GB); the model is about 4 GB;
 //  - it needs a graphics card with more than 4 GB of video memory, or a CPU with at least 16 GB of RAM and 4 cores;
 //    sound input needs a graphics card;
-//  - a web page cannot read free disk space or video memory, so Chrome's own answer (availability) is the real test,
-//    and chrome://on-device-internals shows the reason when it says "unavailable".
+//  - a web page cannot read free disk space or video memory. An extension page can read the free disk space (its quota is the free space, see
+//    shared/nanoprobe.js); the video memory nobody can. Chrome's own answer (availability) is the real test, and core/nanocheck.js turns it into a checklist.
 
 import { KEV, chooseSet, megabytes, totalBytes } from '../ai/kev-manifest.js';
+import { REQUIRE, gib } from './nanocheck.js';
 
 // Chrome's model, one row per kind of input. Each row names the model, so that it is clear what is running on the computer.
 export const CAPABILITIES = [
@@ -31,7 +32,7 @@ export const KEV_MODEL = {
   used: 'A small English decision model (Apache-2.0). It answers the rule questions that word lists cannot settle. The files are downloaded once, kept in this browser, and nothing is sent anywhere.',
 };
 
-export const DOWNLOAD_NOTE = 'Chrome needs 22 GB of free disk space to start the download and removes the model if free space drops below 10 GB. The model is about 4 GB.';
+export const DOWNLOAD_NOTE = 'Chrome needs about 20 GiB of free disk space to start the download (its documentation says 22 GB) and removes the model when free space drops to 5 GiB (the documentation says 10 GB). The model itself is about 4 GB.';
 
 /**
  * @param {string|undefined} availability what LanguageModel.availability() said, or 'unsupported' / 'error:<name>'
@@ -78,7 +79,7 @@ export function kevWay(set, device, gpu) {
  *          stored?: {set: string, complete: boolean, partial?: boolean, bytesHave: number, bytesTotal: number}|null,
  *          job?: {phase: string, set?: string, done?: number, total?: number, bytesPerSecond?: number, fileIndex?: number, files?: number, error?: {code?: string, message?: string, file?: string}}|null,
  *          runtime?: {state: string, device?: string, set?: string, error?: {message?: string}|null}|null,
- *          confirmDelete?: boolean, note?: string}} s
+ *          confirmDelete?: boolean, note?: string, unsupported?: boolean}} s
  * @returns {{id: string, label: string, tone: 'ok'|'todo'|'busy'|'no'|'unknown', title: string, lede: string, facts: string, set: string, size: string,
  *            progress: {fraction: number, text: string}|null, detail: string, note: string, buttons: {id: string, text: string, primary?: boolean}[], explain: string}}
  */
@@ -94,6 +95,11 @@ export function kevStatusInfo(s = {}) {
     facts: 'Apache-2.0, English only. Stored in this browser; nothing is sent anywhere.',
     explain: `${KEV_MODEL.used} Download size: ${size}${set === 'q4' ? ' (the files for WebAssembly; a computer with WebGPU and half precision needs 346 MB)' : ''}.`,
   };
+  if (s.unsupported) {
+    // a build for a browser where the local model is not offered (shared/target.js): the row says so, and nothing in it can be pressed
+    return { ...base, id: 'unsupported', label: 'Not available', tone: 'no', lede: 'Not available in this browser yet.', facts: 'Vianney works without it: the word lists decide.',
+      explain: 'The local model has not been tried on iPhone and iPad, where the system ends a process that grows by a few hundred megabytes. Everything else in Vianney works without it.', buttons: [] };
+  }
   const download = { id: 'download', text: `Download Kev-0.6B (${size})`, primary: true };
   const del = s.confirmDelete
     ? [{ id: 'delete-yes', text: `Delete ${mb(stored && stored.bytesHave ? stored.bytesHave : total)} MB` }, { id: 'delete-no', text: 'Keep' }]
@@ -200,11 +206,15 @@ export function machineRows(f) {
       ? 'Running on a graphics card needs more than 4 GB of video memory, which pages cannot read. Audio input needs a graphics card.'
       : 'Without a graphics card, text and image input need 16 GB of RAM and 4 cores, and audio input is unavailable.') + kevNote,
   });
-  if (typeof f.quotaBytes === 'number') {
+  if (typeof f.quotaBytes === 'number' && typeof f.usageBytes === 'number' && f.quotaBytes >= f.usageBytes) {
+    // An extension with unlimitedStorage has no quota of its own: the browser reports what it stores plus the free space of the drive that holds the profile.
+    const free = f.quotaBytes - f.usageBytes;
     rows.push({
       label: 'Disk',
-      value: 'Not readable by web pages',
-      note: `Chrome needs 22 GB free on the profile's disk to start the download. This extension's storage quota (${gb(f.quotaBytes)}) only hints at the disk size.`,
+      value: `${gib(free)} free`,
+      note: free >= REQUIRE.installFree
+        ? `On the drive of this browser profile. Chrome starts the model's download with ${gib(REQUIRE.installFree)} free, and removes the model below ${gib(REQUIRE.keepFree)}.`
+        : `On the drive of this browser profile. Chrome does not start the download of its model below ${gib(REQUIRE.installFree)}: free up space, and see “Set up Gemini Nano” below.`,
     });
   }
   return rows;

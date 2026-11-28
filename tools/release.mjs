@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { copyFileSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pack } from './pack.mjs';
+import { firefoxEntry } from './firefox-release.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const { out, name, version } = pack();
@@ -26,6 +27,9 @@ const release = {
   sha256,
   date: new Date().toISOString().slice(0, 10),
 };
+// the Firefox add-on is signed by Mozilla, once for each version (tools/sign-firefox.sh); if there is a signed file, the install page offers it
+const firefox = firefoxEntry(resolve(root, 'downloads'));
+if (firefox) release.firefox = firefox;
 writeFileSync(resolve(root, '_data/release.json'), JSON.stringify(release, null, 2) + '\n');
 // the same facts as a public file, so people and tools can see what the newest build is
 writeFileSync(resolve(root, 'downloads/latest.json'), JSON.stringify(release, null, 2) + '\n');

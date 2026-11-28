@@ -12,7 +12,7 @@
   --desktop: #cfd2d8; --window: #f5f5f7; --sidebar: #e9e9ec; --card: #ffffff; --line: rgba(0, 0, 0, .09); --line-strong: rgba(0, 0, 0, .16);
   --text: #1d1d1f; --muted: #6e6e73; --faint: #8e8e93; --accent: #0a62d4; --accent-ink: #ffffff; --accent-soft: rgba(10, 98, 212, .12); --link: #0a58c2;
   --button: #ffffff; --button-line: rgba(0, 0, 0, .14); --hover: rgba(0, 0, 0, .05);
-  --warn: #b26a00; --shadow: 0 1px 2px rgba(0, 0, 0, .06); --veil: rgba(0, 0, 0, 0);
+  --warn: #b26a00; --ok: #1f8f3a; --bad: #d1302b; --shadow: 0 1px 2px rgba(0, 0, 0, .06); --veil: rgba(0, 0, 0, 0);
   --font: "Calmet UI", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   color-scheme: light;
@@ -22,7 +22,7 @@
     --desktop: #0e0e10; --window: #1e1e1e; --sidebar: #2a2a2c; --card: #2c2c2e; --line: rgba(255, 255, 255, .09); --line-strong: rgba(255, 255, 255, .17);
     --text: #f5f5f7; --muted: #a1a1a6; --faint: #8e8e93; --accent: #2f6fe0; --accent-ink: #ffffff; --accent-soft: rgba(47, 111, 224, .24); --link: #78adff;
     --button: #3a3a3c; --button-line: rgba(255, 255, 255, .1); --hover: rgba(255, 255, 255, .07);
-    --warn: #ffb340; --shadow: none; --veil: rgba(0, 0, 0, .5);
+    --warn: #ffb340; --ok: #32d74b; --bad: #ff6961; --shadow: none; --veil: rgba(0, 0, 0, .5);
     color-scheme: dark;
   }
 }
@@ -204,6 +204,51 @@ figure.rule-card .k { color: var(--muted); }
 figure.rule-card .v { white-space: pre-wrap; overflow-wrap: anywhere; }
 figure.rule-card .id { color: var(--accent); }
 
+/* ------------------------------------------------------------ the pages again at the foot of a page (a phone: see below) */
+.foot-nav { display: none; }
+.copy-hint { color: var(--muted); font-size: 13px; line-height: 1.35; margin-top: 3px; display: block; }
+.copy-hint:empty { display: none; }
+.copy-hint kbd { font: 12px var(--mono); padding: 0 4px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--hover); }
+
+/* ------------------------------------------------------------ Gemini Nano: the checklist (the same cards as the settings page of the extension) */
+.nano-verdict { margin: 12px 0 4px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); border-left-width: 4px; background: var(--card); box-shadow: var(--shadow); }
+.nano-verdict:empty { display: none; }
+.nano-verdict.tone-ok { border-left-color: var(--ok); }
+.nano-verdict.tone-todo, .nano-verdict.tone-busy { border-left-color: var(--warn); }
+.nano-verdict.tone-no { border-left-color: var(--bad); }
+.nano-verdict span { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.nano-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px 0; }
+.nano-bar .muted { color: var(--muted); font-size: 13.5px; flex: 1 1 14em; }
+.checks { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 8px; }
+.check { display: flex; gap: 10px; align-items: flex-start; padding: 10px 14px; border: 1px solid var(--line); border-left-width: 4px; border-radius: 10px; background: var(--card); box-shadow: var(--shadow); }
+.check.s-ok { border-left-color: var(--ok); }
+.check.s-fail { border-left-color: var(--bad); }
+.check.s-warn, .check.s-todo, .check.s-busy { border-left-color: var(--warn); }
+.check.s-info, .check.s-unknown { border-left-color: var(--faint); }
+.check.next { box-shadow: 0 0 0 2px var(--accent-soft); }
+.check .mark { flex: none; width: 22px; height: 22px; margin-top: 1px; border-radius: 50%; display: grid; place-items: center; font: 700 12px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; color: #fff; background: var(--faint); }
+.check.s-ok .mark { background: var(--ok); }
+.check.s-fail .mark { background: var(--bad); }
+.check.s-warn .mark, .check.s-todo .mark, .check.s-busy .mark { background: var(--warn); }
+.check .body { min-width: 0; flex: 1; }
+.check .t { font-size: 15.5px; }
+.check .d { color: var(--muted); font-size: 14px; line-height: 1.4; margin-top: 2px; overflow-wrap: anywhere; }
+.check .acts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-top: 8px; }
+.check .flag { display: inline-flex; align-items: baseline; gap: 6px; }
+.check .flag .muted { color: var(--muted); font-size: 13px; }
+.check .pill { display: inline-block; margin-left: 8px; font-size: 11px; padding: 1px 8px; border-radius: 9px; color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); vertical-align: 2px; }
+.check details { margin: 8px 0 0; }
+.check summary { cursor: pointer; font-size: 14px; }
+.check dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 6px 0 0; font-size: 13.5px; }
+.check dt { font: 12.5px var(--mono); }
+.check dd { margin: 0; color: var(--muted); }
+@media (max-width: 640px) { .check dl { grid-template-columns: 1fr; gap: 0; } .check dd { margin-bottom: 6px; } }
+
+dl.lines { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 10px 0 4px; font-size: 14px; }
+dl.lines dt { font: 12.5px var(--mono); padding-top: 1px; }
+dl.lines dd { margin: 0; color: var(--muted); }
+@media (max-width: 640px) { dl.lines { grid-template-columns: 1fr; gap: 0; } dl.lines dd { margin-bottom: 8px; } }
+
 /* ------------------------------------------------------------ a phone: as in iOS Settings, the sidebar is the list and the page slides over it */
 @view-transition { navigation: auto; }
 @keyframes slide-in-right { from { transform: translateX(100%); } }
@@ -253,6 +298,9 @@ figure.rule-card .id { color: var(--accent); }
   html[data-screen] .nav-item .tile.sm { width: 30px; height: 30px; border-radius: 7px; }
   html[data-screen] .nav-item .go { display: grid; margin-left: auto; color: var(--faint); }
   html[data-screen] .nav-item.dim { display: none; }
+  /* the pages at the foot of a page, built like the list: a phone reaches the list only through "< Vianney", which nobody is told to press */
+  html[data-screen="page"] .foot-nav { display: block; margin: 30px 0 6px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: color-mix(in srgb, var(--card) 80%, transparent); }
+  .foot-nav .nav-item[aria-current="page"] .name { color: var(--accent); }
   #forward, .btn .ver { display: none; }
   #back { display: inline-flex; align-items: center; width: auto; height: 30px; padding: 0 8px 0 2px; gap: 1px; color: var(--link); font-size: 17px; }
   #back .back-label { display: inline; }
@@ -276,5 +324,5 @@ figure.rule-card .id { color: var(--accent); }
   body { background: #fff; color: #000; height: auto; padding-block: 0; }
   .app { display: block; width: auto; height: auto; margin: 0; border: 0; box-shadow: none; overflow: visible; }
   .content { overflow: visible; }
-  .sidebar, .toolbar, .skip { display: none; }
+  .sidebar, .toolbar, .skip, .foot-nav { display: none !important; }
 }

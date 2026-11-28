@@ -14,10 +14,21 @@ description: Install Vianney Content Blocker in Chrome, Edge or Brave.
 
 <div class="group-title">Steps</div>
 <div class="group">
-  <div class="row top"><span class="num">1</span><div class="label"><span class="title">Open <a href="chrome://extensions" data-copy="chrome://extensions">chrome://extensions</a></span></div></div>
+  <div class="row top"><span class="num">1</span><div class="label"><span class="title">Open <a href="chrome://extensions" data-copy="chrome://extensions" data-hint="Chrome does not let a website open its own pages, so the address is copied. Open a new tab, press {key}, paste it and press Enter.">chrome://extensions</a></span><span class="copy-hint" role="status"></span></div></div>
   <div class="row top"><span class="num">2</span><div class="label"><span class="title">Switch on Developer mode</span></div></div>
   <div class="row top"><span class="num">3</span><div class="label"><span class="title">Drop the zip onto the page</span></div></div>
   <div class="row top"><span class="num">4</span><div class="label"><span class="title">Check <a href="chrome-extension://{{ site.data.extension.id }}/{{ site.data.extension.settings }}#log">Activity</a> after a day or so</span></div></div>
   <div class="row top"><span class="num">5</span><div class="label"><span class="title"><a href="chrome-extension://{{ site.data.extension.id }}/{{ site.data.extension.settings }}">Tweak settings</a> and <a href="https://github.com/drugi-obieg/vianney/issues">report issues</a></span></div></div>
 </div>
 <p class="note">To update, remove the old version first.</p>
+
+{%- if site.data.release.firefox %}
+<div class="group-title">Firefox</div>
+<div class="group">
+  <div class="row">
+    <span class="tile c-orange">{% include icon.html name="download" size=16 %}</span>
+    <div class="label"><span class="title">Version {{ site.data.release.firefox.version }}</span><span class="sub">Signed by Mozilla</span></div>
+    <a class="btn primary" href="{{ '/downloads/' | append: site.data.release.firefox.file | relative_url }}">Add to Firefox</a>
+  </div>
+</div>
+{%- endif %}

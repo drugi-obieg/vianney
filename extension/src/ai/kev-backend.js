@@ -1,9 +1,15 @@
 // Kev-0.6B as seen from the service worker: the same surface as prompt-backend.js (availability, askNoul, askScore, reset), plus what the
-// settings page needs (status, download, pause, cancel, delete). The model itself lives in the offscreen document (kev-offscreen.js); this
-// file creates that document when it is needed, forwards the messages, and keeps nothing that matters in memory: the service worker may be
-// stopped at any moment, so everything is read again from the files (OPFS) or asked of the offscreen document.
+// settings page needs (status, download, pause, cancel, delete). The model itself lives in a host (kev-host.js), which is either
+//  - the offscreen document (kev-offscreen.js), in Chrome: this file creates that document when it is needed, forwards the messages, and keeps nothing that
+//    matters in memory, because the service worker may be stopped at any moment: everything is read again from the files (OPFS) or asked of the document;
+//  - this page itself, in Firefox and Safari, which have no offscreen documents: their background is an event page with a window and Workers. The host is then
+//    an object here, made when it is first needed and dropped when it is closed; what it announces reaches the service worker's own code through `onLocalMessage`,
+//    because a page does not hear the messages that it sends itself.
+// Which of the two is decided by whether the browser has chrome.offscreen: a test of the feature, not of the browser's name.
 import { completeSet, mostDownloaded, removeAll, usage } from './kev-store.js';
+import { TARGET } from '../shared/target.js';
 
+const OFFSCREEN = typeof chrome !== 'undefined' && !!chrome.offscreen && typeof chrome.offscreen.createDocument === 'function';
 const OFFSCREEN_URL = chrome.runtime.getURL('src/ai/kev-offscreen.html');
 const ASK_TIMEOUT_MS = 90000;       // a first question also loads the model (a few seconds), a slow processor needs more than a fast graphics chip
 
@@ -11,16 +17,43 @@ let creating = null;
 let readyCache = { at: 0, value: null };
 const READY_TTL_MS = 5000;
 
+let host = null;                    // the host, where it lives in this page
+let hostMaking = null;
+let localListener = null;
+
+/** Where the host's announcements go besides the other pages of the extension: the service worker's own handler (see the comment at the top). */
+export function onLocalMessage(fn) {
+  localListener = fn;
+}
+
 export function forget() {
   readyCache = { at: 0, value: null };
 }
 
+async function pageHost() {
+  if (host) return host;
+  if (!hostMaking) {
+    hostMaking = import('./kev-host.js').then(({ createHost }) => {
+      host = createHost({
+        send: (msg) => {
+          try { chrome.runtime.sendMessage(msg).catch(() => {}); } catch (e) { /* the extension was reloaded */ }     // the settings page listens
+          if (localListener) { try { localListener(msg); } catch (e) { /* the announcement is not worth a failure */ } }
+        },
+      });
+      return host;
+    }).finally(() => { hostMaking = null; });
+  }
+  return hostMaking;
+}
+
 async function hasDocument() {
+  if (!OFFSCREEN) return !!host;
   const contexts = await chrome.runtime.getContexts({ contextTypes: ['OFFSCREEN_DOCUMENT'], documentUrls: [OFFSCREEN_URL] });
   return contexts.length > 0;
 }
 
 export async function ensureDocument() {
+  if (!OFFSCREEN) { await pageHost(); return; }
   if (await hasDocument()) return;
   if (!creating) {
     creating = chrome.offscreen.createDocument({
@@ -33,6 +66,14 @@ export async function ensureDocument() {
 }
 
 export async function closeDocument() {
+  if (!OFFSCREEN) {
+    if (!host) return false;
+    const gone = host;
+    host = null;
+    try { await gone.destroy(); } catch (e) { /* it is dropped all the same */ }
+    forget();
+    return true;
+  }
   if (!(await hasDocument())) return false;
   try { await chrome.offscreen.closeDocument(); } catch (e) { return false; }
   forget();
@@ -55,6 +96,10 @@ async function sendToDocument(msg, { timeoutMs = 15000 } = {}) {
 }
 
 async function callDocument(op, extra = {}, { create = true, timeoutMs } = {}) {
+  if (!OFFSCREEN) {
+    if (create) await pageHost(); else if (!host) return null;
+    return host.handle({ op, ...extra });
+  }
   if (create) await ensureDocument();
   else if (!(await hasDocument())) return null;
   return sendToDocument({ op, ...extra }, { timeoutMs });
@@ -74,6 +119,7 @@ async function documentStatus() {
  * @returns {Promise<{ready: boolean, state: 'not-downloaded'|'downloading'|'loading'|'ready'|'error', set: string|null, device: string|null, error: object|null}>}
  */
 export async function readiness(force = false) {
+  if (!TARGET.kev) return { ready: false, state: 'unsupported', set: null, device: null, error: null };
   if (!force && Date.now() - readyCache.at < READY_TTL_MS && readyCache.value) return readyCache.value;
   const stored = await completeSet();
   const doc = await documentStatus();
@@ -124,12 +170,14 @@ export async function resetSession() {
  * @returns {Promise<{stored: object|null, job: object|null, runtime: object|null, usage: object}>}
  */
 export async function status(preferSet = 'q4') {
+  if (!TARGET.kev) return { unsupported: true, stored: null, job: null, runtime: null, usage: { usage: 0, quota: 0 } };
   const stored = (await completeSet()) || (await mostDownloaded(preferSet));
   const doc = await documentStatus();
   return { stored, job: doc ? doc.job : null, runtime: doc ? doc.runtime : null, usage: await usage() };
 }
 
 export async function download(set, base) {
+  if (!TARGET.kev) return { ok: false, error: 'The local model is not available in this browser yet.' };
   if (set !== 'q4f16' && set !== 'q4') return { ok: false, error: 'unknown set' };
   forget();
   return callDocument('download', { set, base: base || null });

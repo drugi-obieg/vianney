@@ -1,0 +1,91 @@
+{
+  "flags": [
+    {
+      "id": "prompt-api",
+      "name": "Prompt API",
+      "value": "Default",
+      "why": "The Prompt API itself. It is on by default: change it only if it was switched off on this computer.",
+      "range": "Chrome 151 and newer"
+    },
+    {
+      "id": "prompt-api-multimodal-input",
+      "name": "Prompt API Multimodal Input",
+      "value": "Default",
+      "why": "Lets the model take pictures and sound, for the experimental Images & Audio checks. On by default.",
+      "range": "Chrome 151 and newer"
+    },
+    {
+      "id": "prompt-api-for-gemini-nano",
+      "name": "Prompt API for Gemini Nano",
+      "value": "Enabled",
+      "why": "Chrome 138 to 150, the Prompt API under its old name. Extensions did not need it; web pages did, before Chrome 148.",
+      "range": "Chrome 138 to 150"
+    },
+    {
+      "id": "prompt-api-for-gemini-nano-multimodal-input",
+      "name": "Prompt API for Gemini Nano with Multimodal Input",
+      "value": "Enabled",
+      "why": "Chrome 138 to 150: pictures and sound.",
+      "range": "Chrome 138 to 150"
+    },
+    {
+      "id": "optimization-guide-on-device-model",
+      "name": "Enables optimization guide on device",
+      "value": "Enabled BypassPerfRequirement",
+      "why": "Chrome 138 to 153: skips the check of the graphics chip and the memory. Removed in Chrome 154, where Chrome decides alone.",
+      "range": "Chrome 138 to 153"
+    }
+  ],
+  "lines": [
+    {
+      "line": "Enabled by feature flag",
+      "want": "true",
+      "otherwise": "This build of the browser has the model switched off in its code. In Chromium that cannot be changed: use Google Chrome."
+    },
+    {
+      "line": "Enabled by enterprise policy",
+      "want": "true",
+      "otherwise": "A policy (GenAILocalFoundationalModelSettings) forbids it. chrome://management/policy shows which."
+    },
+    {
+      "line": "Enabled by user setting",
+      "want": "true",
+      "otherwise": "Turn on “On-device AI” in chrome://settings/ai. That switch exists only in Google Chrome, so in Chromium this line stays false."
+    },
+    {
+      "line": "Device performance class",
+      "want": "anything but “GPU blocked”",
+      "otherwise": "Chrome found no graphics chip it may use. Update the graphics driver, or use a computer with 16 GB of memory and 4 cores."
+    },
+    {
+      "line": "Enough disk space to install",
+      "want": "true (20480 MiB required)",
+      "otherwise": "Free up disk space on the drive that holds the browser profile. Chrome does not start the download, and does not say so anywhere else."
+    },
+    {
+      "line": "Enough disk space to retain",
+      "want": "true (5120 MiB required)",
+      "otherwise": "Chrome removes the model when free space falls below this."
+    },
+    {
+      "line": "Assets: State, Progress, Error",
+      "want": "Installed",
+      "otherwise": "Error says why a download failed. “Not Installed” although disk space is enough: restart the browser and check chrome://components."
+    },
+    {
+      "line": "Use Cases, prompt_api: Unavailable Reason",
+      "want": "empty",
+      "otherwise": "“Not Supported”: one of the lines above is false. “Pending Assets”: the model is still downloading. “Pending Usage”: nothing has asked for it yet, so press Download."
+    }
+  ],
+  "pages": {
+    "chromeUrls": "chrome://chrome-urls",
+    "internals": "chrome://on-device-internals",
+    "aiSettings": "chrome://settings/ai",
+    "components": "chrome://components",
+    "policy": "chrome://management/policy",
+    "version": "chrome://version",
+    "extensions": "chrome://extensions"
+  },
+  "minChrome": 138
+}

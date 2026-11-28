@@ -2,10 +2,13 @@
   "name": "vianney-content-blocker",
   "private": true,
   "type": "module",
-  "description": "Vianney Content Blocker: tests and tools. The extension itself is plain JavaScript in extension/ and needs no build step.",
+  "description": "Vianney Content Blocker: tests and tools. The extension itself is plain JavaScript in extension/ and needs no build step for Chrome; tools/build.mjs makes the packages for Firefox and Safari.",
   "scripts": {
     "test": "node --test \"tests/*.test.js\"",
     "pack": "node tools/pack.mjs",
+    "build": "node tools/build.mjs",
+    "build:firefox": "node tools/build.mjs firefox",
+    "build:safari": "node tools/build.mjs safari",
     "release": "node tools/release.mjs"
   },
   "license": "MIT"

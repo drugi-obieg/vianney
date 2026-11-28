@@ -133,11 +133,6 @@ export async function start() {
   setInterval(async () => { if (await refreshMedia()) { thumbs.refresh(); audio.refresh(); } }, 60000);
   chrome.storage.local.get('flaggedVideos').then(({ flaggedVideos }) => { if (flaggedVideos) feed.setRemembered(flaggedVideos); });
 
-  let lastBadge = -1;
-  setInterval(() => {
-    if (feed.hiddenCount !== lastBadge) { lastBadge = feed.hiddenCount; send({ type: 'badge', count: lastBadge }); }
-  }, 2000);
-
   chrome.storage.onChanged.addListener(async (changes, area) => {
     if (area !== 'local') return;
     if (changes.settings) {

@@ -41,3 +41,26 @@ test('addToList adds once and does not mutate', () => {
   assert.deepEqual(addToList(a, 'allowVideos', 'aaaaaaaaaaa').allowVideos, ['aaaaaaaaaaa']);
   assert.deepEqual(EMPTY_LISTS.allowVideos, []);
 });
+
+test('a channel is found by its handle, its id or the address of its page, not only by the name on the card', () => {
+  const l = { ...EMPTY_LISTS, allowChannels: ['@cantusvaticanus', 'https://www.youtube.com/channel/UCabcdefghijklmnopqrstuv', 'youtube.com/c/Old%20Name', 'https://www.youtube.com/@Kyrie%20Eleison?si=x'] };
+  const none = { id: 'zzzzzzzzzzz' };
+  assert.equal(listVerdict(l, { ...none, channel: 'Cantus Vaticanus', handle: '@CantusVaticanus' }), 'allow');   // the handle on the card's link
+  assert.equal(listVerdict(l, { ...none, channel: 'Some Name', channelId: 'UCabcdefghijklmnopqrstuv' }), 'allow'); // a pasted channel address, the player knows the id
+  assert.equal(listVerdict(l, { ...none, channel: 'old name' }), 'allow');                                          // /c/ addresses name the channel too
+  assert.equal(listVerdict(l, { ...none, channel: 'Kyrie Eleison' }), 'allow');                                     // percent-encoding and the tracking tail are undone
+  assert.equal(listVerdict(l, { ...none, channel: 'Somebody Else', handle: '@somebody' }), null);
+});
+
+test('only a real youtube.com address is read as an address: a name with slashes stays a name', () => {
+  const l = { ...EMPTY_LISTS, denyChannels: ['AC/DC Official', 'Some/user/Name'] };
+  assert.equal(listVerdict(l, { id: 'zzzzzzzzzzz', channel: 'ac/dc official' }), 'deny');
+  assert.equal(listVerdict(l, { id: 'zzzzzzzzzzz', channel: 'some/user/name' }), 'deny');
+  assert.equal(listVerdict(l, { id: 'zzzzzzzzzzz', channel: 'Name' }), null);
+});
+
+test('an empty channel never matches an empty or odd list entry', () => {
+  const l = { ...EMPTY_LISTS, allowChannels: ['', '   ', '@'] };
+  assert.equal(listVerdict(l, { id: 'zzzzzzzzzzz', channel: '', handle: '', channelId: '' }), null);
+  assert.equal(listVerdict(l, { id: 'zzzzzzzzzzz', channel: 'x' }), null);
+});

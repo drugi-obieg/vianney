@@ -79,7 +79,7 @@ export class ThumbnailGuard {
 
   /** What the user's lists say about this card now. They always win over the model. */
   listed(k) {
-    return listVerdict(this.getSettings().lists, { id: k.id, channel: k.meta.channel });
+    return listVerdict(this.getSettings().lists, { id: k.id, channel: k.meta.channel, handle: k.meta.handle, channelId: k.meta.channelId });
   }
 
   async reevaluate(el, k) {

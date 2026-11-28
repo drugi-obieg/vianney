@@ -77,9 +77,9 @@ test('the website only names icons and colours that exist', () => {
   for (const n of siteIcons) assert.ok(ICON_NAMES.includes(n) || /^(code-xml|file-text|sliders-horizontal|lock)$/.test(n), `unexpected site-only icon ${n}`);
 });
 
-test('the sidebar is Idea, Features, Install and Source: nothing about rules, sermons or the plan', () => {
-  assert.deepEqual(nav.map((n) => n.title), ['Idea', 'Features', 'Install', 'Source']);
-  assert.deepEqual(nav.map((n) => n.url), ['/', '/features.html', '/install.html', 'https://github.com/drugi-obieg/vianney']);
+test('the sidebar is Idea, Features, Install, Gemini Nano and Source: nothing about rules, sermons or the plan', () => {
+  assert.deepEqual(nav.map((n) => n.title), ['Idea', 'Features', 'Install', 'Gemini Nano', 'Source']);
+  assert.deepEqual(nav.map((n) => n.url), ['/', '/features.html', '/install.html', '/nano.html', 'https://github.com/drugi-obieg/vianney']);
   for (const item of nav) {
     assert.ok(item.title && item.icon && item.color, `${item.url}: title, icon and colour`);
     if (item.external === 'true') continue;
@@ -149,7 +149,8 @@ test('the install page says little: a download, a checksum button, five steps, a
   assert.equal(steps[2][1], 'Drop the zip onto the page');
   assert.equal(steps[3][1], 'Check Activity after a day or so');
   assert.equal(steps[4][1], 'Tweak settings and report issues');
-  assert.match(install, /<a href="chrome:\/\/extensions" data-copy="chrome:\/\/extensions">chrome:\/\/extensions<\/a>/, 'a link, which copies the address where a browser will not open it');
+  assert.match(install, /<a href="chrome:\/\/extensions" data-copy="chrome:\/\/extensions" data-hint="[^"]*\{key\}[^"]*">chrome:\/\/extensions<\/a>/, 'a link, which copies the address where a browser will not open it, and says where to paste it');
+  assert.match(install, /<span class="copy-hint" role="status"><\/span>/, 'the place of that hint');
   assert.match(install, /href="https:\/\/github\.com\/drugi-obieg\/vianney\/issues"/);
   assert.match(install, /To update, remove the old version first\./);
 });
@@ -392,4 +393,61 @@ test('on a phone the sidebar is the list and the page slides over it', () => {
   for (const k of ['slide-in-right', 'slide-out-left', 'slide-in-left', 'slide-out-right']) assert.ok(siteCss.includes(`@keyframes ${k}`), k);
   assert.match(siteCss, /prefers-reduced-motion/);
   for (const k of ['startViewTransition', 'pagereveal', 'popstate', 'data-copy']) assert.ok(siteJs.includes(k), k);
+});
+
+// ---- the page "Gemini Nano", and the pages at the foot of a page on a phone
+const nanoPage = read('nano.html');
+
+test('the page Gemini Nano is in the sidebar, and what it shows of Chrome comes from the extension: the files are what tools/make-site-nano.mjs writes', async () => {
+  const { nanoData, COPIES } = await import('../tools/make-site-nano.mjs');
+  for (const [from, to] of COPIES) assert.equal(read(to), read(from), `${to} is a copy of ${from} (node tools/make-site-nano.mjs)`);
+  assert.deepEqual(JSON.parse(read('_data/nano.json')), nanoData(), '_data/nano.json is what node tools/make-site-nano.mjs writes');
+  const item = nav.find((n) => n.url === '/nano.html');
+  assert.ok(item && item.heading && item.about && item.icon === 'cpu' && item.color === 'purple');
+  assert.ok(siteIcons.includes('cpu'), 'the icon is in the site\'s icon file (tools/make-icon-data.py)');
+  assert.match(nanoPage, /<script type="module" src="\{\{ '\/assets\/nano\/page\.js' \| relative_url \}\}"><\/script>/);
+  assert.match(nanoPage, /data-ext-id="\{\{ site\.data\.extension\.id \}\}"/, 'the page asks the extension by its pinned ID');
+  assert.ok(has('assets/nano/page.js'));
+});
+
+test('the Nano page lists the flags and the lines of Chrome\'s diagnostics page from the data, not by hand, and every address in it is one that the extension opens', async () => {
+  const { openable } = await import('../extension/src/core/nanocheck.js');
+  assert.match(nanoPage, /for f in site\.data\.nano\.flags/);
+  assert.match(nanoPage, /for l in site\.data\.nano\.lines/);
+  const addresses = [...nanoPage.matchAll(/data-copy="([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(addresses.length >= 6);
+  const data = JSON.parse(read('_data/nano.json'));
+  for (const a of addresses) {
+    const url = a.replace(/\{\{ site\.data\.nano\.pages\.(\w+) \}\}/, (_, k) => data.pages[k]).replace('{{ f.id }}', data.flags[0].id);
+    assert.ok(openable(url), `${a} -> ${url} is an address that the extension will open for the site`);
+  }
+  for (const a of nanoPage.matchAll(/<a href="(chrome:[^"]+)" data-copy="([^"]+)"/g)) assert.equal(a[1], a[2], 'the link and the copied address are the same');
+});
+
+test('the website may ask the extension for two things, and the manifest, the worker and the site name the same origins', () => {
+  const worker = read('extension/src/background/service-worker.js');
+  const origins = [...worker.match(/SITE_ORIGINS = \[([^\]]*)\]/)[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
+  const config = read('_config.yml');
+  const domain = config.match(/^url: "https:\/\/([^"]+)"/m)[1];
+  assert.deepEqual(origins, [`https://${domain}`, `https://www.${domain}`]);
+  assert.deepEqual(manifest.externally_connectable, { matches: origins.map((o) => `${o}/*`) }, 'only the site may send messages to the extension');
+  assert.match(worker, /case 'open':\s+if \(!openable\(msg\.url\)\)/, 'an address is opened only after the allowlist has seen it');
+});
+
+test('on a phone the pages are at the foot of every page too, built from the same list as the sidebar, and only there', () => {
+  assert.match(layout, /<nav class="foot-nav" aria-label="Pages">/);
+  const foot = layout.slice(layout.indexOf('<nav class="foot-nav"'), layout.indexOf('</nav>', layout.indexOf('<nav class="foot-nav"')));
+  assert.match(foot, /for item in site\.data\.nav/, 'the same data as the sidebar: a new page is in both');
+  assert.match(foot, /class="nav-item"/, 'the rows are the rows of the list, and the script slides them in the same way');
+  assert.ok(!/<footer/.test(layout));
+  assert.match(siteCss, /\n\.foot-nav \{ display: none; \}/, 'hidden unless the phone rules show it');
+  assert.match(phoneCss(), /html\[data-screen="page"\] \.foot-nav \{ display: block;/, 'shown on a phone, on the page screen only (the list screen is the list)');
+  assert.match(siteCss, /\.sidebar, \.toolbar, \.skip, \.foot-nav \{ display: none !important; \}/, 'not printed');
+  assert.match(siteJs, /querySelector\('\.foot-nav'\)/, 'its links slide like those of the list');
+});
+
+test('the hint under a link to a page of Chrome shows whether or not the clipboard took the address', () => {
+  assert.match(siteJs, /var explain = function \(copied\)/);
+  assert.match(siteJs, /if \(ok\) done\(\); else explain\(false\);/, 'a refused clipboard still says what to do');
+  assert.match(siteJs, /Chrome does not let a website open its own pages/);
 });

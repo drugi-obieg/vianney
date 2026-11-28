@@ -30,7 +30,7 @@ OPTIONS_ICONS = ['book-open', 'captions', 'check', 'chevron-left', 'chevron-righ
                  'eraser', 'eye', 'flask-conical', 'history', 'image', 'info', 'list-checks', 'message-square-warning', 'play', 'rotate-ccw', 'search',
                  'settings-2', 'shield-check', 'sparkles', 'trash-2', 'triangle-alert', 'users', 'volume-2']
 SITE_ICONS = ['sparkles', 'download', 'shield-check', 'church', 'list-checks', 'code-xml', 'external-link', 'chevron-left', 'chevron-right', 'search',
-              'eye-off', 'file-text', 'sliders-horizontal', 'ear', 'coffee', 'image', 'lock', 'check', 'info', 'eraser']
+              'eye-off', 'file-text', 'sliders-horizontal', 'ear', 'coffee', 'image', 'lock', 'check', 'info', 'eraser', 'cpu']
 
 SHAPES = {'path', 'circle', 'rect', 'line', 'polyline', 'polygon', 'ellipse', 'g'}
 ATTRS = {'d', 'cx', 'cy', 'r', 'x', 'y', 'x1', 'x2', 'y1', 'y2', 'rx', 'ry', 'points', 'width', 'height', 'transform'}

@@ -1,0 +1,5 @@
+# Read by Cloudflare Pages (the site's host). A signed Firefox add-on has to arrive as an add-on, or Firefox saves it as a file instead of offering to install it.
+/downloads/*.xpi
+  Content-Type: application/x-xpinstall
+/downloads/firefox-updates.json
+  Content-Type: application/json

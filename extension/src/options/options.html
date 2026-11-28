@@ -118,15 +118,20 @@
       </div>
       <div id="ai-models" class="models"></div>
       <div id="ai-advice" class="advice" aria-live="polite"></div>
+      <details class="nano" id="nano" open>
+        <summary>Set up Gemini Nano <span data-help="Chrome's own model is optional: Vianney asks it for a second opinion when Kev-0.6B is unsure. This list checks what has to be true for Chrome to download and run it, tells you what it found, and opens the page of Chrome that shows the rest. Nothing is changed and nothing is sent anywhere."></span></summary>
+        <div id="nano-verdict" class="nano-verdict" aria-live="polite"></div>
+        <div class="btn-row"><button id="nano-run" class="primary">Run the checks</button><button id="nano-copy">Copy the result</button><span id="nano-note" class="muted" role="status"></span></div>
+        <ol id="nano-steps" class="checks"></ol>
+      </details>
       <details class="examples">
         <summary>Check on the rule examples <span data-help="Runs the example and spared titles of every rule that has a question through the real rules: once with the word lists alone, once with the on-device models behind them. It counts how many examples are flagged and how many spared titles are flagged by mistake. The lines are the rule author's illustrations, not a measurement of accuracy. A question takes about 0.1 s on a graphics chip and about 2 s on the processor (measured on one computer), and only some lines are asked, so a run takes from under a minute to a few minutes."></span></summary>
         <div class="btn-row"><button id="ai-examples-run">Run the check</button><button id="ai-examples-stop" hidden>Stop</button><progress id="ai-examples-progress" max="1" value="0" hidden></progress><span id="ai-examples-count" class="muted"></span></div>
         <div id="ai-examples-out" class="result"></div>
       </details>
       <details class="machine">
-        <summary>System details <span data-help="Web pages cannot read free disk space or video memory, so Chrome's own availability answer is the real test."></span></summary>
+        <summary>System details <span data-help="This page can read the free disk space of the browser's drive, but not the video memory, so Chrome's own answer (the list above) is the real test."></span></summary>
         <dl id="ai-machine"></dl>
-        <div class="btn-row"><button id="ai-internals">Open Chrome diagnostics</button><span id="ai-internals-note" class="muted"></span></div>
       </details>
       <details class="bench">
         <summary>Benchmark <span data-help="Runs a few test prompts to measure speed on this computer. Nothing is stored or sent."></span></summary>

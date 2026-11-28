@@ -1,0 +1,57 @@
+---
+layout: default
+title: Gemini Nano
+description: Make Chrome's built-in model work with Vianney, or find out why it does not download.
+---
+<p class="intro">Vianney can ask Chrome's own model, Gemini Nano, for a second opinion when its word lists and its local model Kev-0.6B are unsure. It is optional, and it needs Google Chrome on a computer. This page checks your browser, says what is missing, and shows where Chrome tells you why the model does not come. The checks run in this page and send nothing anywhere.</p>
+
+<div class="group-title">This browser</div>
+<div id="nano" data-ext-id="{{ site.data.extension.id }}">
+  <div id="nano-verdict" class="nano-verdict" aria-live="polite"></div>
+  <div class="nano-bar"><button class="btn primary" id="nano-run" type="button" hidden>Run the checks</button><button class="btn" id="nano-copy" type="button" hidden>Copy the result</button><span id="nano-note" class="muted" role="status"></span></div>
+  <ol id="nano-steps" class="checks"></ol>
+  <noscript><p class="note">The live checks need JavaScript. What they look at is listed below.</p></noscript>
+</div>
+
+<div class="group-title">What has to be true</div>
+<div class="group">
+  <div class="row top"><span class="tile sm c-purple">{% include icon.html name="check" size=14 %}</span><div class="label"><span class="title">Google Chrome {{ site.data.nano.minChrome }} or newer, on a computer</span><span class="sub">Windows, macOS, Linux or a Chromebook Plus. Not Chromium (the build that Linux distributions ship leaves the model out), not Firefox, not a phone.</span></div></div>
+  <div class="row top"><span class="tile sm c-purple">{% include icon.html name="check" size=14 %}</span><div class="label"><span class="title">About 20 GiB free on the drive of the browser profile</span><span class="sub">Chrome's documentation says 22 GB. Below that Chrome does not start the download, and says nothing about it.</span></div></div>
+  <div class="row top"><span class="tile sm c-purple">{% include icon.html name="check" size=14 %}</span><div class="label"><span class="title">A graphics chip with more than 4 GB of video memory, or 16 GB of memory and 4 cores</span><span class="sub">A page cannot read the video memory: the diagnostics page of Chrome, below, says whether Chrome accepts the computer.</span></div></div>
+  <div class="row top"><span class="tile sm c-purple">{% include icon.html name="check" size=14 %}</span><div class="label"><span class="title">The switch “On-device AI” is on</span><span class="sub">In AI settings, Google Chrome only. When it is off, Chrome never downloads the model.</span></div></div>
+  <div class="row top"><span class="tile sm c-purple">{% include icon.html name="check" size=14 %}</span><div class="label"><span class="title">No flag has to be changed in Chrome 154 and newer</span><span class="sub">The Prompt API is on by default there. Older versions are listed under Flags.</span></div></div>
+</div>
+
+<div class="group-title">Where Chrome says why</div>
+<div class="group">
+  <div class="row top"><span class="num">1</span><div class="label"><span class="title"><a href="{{ site.data.nano.pages.chromeUrls }}" data-copy="{{ site.data.nano.pages.chromeUrls }}" data-hint="Chrome does not let a website open its own pages, so the address is copied. Open a new tab, press {key}, paste it and press Enter.">{{ site.data.nano.pages.chromeUrls }}</a></span><span class="sub">Since Chrome 158 the diagnostics page is hidden until you press “Enable internal debugging pages” here. Once.</span><span class="copy-hint" role="status"></span></div></div>
+  <div class="row top"><span class="num">2</span><div class="label"><span class="title"><a href="{{ site.data.nano.pages.internals }}" data-copy="{{ site.data.nano.pages.internals }}" data-hint="Chrome does not let a website open its own pages, so the address is copied. Open a new tab, press {key}, paste it and press Enter.">{{ site.data.nano.pages.internals }}</a></span><span class="sub">Open “Broker State”. Its lines say, one by one, why the model is or is not there (see below).</span><span class="copy-hint" role="status"></span></div></div>
+  <div class="row top"><span class="num">3</span><div class="label"><span class="title"><a href="{{ site.data.nano.pages.aiSettings }}" data-copy="{{ site.data.nano.pages.aiSettings }}" data-hint="Chrome does not let a website open its own pages, so the address is copied. Open a new tab, press {key}, paste it and press Enter.">{{ site.data.nano.pages.aiSettings }}</a></span><span class="sub">The switch “On-device AI”. It exists in Google Chrome only.</span><span class="copy-hint" role="status"></span></div></div>
+  <div class="row top"><span class="num">4</span><div class="label"><span class="title"><a href="{{ site.data.nano.pages.components }}" data-copy="{{ site.data.nano.pages.components }}" data-hint="Chrome does not let a website open its own pages, so the address is copied. Open a new tab, press {key}, paste it and press Enter.">{{ site.data.nano.pages.components }}</a></span><span class="sub">“Optimization Guide On DeviceModels Manifest”: press Check for update, then restart the browser.</span><span class="copy-hint" role="status"></span></div></div>
+  <div class="row top"><span class="num">5</span><div class="label"><span class="title"><a href="{{ site.data.nano.pages.policy }}" data-copy="{{ site.data.nano.pages.policy }}" data-hint="Chrome does not let a website open its own pages, so the address is copied. Open a new tab, press {key}, paste it and press Enter.">{{ site.data.nano.pages.policy }}</a></span><span class="sub">On a managed computer, the policy GenAILocalFoundationalModelSettings can forbid the model.</span><span class="copy-hint" role="status"></span></div></div>
+</div>
+
+<div class="group-title">The lines on the diagnostics page</div>
+<details class="group">
+  <summary><span class="title">What each line of “Broker State” should say</span></summary>
+  <div class="body">
+    <dl class="lines">
+      {%- for l in site.data.nano.lines %}
+      <dt>{{ l.line }}</dt><dd>Should be {{ l.want }}. {{ l.otherwise }}</dd>
+      {%- endfor %}
+    </dl>
+  </div>
+</details>
+
+<div class="group-title">Flags</div>
+<div class="group">
+  {%- for f in site.data.nano.flags %}
+  <div class="row top"><div class="label"><span class="title"><a href="chrome://flags/#{{ f.id }}" data-copy="chrome://flags/#{{ f.id }}" data-hint="Chrome does not let a website open its own pages, so the address is copied. Open a new tab, press {key}, paste it and press Enter.">chrome://flags/#{{ f.id }}</a></span><span class="sub">{{ f.range }}: {{ f.name }}, set to “{{ f.value }}”. {{ f.why }}</span><span class="copy-hint" role="status"></span></div></div>
+  {%- endfor %}
+</div>
+<p class="note">None of these has to be changed in Chrome 154 and newer: the Prompt API is on by default, and the flag that skipped the hardware check, <code>#optimization-guide-on-device-model</code>, is gone. A flag that is listed for your version is worth setting only if the checks above say that the interface is missing.</p>
+
+<div class="group-title">This page and the extension</div>
+<p class="note">A web page cannot open a page of Chrome: the browser refuses a link, <code>window.open</code> and <code>location</code> alike. So the addresses above are copied. When Vianney is installed in the same browser, this page finds it and asks it to open them, and the checks also use what only an extension can see, such as the free disk space.</p>
+
+<script type="module" src="{{ '/assets/nano/page.js' | relative_url }}"></script>

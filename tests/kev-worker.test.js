@@ -7,11 +7,14 @@ const BASE = 'chrome-extension://abcdefghijklmnopabcdefghijklmnop/';
 const calls = [];
 const store = {};
 let listener = null;
+let external = null;
 globalThis.chrome = {
   runtime: {
     id: 'abcdefghijklmnopabcdefghijklmnop',
     getURL: (p = '') => BASE + p,
     onMessage: { addListener: (fn) => { listener = fn; } },
+    onMessageExternal: { addListener: (fn) => { external = fn; } },
+    getManifest: () => ({ version: '9.9.9' }),
     onInstalled: { addListener() {} },
     openOptionsPage() { calls.push('openOptionsPage'); },
     getContexts: async () => { calls.push('getContexts'); return []; },
@@ -23,7 +26,8 @@ globalThis.chrome = {
     remove: async () => {},
   } },
   offscreen: { createDocument: async () => { calls.push('createDocument'); }, closeDocument: async () => { calls.push('closeDocument'); } },
-  action: { setBadgeText: async () => {}, setBadgeBackgroundColor: async () => {} },
+  action: { setBadgeText: async () => {} },
+  tabs: { create: async (o) => { calls.push(['tabs.create', o.url]); return { id: 1 }; }, query: async () => [] },
 };
 // no private file system here: reading the model's folder finds nothing, as on a computer where nothing was downloaded
 Object.defineProperty(globalThis.navigator, 'storage', { configurable: true, value: {
@@ -92,4 +96,54 @@ test('the end of a download is announced to the tabs once, through the storage',
   await send({ type: 'kev-progress', job: { phase: 'idle', finished: true } }, PAGE);
   await send({ type: 'kev-progress', job: { phase: 'idle', finished: true } }, PAGE);
   assert.equal(calls.filter((c) => Array.isArray(c) && c[0] === 'storage.set' && c[1].includes('kevEpoch')).length, 1);
+});
+
+// ---- the website may ask the extension to open a page of Chrome (a web page cannot), and for the facts of the extension
+const sendSite = (msg, sender) => new Promise((resolve) => external(msg, sender, resolve));
+const SITE = { id: 'abcdefghijklmnopabcdefghijklmnop', origin: 'https://vianney.cc', url: 'https://vianney.cc/nano.html' };
+
+test('the worker listens for messages of the website, and says who it is', async () => {
+  assert.equal(typeof external, 'function');
+  assert.deepEqual(await sendSite({ type: 'hello' }, SITE), { ok: true, id: 'abcdefghijklmnopabcdefghijklmnop', version: '9.9.9' });
+  assert.equal((await sendSite({ type: 'hello' }, { ...SITE, origin: 'https://www.vianney.cc' })).ok, true, 'with www too');
+});
+
+test('only the website is answered: another site, another origin spelling, or no sender at all gets "not allowed" and nothing happens', async () => {
+  for (const sender of [undefined, {}, { origin: 'https://evil.example' }, { origin: 'https://vianney.cc.evil.example' }, { origin: 'http://vianney.cc' }, { origin: 'https://www.youtube.com' }, { origin: 'https://sub.vianney.cc' }]) {
+    calls.length = 0;
+    for (const msg of [{ type: 'hello' }, { type: 'open', url: 'chrome://on-device-internals' }, { type: 'nano-facts' }]) {
+      assert.deepEqual(await sendSite(msg, sender), { ok: false, error: 'not allowed' }, `${msg.type} from ${JSON.stringify(sender)}`);
+    }
+    assert.deepEqual(calls, [], 'no tab was opened');
+  }
+});
+
+test('the website can have the pages of the guide opened, and no other page', async () => {
+  for (const url of ['chrome://on-device-internals', 'chrome://chrome-urls', 'chrome://settings/ai', 'chrome://flags/#prompt-api', 'chrome://components', 'chrome://management/policy']) {
+    calls.length = 0;
+    assert.deepEqual(await sendSite({ type: 'open', url }, SITE), { ok: true }, url);
+    assert.deepEqual(calls, [['tabs.create', url]]);
+  }
+  for (const url of ['chrome://settings/passwords', 'chrome://flags/#not-in-the-list', 'chrome://quit', 'chrome://crash', 'file:///etc/passwd', 'javascript:alert(1)', 'https://example.com', '', undefined]) {
+    calls.length = 0;
+    assert.deepEqual(await sendSite({ type: 'open', url }, SITE), { ok: false, error: 'not allowed' }, String(url));
+    assert.deepEqual(calls, [], `${url}: no tab`);
+  }
+  assert.deepEqual(await sendSite({ type: 'format-the-disk' }, SITE), { ok: false, error: 'unknown message' });
+});
+
+test('the website gets the facts that only an extension sees: the free space of the profile, measured from the storage quota', async () => {
+  const r = await sendSite({ type: 'nano-facts' }, SITE);
+  assert.equal(r.ok, true);
+  assert.equal(r.facts.where, 'extension');
+  assert.equal(r.facts.freeBytes, 1e10, 'quota minus usage (the stand-in above says 1e10 and 0)');
+  assert.equal(r.facts.hasApi, false, 'no Prompt API in Node');
+});
+
+test('a browser without the event for messages of a website still starts the worker (Safari): the listener is added only where the event exists', async () => {
+  const text = (await import('node:fs')).readFileSync(new URL('../extension/src/background/service-worker.js', import.meta.url), 'utf8');
+  assert.match(text, /if \(chrome\.runtime\.onMessageExternal\) \{\s+chrome\.runtime\.onMessageExternal\.addListener/);
+  // every other event that the file listens for at load time is one that every browser has
+  const events = [...text.matchAll(/^chrome\.([a-zA-Z.]+)\.addListener/gm)].map((m) => m[1]);
+  assert.deepEqual(events.sort(), ['runtime.onInstalled', 'runtime.onMessage']);
 });

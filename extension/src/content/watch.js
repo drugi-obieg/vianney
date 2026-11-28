@@ -172,7 +172,7 @@ export class WatchGuard {
     this.state.metaChecked = true;
     const s = this.getSettings();
     if (!s.enabled) return;
-    this.listed = listVerdict(s.lists, { id: v.id, channel: v.author });
+    this.listed = listVerdict(s.lists, { id: v.id, channel: v.author, channelId: v.channelId });
     if (this.listed === 'allow') return; // on the allow list: no check at all, not even of the subtitles
     if (this.listed === 'deny') {
       this.log({ surface: 'watch-meta', id: v.id, title: v.title, channel: v.author, ps: {}, flagged: [], uncertain: [], action: 'warn-overlay', via: 'list' });

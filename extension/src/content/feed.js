@@ -145,7 +145,7 @@ export class FeedFilter {
   /** Allow and block lists, and videos remembered from a sound check. They come before any rule. */
   decide(card, meta) {
     const s = this.getSettings();
-    const listed = listVerdict(s.lists, { id: card.id, channel: meta.channel });
+    const listed = listVerdict(s.lists, { id: card.id, channel: meta.channel, handle: meta.handle, channelId: meta.channelId });
     if (listed === 'allow') return { skip: true };
     if (listed === 'deny') return { action: 'hide', reason: 'Blocked', via: 'list' };
     if (s.cleanup && s.cleanup.music === true && meta.music) return { action: 'hide', reason: 'Music video', via: 'mark' };   // YouTube's own mark (Clean up: "Music videos")
@@ -195,6 +195,13 @@ export class FeedFilter {
   /** The slow path, for cards that a model could still flag. */
   async handle(card, meta, surface) {
     const verdict = await this.engine.evaluate(meta, surface);
+    // The model takes a while, and the lists can change in that time (a click on "Allow this channel" evaluates every card again, but this answer
+    // is still on its way). The lists win over every answer, so look at them again before this one is used.
+    const decided = this.decide(card, meta);
+    if (decided) {
+      if (decided.skip) clearCard(card.el); else applyCardAction(card.el, decided.action, decided.reason);
+      return;
+    }
     if (verdict.top && verdict.action) applyCardAction(card.el, verdict.action, verdict.top.title);
     else clearCard(card.el);
     this.logVerdict(card, meta, verdict, surface);

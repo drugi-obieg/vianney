@@ -65,12 +65,26 @@
   if (mobile.addEventListener) mobile.addEventListener('change', function () { if (mobile.matches) stopStage(); else startStage(); });
   startStage();
 
-  // ---- Copy buttons: a button with data-copy puts that text on the clipboard
-  // (a link to chrome://extensions is a real link, but a browser does not open chrome:// addresses from a page: it is copied instead)
+  // ---- Copy buttons: a button with data-copy puts that text on the clipboard.
+  // A link to chrome://extensions is a real link, but no browser opens a chrome:// address for a web page (a click, window.open and location all do nothing),
+  // so it is copied instead, and the hint under it (data-hint) says why and what to do: where the address goes.
+  var mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
   Array.prototype.forEach.call(document.querySelectorAll('[data-copy]'), function (button) {
     var label = button.textContent;
     var isLink = button.tagName === 'A';
-    var done = function () { button.textContent = isLink ? 'Copied: paste it into the address bar' : 'Copied'; setTimeout(function () { button.textContent = label; }, isLink ? 2600 : 1600); };
+    var hint = isLink && button.getAttribute('data-hint') && button.closest('.label, p, li, div') && button.closest('.label, p, li, div').querySelector('.copy-hint');
+    var keys = mac ? '<kbd>\u2318</kbd> <kbd>L</kbd>' : '<kbd>Ctrl</kbd> <kbd>L</kbd>';
+    // the hint is the point of the click, so it shows whether or not the clipboard took the address: nothing opened, and this says what to do
+    var explain = function (copied) {
+      if (!hint) return;
+      if (copied) { hint.innerHTML = button.getAttribute('data-hint').replace('{key}', keys); return; }
+      hint.textContent = 'Chrome does not let a website open its own pages. Open a new tab, enter ' + button.getAttribute('data-copy') + ' and press Enter.';
+    };
+    var done = function () {
+      button.textContent = 'Copied';
+      setTimeout(function () { button.textContent = label; }, 1800);
+      explain(true);
+    };
     button.addEventListener('click', function (e) {
       if (isLink) e.preventDefault();
       var text = button.getAttribute('data-copy');
@@ -82,8 +96,10 @@
         box.style.cssText = 'position:fixed;left:-9999px;top:0;';
         document.body.appendChild(box);
         box.select();
-        try { if (document.execCommand('copy')) done(); } catch (e) { /* nothing to do */ }
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { /* nothing to do */ }
         box.remove();
+        if (ok) done(); else explain(false);
       }
     });
   });
@@ -138,6 +154,7 @@
       if (!a || !mobile.matches || a.target === '_blank' || /^https?:/.test(a.getAttribute('href')) && a.hostname !== location.hostname) return;
       if (samePage(a)) {                                   // the page that is open: slide it in
         e.preventDefault();
+        if (a.closest('.foot-nav')) { window.scrollTo({ top: 0, behavior: reduced.matches ? 'auto' : 'smooth' }); return; }   // at the foot of the page: back to its top
         if (root.getAttribute('data-screen') !== 'page') { history.pushState({ screen: 'page' }, '', location.pathname + location.search + '#open'); go('page', 'forward'); }
         return;
       }
@@ -149,6 +166,8 @@
     nav.addEventListener('click', onList);
     var card = document.querySelector('.status-card');
     if (card) card.addEventListener('click', onList);
+    var foot = document.querySelector('.foot-nav');       // the same pages at the foot of a page (a phone)
+    if (foot) foot.addEventListener('click', onList);
   }
 
   // ---- back and forward, as in the System Settings toolbar (on a phone: back goes to the list)
