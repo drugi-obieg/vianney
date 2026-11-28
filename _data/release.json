@@ -1,10 +1,10 @@
 {
-  "version": "0.3.0",
-  "file": "vianney-content-blocker-0.3.0.zip",
+  "version": "0.4.0",
+  "file": "vianney-content-blocker-0.4.0.zip",
   "latest": "vianney-content-blocker-latest.zip",
-  "folder": "vianney-content-blocker-0.3.0",
-  "bytes": 10869749,
-  "kilobytes": 10615,
-  "sha256": "95b7e5c567d455a855ecc530b2100e9403a2daeaf1ef8073950f6a17f3784e01",
-  "date": "2026-11-26"
+  "folder": "vianney-content-blocker-0.4.0",
+  "bytes": 10888029,
+  "kilobytes": 10633,
+  "sha256": "61864a04e7b03cf705cd087eb04f3b2c4ed2164c27f151048cd5f4e1087ee7c8",
+  "date": "2026-11-28"
 }
